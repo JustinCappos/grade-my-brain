@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade My Brain - Stealth Cognitive Diagnostic</title>
+    <meta name="description" content="Test and optimize your decision-making acumen across 24 randomized cognitive wager scenarios. Based on Thinking, Fast and Slow.">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+    <!-- Header Navigation & Stats Bar -->
+    <header class="app-header glass-panel">
+        <div class="brand-section">
+            <h1 class="brand-title">Grade My Brain</h1>
+            <div class="grade-badge-container">
+                <div id="grade-badge" class="grade-badge">C</div>
+                <div id="grade-title" class="grade-title">Calculated Analyst</div>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-label">Brain Points</span>
+                <span id="current-score" class="stat-val">100</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Round</span>
+                <span id="current-round" class="stat-val">1 / 24</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Streak</span>
+                <span id="current-streak" class="stat-val">0🔥</span>
+            </div>
+        </div>
+
+        <div class="header-controls">
+            <button id="view-audit-btn" class="control-btn" style="background: rgba(6, 182, 212, 0.2); border-color: rgba(6, 182, 212, 0.4);">📊 View Audit</button>
+            <button id="sound-toggle-btn" class="control-btn">🔊 Sound: ON</button>
+            <button id="restart-btn" class="control-btn">🔄 Restart</button>
+        </div>
+    </header>
+
+    <!-- Main Game Layout -->
+    <main class="main-container">
+        <!-- Active Scenario Stage -->
+        <section id="scenario-stage" class="wagers-section">
+            <!-- Scenario Prompt Card -->
+            <div class="scenario-banner glass-panel">
+                <h2 id="scenario-title" class="section-title">Loading Scenario...</h2>
+                <p id="scenario-text" class="scenario-prompt">Evaluating decision parameters...</p>
+            </div>
+
+            <!-- Choice Options Grid -->
+            <div id="choice-phase">
+                <h3 class="section-title" style="margin-top: 20px;">
+                    ⚡ Select Decision Option
+                </h3>
+                <div id="options-container" class="wagers-grid">
+                    <!-- Dynamic Scenario Options -->
+                </div>
+            </div>
+
+
+        </section>
+
+        <!-- Sidebar Analytics -->
+        <aside class="sidebar">
+            <!-- Score Trajectory Chart Panel -->
+            <div class="chart-panel glass-panel">
+                <h3 class="section-title">📈 Score Trajectory</h3>
+                <div class="chart-container">
+                    <canvas id="brain-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Grade Scale Panel -->
+            <div class="grade-scale-panel glass-panel">
+                <h3 class="section-title">🏆 Grade Thresholds</h3>
+                <div class="grade-list">
+                    <div class="grade-row">
+                        <span class="grade-tag" style="background:#06b6d4;">S+</span>
+                        <span>396+ PTS</span>
+                        <span>Transcendent Genius</span>
+                    </div>
+                    <div class="grade-row">
+                        <span class="grade-tag" style="background:#ec4899;">S</span>
+                        <span>296 - 395</span>
+                        <span>Elite Mastermind</span>
+                    </div>
+                    <div class="grade-row">
+                        <span class="grade-tag" style="background:#8b5cf6;">A</span>
+                        <span>216 - 295</span>
+                        <span>Grandmaster</span>
+                    </div>
+                    <div class="grade-row">
+                        <span class="grade-tag" style="background:#3b82f6;">B</span>
+                        <span>156 - 215</span>
+                        <span>Tactical Mind</span>
+                    </div>
+                    <div class="grade-row">
+                        <span class="grade-tag" style="background:#eab308;">C</span>
+                        <span>111 - 155</span>
+                        <span>Calculated Analyst</span>
+                    </div>
+                    <div class="grade-row">
+                        <span class="grade-tag" style="background:#f97316;">D</span>
+                        <span>80 - 110</span>
+                        <span>Novice Risk-Taker</span>
+                    </div>
+                    <div class="grade-row">
+                        <span class="grade-tag" style="background:#ef4444;">F</span>
+                        <span>0 - 79</span>
+                        <span>Cognitive Casualty</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Post-Game & Mid-Game Cognitive Audit Modal -->
+    <div id="summary-modal" class="modal-backdrop">
+        <div class="modal-content glass-panel audit-modal-large">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h2 class="brand-title" style="font-size: 2rem;">🧠 Cognitive Diagnostic Audit</h2>
+                <button id="close-audit-modal-btn" class="control-btn" style="padding: 6px 12px;">✕ Close</button>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">
+                Behavioral Analysis based on <em>Thinking, Fast and Slow</em> (Kahneman & Tversky)
+            </p>
+
+            <!-- Final Grade Banner -->
+            <div class="audit-header-banner">
+                <div id="final-grade-badge" class="grade-badge" style="width: 75px; height: 75px; font-size: 2.4rem;">A</div>
+                <div style="text-align: left;">
+                    <h3 id="final-grade-title" style="font-size: 1.5rem; font-weight: 800;">Grandmaster Strategist</h3>
+                    <p style="font-size: 1.1rem;">Brain Score: <strong id="final-score" style="color: var(--primary-cyan);">250</strong> PTS | System 2 Accuracy: <strong id="stat-accuracy" style="color: #34d399;">70%</strong></p>
+                </div>
+            </div>
+
+            <!-- System 1 vs System 2 Meter -->
+            <div class="system-balance-box">
+                <div class="balance-labels">
+                    <span style="color: #f472b6;">⚡ System 1 (Intuitive / Heuristic)</span>
+                    <span style="color: #38bdf8;">🧠 System 2 (Analytical / Deliberate)</span>
+                </div>
+                <div class="balance-track">
+                    <div id="sys1-bar" class="balance-fill-sys1" style="width: 50%;"></div>
+                    <div id="sys2-bar" class="balance-fill-sys2" style="width: 50%;"></div>
+                </div>
+                <div class="balance-vals">
+                    <span id="sys1-val">50% Heuristic</span>
+                    <span id="sys2-val">50% Analytical</span>
+                </div>
+            </div>
+
+            <!-- Audit Details Layout (Radar Chart + Diagnostics) -->
+            <div class="audit-grid">
+                <!-- Radar Chart Container -->
+                <div class="radar-box glass-panel">
+                    <h4 style="font-size: 1rem; color: #e2e8f0; margin-bottom: 12px;">🕸️ Cognitive Resiliency Profile (Radar Chart)</h4>
+                    <div style="width: 100%; height: 280px; position: relative;">
+                        <canvas id="bias-radar-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Vulnerabilities & Strengths Column -->
+                <div class="diagnostics-col">
+                    <div class="diag-section">
+                        <h4 style="font-size: 0.95rem; color: #f87171; margin-bottom: 10px;">⚠️ Key Cognitive Vulnerabilities</h4>
+                        <div id="vulnerabilities-list"></div>
+                    </div>
+
+                    <div class="diag-section" style="margin-top: 15px;">
+                        <h4 style="font-size: 0.95rem; color: #34d399; margin-bottom: 10px;">🛡️ Key Decision Strengths</h4>
+                        <div id="strengths-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="play-again-btn" class="glow-btn" style="margin-top: 25px; width: 240px; font-size: 1.1rem; margin-left: auto; margin-right: auto; display: block;">
+                🔄 Restart Audit Session
+            </button>
+        </div>
+    </div>
+
+    <!-- ES Module App Script -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade My Brain - Reasoning Breakdown</title>
+    <meta name="description" content="Post-choice cognitive reasoning breakdown.">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+    <!-- Header Navigation & Stats Bar -->
+    <header class="app-header glass-panel">
+        <div class="brand-section">
+            <h1 class="brand-title">Grade My Brain</h1>
+            <div class="grade-badge-container">
+                <div id="grade-badge" class="grade-badge">C</div>
+                <div id="grade-title" class="grade-title">Calculated Analyst</div>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-label">Brain Points</span>
+                <span id="current-score" class="stat-val">100</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Round</span>
+                <span id="current-round" class="stat-val">1 / 24</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Streak</span>
+                <span id="current-streak" class="stat-val">0🔥</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Reasoning Breakdown Content -->
+    <main class="reasoning-container">
+        <section class="reasoning-panel glass-panel">
+            <div class="breakdown-header">
+                <h3 id="breakdown-choice-status" class="breakdown-choice-badge">Choice Registered</h3>
+                <span id="breakdown-score-delta" class="breakdown-delta-badge">+20 PTS</span>
+            </div>
+
+            <div class="breakdown-grid">
+                <!-- For multi-part framing: show user's choices across frames -->
+                <div id="framing-summary-section" class="breakdown-item" style="display: none;">
+                    <span class="breakdown-label">📋 Your Responses Across Frames:</span>
+                    <div id="framing-summary" class="framing-summary-box"></div>
+                </div>
+
+                <div class="breakdown-item">
+                    <span class="breakdown-label">🎯 Best / Optimal Answer:</span>
+                    <span id="breakdown-best-answer" class="breakdown-val" style="color: #34d399; font-size: 1.1rem;"></span>
+                </div>
+
+                <div class="breakdown-item">
+                    <span class="breakdown-label">💡 Logical Reasoning:</span>
+                    <p id="breakdown-reasoning" class="breakdown-desc"></p>
+                </div>
+
+                <div class="breakdown-item">
+                    <span class="breakdown-label">🧠 Tested Cognitive Issue:</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 4px;">
+                        <strong id="breakdown-bias-name" style="color: #38bdf8; font-size: 1.05rem;"></strong>
+                        <span id="breakdown-book-ref" class="book-ref" style="font-size: 0.85rem;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <button id="next-scenario-btn" class="glow-btn" style="margin-top: 20px; font-size: 1.05rem;">
+                Next Scenario →
+            </button>
+        </section>
+    </main>
+
+    <script type="module" src="js/reasoning.js"></script>
+</body>
+</html>
