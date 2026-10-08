@@ -57,40 +57,62 @@ window.addEventListener('DOMContentLoaded', () => {
     const biasNameEl = document.getElementById('breakdown-bias-name');
     const bookRefEl = document.getElementById('breakdown-book-ref');
 
-    if (statusEl) {
-        statusEl.textContent = data.isOptimal ? '🎯 OPTIMAL DECISION' : '⚠️ SYSTEM 1 HEURISTIC TRIGGERED';
-        statusEl.style.color = data.isOptimal ? '#34d399' : '#f87171';
+    // First scenario of a framing pair: reveal nothing until the pair is scored
+    if (data.deferred) {
+        if (statusEl) {
+            statusEl.textContent = '📝 DECISION RECORDED';
+            statusEl.style.color = '#38bdf8';
+        }
+        if (deltaEl) {
+            deltaEl.textContent = 'Scored later';
+            deltaEl.style.color = '#94a3b8';
+        }
+        const gridEl = document.querySelector('.breakdown-grid');
+        if (gridEl) {
+            gridEl.innerHTML = '<p class="breakdown-desc">Your decision has been recorded. This scenario is scored later in the session.</p>';
+        }
+    } else {
+        renderBreakdown();
     }
 
-    if (deltaEl) {
-        const delta = data.deltaScore;
-        deltaEl.textContent = `${delta > 0 ? '+' : ''}${delta} PTS`;
-        deltaEl.style.color = delta > 0 ? '#10b981' : '#ef4444';
-    }
+    function renderBreakdown() {
+        if (statusEl) {
+            statusEl.textContent = data.isOptimal ? '🎯 OPTIMAL DECISION' : '⚠️ SYSTEM 1 HEURISTIC TRIGGERED';
+            statusEl.style.color = data.isOptimal ? '#34d399' : '#f87171';
+        }
 
-    if (bestAnswerEl) bestAnswerEl.textContent = data.bestAnswer;
-    if (reasoningEl) reasoningEl.textContent = data.reasoning;
-    if (biasNameEl) biasNameEl.textContent = data.biasName;
-    if (bookRefEl) bookRefEl.textContent = `📖 ${data.bookRef}`;
+        if (deltaEl) {
+            const delta = data.deltaScore;
+            deltaEl.textContent = `${delta > 0 ? '+' : ''}${delta} PTS`;
+            deltaEl.style.color = delta > 0 ? '#10b981' : '#ef4444';
+        }
 
-    // Show framing summary if this was a multi-part framing scenario
-    if (data.framingResponses && data.framingResponses.length > 0) {
-        const framingSectionEl = document.getElementById('framing-summary-section');
-        const framingSummaryEl = document.getElementById('framing-summary');
-        if (framingSectionEl && framingSummaryEl) {
-            framingSectionEl.style.display = 'block';
-            framingSummaryEl.innerHTML = data.framingResponses.map((r, i) => `
-                <div class="framing-response-row">
-                    <span class="framing-part-label">${r.partLabel}:</span>
-                    <span class="framing-part-answer">${r.answer}</span>
-                </div>
-            `).join('');
+        if (bestAnswerEl) bestAnswerEl.textContent = data.bestAnswer;
+        if (reasoningEl) reasoningEl.textContent = data.reasoning;
+        if (biasNameEl) biasNameEl.textContent = data.biasName;
+        if (bookRefEl) bookRefEl.textContent = `📖 ${data.bookRef}`;
+
+        // Show both answers when a framing pair is scored
+        if (data.framingResponses && data.framingResponses.length > 0) {
+            const framingSectionEl = document.getElementById('framing-summary-section');
+            const framingSummaryEl = document.getElementById('framing-summary');
+            if (framingSectionEl && framingSummaryEl) {
+                framingSectionEl.style.display = 'block';
+                framingSummaryEl.innerHTML = data.framingResponses.map((r, i) => `
+                    <div class="framing-response-row">
+                        <span class="framing-part-label">${r.partLabel}:</span>
+                        <span class="framing-part-answer">${r.answer}</span>
+                    </div>
+                `).join('');
+            }
         }
     }
 
     // Play appropriate sound
     try {
-        if (data.isOptimal) {
+        if (data.deferred) {
+            sound.playClick();
+        } else if (data.isOptimal) {
             sound.playWin();
         } else {
             sound.playLoss();

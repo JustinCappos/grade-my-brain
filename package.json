@@ -1,15 +1,15 @@
 {
   "name": "grade-my-brain",
   "version": "1.0.0",
-  "main": "test_brave.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test_brave.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Browser game that tests decision-making against cognitive biases from Thinking, Fast and Slow.",
   "dependencies": {
     "puppeteer-core": "^25.10.0"
-  }
+  },
+  "type": "module"
 }

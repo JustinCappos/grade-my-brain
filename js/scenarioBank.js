@@ -84,13 +84,13 @@ export const MASTER_SCENARIOS = [
         id: "anchoring-2",
         biasType: "ANCHORING",
         title: "Litigation Settlement Counter",
-        scenarioText: "In a contract breach lawsuit, opposing counsel opens negotiations with an aggressive $5 Million demand. Your legal team estimates a 95% probability of winning at trial, with a likely verdict awarding you $800,000 in damages. Legal costs to go to trial would be $50,000. Opposing counsel offers to settle out-of-court for $3.5 Million paid by you.",
+        scenarioText: "Your company is being sued for breach of contract. Opposing counsel opens negotiations with an aggressive $5 Million demand. Your legal team estimates a 95% probability that you win at trial and pay nothing. If you lose, the likely verdict is $900,000 in damages. Going to trial would cost $50,000 in legal fees. Opposing counsel now offers to settle out of court for $200,000.",
         bestAnswer: "Reject Settlement (Proceed to Trial)",
-        reasoning: "Opposing counsel's $5M opening demand anchored expectations high. With a 95% win probability and an $800K verdict minus $50K legal costs, going to trial is overwhelmingly favorable compared to paying $3.5M to settle.",
+        reasoning: "The $5M opening demand is an anchor that makes $200,000 feel like a bargain. Going to trial has an expected cost of about $95,000 (a 5% chance of a $900,000 verdict is $45,000, plus $50,000 in legal fees), well below the $200,000 settlement.",
         biasName: "Anchoring Effect",
         bookRef: "Thinking, Fast and Slow - Chapter 11",
         options: [
-            { text: "Accept Settlement (Pay $3.5 Million)", biasValue: 1, isBest: false },
+            { text: "Accept Settlement (Pay $200,000)", biasValue: 1, isBest: false },
             { text: "Reject Settlement (Proceed to Trial)", biasValue: 0, isBest: true }
         ]
     },
@@ -116,9 +116,9 @@ export const MASTER_SCENARIOS = [
         id: "compromise-1",
         biasType: "COMPROMISE",
         title: "Cloud Backup Storage Tier",
-        scenarioText: "Your firm is setting up a cold storage archive accessed once a month. Internal analysis confirms that up to 36 hours of downtime per month is fully acceptable for this use case. Three plans are available: Option A ($10/mo) guarantees no more than 36 hours of downtime per month. Option B ($55/mo) guarantees no more than 7 hours of downtime per month. Option C ($350/mo) guarantees no more than 5 minutes of downtime per month.",
+        scenarioText: "Your firm is setting up a cold storage archive accessed once a month. Internal analysis confirms that 95% monthly availability is fully sufficient for this use case. Three plans are available: Option A ($10/mo) guarantees no more than 30 hours of downtime per month. Option B ($55/mo) guarantees no more than 7 hours of downtime per month. Option C ($350/mo) guarantees no more than 5 minutes of downtime per month.",
         bestAnswer: "Option A: Basic Tier ($10/mo)",
-        reasoning: "Option A ($10/mo) fully satisfies the stated business requirement of no more than 36 hours downtime for cold storage. Choosing Option B ($55/mo) demonstrates the Compromise Effect — overpaying for a middle option when the low tier is objectively sufficient for this workload.",
+        reasoning: "A 30-day month has 720 hours, so 95% availability allows up to 36 hours of downtime. Option A's 30-hour limit (about 95.8% availability) already meets the requirement. Choosing Option B ($55/mo) demonstrates the Compromise Effect — overpaying for a middle option when the low tier is objectively sufficient for this workload.",
         biasName: "Compromise Effect (Extremeness Aversion)",
         bookRef: "Behavioral Economics (Simonson 1989)",
         options: [
@@ -150,14 +150,14 @@ export const MASTER_SCENARIOS = [
         id: "loss-1",
         biasType: "LOSS_AVERSION",
         title: "Epidemic Treatment Intervention",
-        scenarioText: "A disease outbreak threatens 600 patients. Program A guarantees saving exactly 200 lives. Program B has a 35% probability of saving all 600 lives, and a 65% probability of saving none.",
-        bestAnswer: "Choose Program A (Guaranteed 200 lives saved)",
-        reasoning: "Program A guarantees saving 200 lives. Program B has an expected value of 210 lives (0.35 × 600), which is slightly higher on paper — but carries a 65% chance of saving nobody. Under gain framing, the certainty of saving 200 real human lives is the risk-averse, rational choice when lives are at stake.",
+        scenarioText: "A disease outbreak threatens 600 patients. Program A guarantees saving exactly 200 lives. Program B has a 40% probability of saving all 600 lives, and a 60% probability of saving none.",
+        bestAnswer: "Choose Program B (40% chance of saving all 600)",
+        reasoning: "Program B saves 240 lives on average (0.40 × 600), 40 more than Program A's guaranteed 200. When outcomes are framed as gains, people tend to grab the sure thing even when the gamble is worth more. Kahneman calls this risk aversion in the domain of gains.",
         biasName: "Loss Aversion / Prospect Theory",
         bookRef: "Thinking, Fast and Slow - Chapter 26",
         options: [
-            { text: "Choose Program A (Guaranteed 200 lives saved)", biasValue: 0, isBest: true },
-            { text: "Choose Program B (35% chance of saving all 600)", biasValue: 1, isBest: false }
+            { text: "Choose Program A (Guaranteed 200 lives saved)", biasValue: 1, isBest: false },
+            { text: "Choose Program B (40% chance of saving all 600)", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -178,81 +178,52 @@ export const MASTER_SCENARIOS = [
     // -------------------------------------------------------------
     // FRAMING EFFECT (Ch 31)
     // -------------------------------------------------------------
+    // Each framing pair is two standalone scenarios describing the same facts,
+    // one framed positively and one negatively. They are spaced apart in the
+    // session queue, and the pair is scored when the second one is answered.
     {
-        id: "framing-1",
+        id: "framing-surgery-survival",
         biasType: "FRAMING",
-        title: "Surgical Procedure Approval",
-        isMultiPart: true,
-        multiPart: [
-            {
-                partLabel: "Part 1 of 3",
-                scenarioText: "A patient requires a complex heart operation. Medical statistics indicate the procedure has a 90% one-month survival rate. Based on this information, would you approve the surgery?",
-                options: [
-                    { text: "Approve Surgical Procedure", value: "approve" },
-                    { text: "Decline Surgical Procedure", value: "decline" }
-                ]
-            },
-            {
-                partLabel: "Part 2 of 3",
-                scenarioText: "A different patient requires the same complex heart operation. Medical statistics indicate that out of every 100 patients who undergo this procedure, 10 die within the first month. Based on this information, would you approve the surgery?",
-                options: [
-                    { text: "Approve Surgical Procedure", value: "approve" },
-                    { text: "Decline Surgical Procedure", value: "decline" }
-                ]
-            },
-            {
-                partLabel: "Part 3 of 3 — Reflection",
-                scenarioText: "You've now considered two medical scenarios. Would you like to change either of your previous answers, or do you stand by both decisions?",
-                options: [
-                    { text: "I stand by both of my answers", value: "stand" },
-                    { text: "I'd like to reconsider — my answers should be the same", value: "reconsider" }
-                ]
-            }
-        ],
-        bestAnswer: "Consistent answers across both frames (both approve or both decline)",
-        reasoning: "A '90% survival rate' and '10 out of 100 die' are identical statistics. If you gave different answers to Part 1 and Part 2, you were influenced by the Framing Effect — positive framing (survival) makes the procedure seem safer than negative framing (mortality), even though the underlying numbers are exactly the same.",
-        biasName: "Framing Effect",
-        bookRef: "Thinking, Fast and Slow - Chapter 31",
-        scenarioText: "",
-        options: []
+        framingPair: "surgery",
+        title: "Cardiac Surgery Consent",
+        scenarioText: "A patient requires a complex heart operation. Medical statistics indicate the procedure has a 90% one-month survival rate. Would you approve the surgery?",
+        options: [
+            { text: "Approve Surgical Procedure", value: "approve" },
+            { text: "Decline Surgical Procedure", value: "decline" }
+        ]
     },
     {
-        id: "framing-2",
+        id: "framing-surgery-mortality",
         biasType: "FRAMING",
+        framingPair: "surgery",
+        title: "Surgical Procedure Approval",
+        scenarioText: "A patient requires a complex heart operation. Medical statistics indicate the procedure has a 10% mortality rate within the first month. Would you approve the surgery?",
+        options: [
+            { text: "Approve Surgical Procedure", value: "approve" },
+            { text: "Decline Surgical Procedure", value: "decline" }
+        ]
+    },
+    {
+        id: "framing-chips-pass",
+        biasType: "FRAMING",
+        framingPair: "chips",
         title: "Semiconductor Batch Approval",
-        isMultiPart: true,
-        multiPart: [
-            {
-                partLabel: "Part 1 of 3",
-                scenarioText: "A microchip manufacturing batch has completed testing. Quality control reports that 95% of the components in this batch meet specification and are defect-free. Do you accept or reject this batch?",
-                options: [
-                    { text: "Accept Batch", value: "accept" },
-                    { text: "Reject Batch", value: "reject" }
-                ]
-            },
-            {
-                partLabel: "Part 2 of 3",
-                scenarioText: "A different microchip manufacturing batch has completed testing. Quality control reports that 5% of the components in this batch are defective and failed specification. Do you accept or reject this batch?",
-                options: [
-                    { text: "Accept Batch", value: "accept" },
-                    { text: "Reject Batch", value: "reject" }
-                ]
-            },
-            {
-                partLabel: "Part 3 of 3 — Reflection",
-                scenarioText: "You've now evaluated two manufacturing batches. Would you like to change either of your previous answers, or do you stand by both decisions?",
-                options: [
-                    { text: "I stand by both of my answers", value: "stand" },
-                    { text: "I'd like to reconsider — my answers should be the same", value: "reconsider" }
-                ]
-            }
-        ],
-        bestAnswer: "Consistent answers across both frames (both accept or both reject)",
-        reasoning: "'95% defect-free' and '5% defective' describe exactly the same batch quality. If you accepted one but rejected the other, you were influenced by the Framing Effect — the way information is worded changed your decision despite the underlying facts being identical.",
-        biasName: "Framing Effect",
-        bookRef: "Thinking, Fast and Slow - Chapter 31",
-        scenarioText: "",
-        options: []
+        scenarioText: "A microchip manufacturing batch has completed testing. Quality control reports that 95% of the components in this batch meet specification. Do you accept or reject this batch?",
+        options: [
+            { text: "Accept Batch", value: "accept" },
+            { text: "Reject Batch", value: "reject" }
+        ]
+    },
+    {
+        id: "framing-chips-fail",
+        biasType: "FRAMING",
+        framingPair: "chips",
+        title: "Microchip Shipment Review",
+        scenarioText: "A microchip manufacturing batch has completed testing. Quality control reports that 5% of the components in this batch failed specification. Do you accept or reject this batch?",
+        options: [
+            { text: "Accept Batch", value: "accept" },
+            { text: "Reject Batch", value: "reject" }
+        ]
     },
 
     // -------------------------------------------------------------
@@ -372,14 +343,14 @@ export const MASTER_SCENARIOS = [
         id: "sunkcost-2",
         biasType: "SUNK_COST",
         title: "Underperforming Investment Allocation",
-        scenarioText: "You purchased stock at $100 per share. It has dropped to $62 due to deteriorating fundamentals, with analyst consensus giving it a 35% chance of recovering to $100 within two years. An alternative stock in a growing sector is priced at $62 with a 55% chance of reaching $100 in the same period.",
-        bestAnswer: "Sell and reallocate capital to the alternative stock",
-        reasoning: "Both stocks cost $62 right now. The alternative has a 55% chance of reaching $100 versus 35% for the current holding. Holding the original stock just to recover your purchase price is the Sunk Cost Fallacy — your original buy price is irrelevant to where the best future returns are.",
+        scenarioText: "You purchased stock at $100 per share. It has dropped to $62 due to deteriorating fundamentals, with analyst consensus giving it a 40% chance of recovering to $100 within two years. An alternative stock with a similar risk profile is also priced at $62, with a 48% chance of reaching $100 in the same period.",
+        bestAnswer: "Sell and buy the alternative stock",
+        reasoning: "Both stocks cost $62 right now and carry similar risk. The alternative has a 48% chance of reaching $100 versus 40% for the current holding. Holding the original stock just to recover your purchase price is the Sunk Cost Fallacy — your original buy price is irrelevant to where the best future returns are.",
         biasName: "Sunk Cost Fallacy",
         bookRef: "Thinking, Fast and Slow - Chapter 32",
         options: [
-            { text: "Hold current stock until it recovers to $100", biasValue: 1, isBest: false },
-            { text: "Sell and reallocate capital to the alternative stock", biasValue: 0, isBest: true }
+            { text: "Keep your current shares", biasValue: 1, isBest: false },
+            { text: "Sell and buy the alternative stock", biasValue: 0, isBest: true }
         ]
     },
 
@@ -484,32 +455,66 @@ export const MASTER_SCENARIOS = [
     }
 ];
 
+export const FRAMING_PAIRS = {
+    surgery: {
+        bestAnswer: "The same decision in both versions (approve both or decline both)",
+        reasoning: "A '90% one-month survival rate' and a '10% mortality rate within the first month' are the same statistic. If you approved one and declined the other, the wording changed your decision: survival framing makes a procedure feel safer than mortality framing, even though the numbers are identical.",
+        biasName: "Framing Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 31",
+        labels: {
+            "framing-surgery-survival": "90% survival version",
+            "framing-surgery-mortality": "10% mortality version"
+        }
+    },
+    chips: {
+        bestAnswer: "The same decision in both versions (accept both or reject both)",
+        reasoning: "'95% meet specification' and '5% failed specification' describe exactly the same batch quality. If you accepted one and rejected the other, the wording changed your decision even though the underlying facts were identical.",
+        biasName: "Framing Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 31",
+        labels: {
+            "framing-chips-pass": "95% pass version",
+            "framing-chips-fail": "5% fail version"
+        }
+    }
+};
+
+// Minimum number of rounds between the two scenarios of a framing pair
+const MIN_FRAMING_GAP = 8;
+
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function framingPairsSpacedApart(queue) {
+    const firstSeen = {};
+    for (let i = 0; i < queue.length; i++) {
+        const pair = queue[i].framingPair;
+        if (!pair) continue;
+        if (pair in firstSeen) {
+            if (i - firstSeen[pair] < MIN_FRAMING_GAP) return false;
+        } else {
+            firstSeen[pair] = i;
+        }
+    }
+    return true;
+}
+
 export class ScenarioBank {
     static getAllScenarios() {
         return MASTER_SCENARIOS;
     }
 
-    static getRandomizedSessionQueue(numRounds = 24) {
-        // Shuffle all unique scenarios first
-        const shuffled = [...MASTER_SCENARIOS].sort(() => Math.random() - 0.5);
-
-        if (shuffled.length >= numRounds) {
-            // Enough unique scenarios — use each at most once
-            return shuffled.slice(0, numRounds);
+    // Every scenario appears exactly once, with framing pairs spaced apart
+    static getRandomizedSessionQueue() {
+        let queue = shuffle(MASTER_SCENARIOS);
+        for (let attempt = 0; attempt < 1000 && !framingPairsSpacedApart(queue); attempt++) {
+            queue = shuffle(MASTER_SCENARIOS);
         }
-
-        // Not enough unique scenarios — use all once, then fill remaining with
-        // reshuffled copies, ensuring no immediate back-to-back repeats
-        let pool = [...shuffled];
-        while (pool.length < numRounds) {
-            const extras = [...MASTER_SCENARIOS].sort(() => Math.random() - 0.5);
-            for (const s of extras) {
-                if (pool.length >= numRounds) break;
-                // Avoid placing the same scenario back-to-back
-                if (pool.length > 0 && pool[pool.length - 1].id === s.id) continue;
-                pool.push(s);
-            }
-        }
-        return pool.slice(0, numRounds);
+        return queue;
     }
 }

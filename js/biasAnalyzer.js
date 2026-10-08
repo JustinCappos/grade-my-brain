@@ -56,8 +56,10 @@ export class BiasAnalyzer {
                 count: data.count
             });
 
-            totalBiasPoints += percent;
-            totalEvaluated++;
+            if (data.count > 0) {
+                totalBiasPoints += percent;
+                totalEvaluated++;
+            }
         });
 
         const overallBiasIndex = totalEvaluated > 0 ? Math.round(totalBiasPoints / totalEvaluated) : 50;
@@ -67,8 +69,11 @@ export class BiasAnalyzer {
         // Sort by vulnerability (highest susceptibility first)
         summary.sort((a, b) => b.susceptibilityPercent - a.susceptibilityPercent);
 
-        const topVulnerabilities = summary.slice(0, 2);
-        const topStrengths = [...summary].reverse().slice(0, 2);
+        // Only categories the player has actually been tested on; a 0% category
+        // is never a vulnerability and a 100% category is never a strength
+        const evaluated = summary.filter(s => s.count > 0);
+        const topVulnerabilities = evaluated.filter(s => s.susceptibilityPercent > 0).slice(0, 2);
+        const topStrengths = evaluated.filter(s => s.susceptibilityPercent < 100).reverse().slice(0, 2);
 
         return {
             overallBiasIndex,

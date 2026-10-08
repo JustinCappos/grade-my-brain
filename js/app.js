@@ -6,7 +6,7 @@
  */
 
 import { sound } from './audio.js';
-import { ScenarioBank } from './scenarioBank.js';
+import { ScenarioBank, FRAMING_PAIRS } from './scenarioBank.js';
 import { BiasAnalyzer } from './biasAnalyzer.js';
 import { BrainChart } from './chart.js';
 
@@ -22,7 +22,7 @@ export const GRADES = [
 
 class GradeMyBrainApp {
     constructor() {
-        this.maxRounds = 24;
+        this.maxRounds = ScenarioBank.getAllScenarios().length;
         this.chart = null;
 
         // Header Elements
@@ -57,9 +57,6 @@ class GradeMyBrainApp {
         this.strengthsListEl = document.getElementById('strengths-list');
         this.playAgainBtn = document.getElementById('play-again-btn');
 
-        // Multi-part framing state
-        this.multiPartState = null;
-
         this.init();
     }
 
@@ -68,14 +65,15 @@ class GradeMyBrainApp {
         this.setupEventListeners();
 
         // Check if returning from reasoning page
-        if (sessionStorage.getItem('gmb_advance') === 'true') {
-            sessionStorage.removeItem('gmb_advance');
-            this.restoreState();
-            this.advanceRound();
-        } else if (sessionStorage.getItem('gmb_state')) {
-            // Returning to page but not advancing (e.g. page refresh)
-            this.restoreState();
-            this.loadCurrentScenario();
+        const advance = sessionStorage.getItem('gmb_advance') === 'true';
+        sessionStorage.removeItem('gmb_advance');
+        if (this.restoreState()) {
+            // Returning from the reasoning page advances; a plain refresh does not
+            if (advance) {
+                this.advanceRound();
+            } else {
+                this.loadCurrentScenario();
+            }
         } else {
             this.startNewGame();
         }
@@ -133,15 +131,23 @@ class GradeMyBrainApp {
             history: this.history,
             choiceLogs: this.choiceLogs,
             scenarioQueueIds: this.scenarioQueue.map(s => s.id),
-            multiPartState: this.multiPartState
+            framingAnswers: this.framingAnswers
         };
         sessionStorage.setItem('gmb_state', JSON.stringify(state));
     }
 
+    // Returns false if there is no usable saved state (e.g. the scenario bank changed)
     restoreState() {
         const raw = sessionStorage.getItem('gmb_state');
-        if (!raw) return;
+        if (!raw) return false;
         const state = JSON.parse(raw);
+
+        const allScenarios = ScenarioBank.getAllScenarios();
+        const queue = (state.scenarioQueueIds || []).map(id =>
+            allScenarios.find(s => s.id === id)
+        );
+        if (queue.length !== this.maxRounds || queue.some(s => !s)) return false;
+        this.scenarioQueue = queue;
 
         this.currentRound = state.currentRound;
         this.score = state.score;
@@ -151,23 +157,13 @@ class GradeMyBrainApp {
         this.successfulWagers = state.successfulWagers;
         this.history = state.history;
         this.choiceLogs = state.choiceLogs;
-        this.multiPartState = state.multiPartState || null;
+        this.framingAnswers = state.framingAnswers || {};
         this.isProcessing = false;
-
-        // Rebuild scenario queue from IDs
-        const allScenarios = ScenarioBank.getAllScenarios();
-        this.scenarioQueue = state.scenarioQueueIds.map(id =>
-            allScenarios.find(s => s.id === id)
-        ).filter(Boolean);
-
-        // If queue is too short (shouldn't happen), pad it
-        while (this.scenarioQueue.length < this.maxRounds) {
-            this.scenarioQueue.push(allScenarios[Math.floor(Math.random() * allScenarios.length)]);
-        }
 
         this.currentScenario = this.scenarioQueue[this.currentRound - 1] || null;
         this.chart.updateHistory(this.history);
         this.updateHeaderUI();
+        return true;
     }
 
     // --- Game Flow ---
@@ -182,9 +178,9 @@ class GradeMyBrainApp {
         this.history = [{ round: 0, score: 100 }];
         this.choiceLogs = [];
         this.isProcessing = false;
-        this.multiPartState = null;
+        this.framingAnswers = {};
 
-        this.scenarioQueue = ScenarioBank.getRandomizedSessionQueue(this.maxRounds);
+        this.scenarioQueue = ScenarioBank.getRandomizedSessionQueue();
 
         this.updateHeaderUI();
         this.chart.updateHistory(this.history);
@@ -223,22 +219,7 @@ class GradeMyBrainApp {
         this.currentScenario = this.scenarioQueue[this.currentRound - 1];
 
         if (this.choicePhaseEl) this.choicePhaseEl.style.display = 'block';
-
-        // Check if we're in a multi-part scenario mid-flow
-        if (this.multiPartState && this.multiPartState.scenarioId === this.currentScenario.id) {
-            this.renderMultiPartStep();
-        } else if (this.currentScenario.isMultiPart) {
-            // Starting a new multi-part scenario
-            this.multiPartState = {
-                scenarioId: this.currentScenario.id,
-                currentStep: 0,
-                responses: []
-            };
-            this.saveState();
-            this.renderMultiPartStep();
-        } else {
-            this.renderScenarioCard();
-        }
+        this.renderScenarioCard();
 
         if (this.scenarioStageEl) {
             this.scenarioStageEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -290,179 +271,106 @@ class GradeMyBrainApp {
                 }
                 if (this.isProcessing) return;
                 try { sound.playWagerSelect(); } catch(err){}
-                this.handleOptionSelection(opt);
-            };
-
-            this.optionsContainerEl.appendChild(card);
-        });
-    }
-
-    // --- Multi-Part (Framing) Scenario Rendering ---
-
-    renderMultiPartStep() {
-        if (!this.scenarioTitleEl || !this.scenarioTextEl || !this.optionsContainerEl) return;
-
-        const sc = this.currentScenario;
-        const step = this.multiPartState.currentStep;
-        const part = sc.multiPart[step];
-
-        this.scenarioTitleEl.textContent = sc.title;
-
-        // Add part indicator before scenario text
-        this.scenarioTextEl.innerHTML = '';
-        const indicator = document.createElement('span');
-        indicator.className = 'multi-part-indicator';
-        indicator.textContent = part.partLabel;
-        this.scenarioTextEl.appendChild(indicator);
-        this.scenarioTextEl.appendChild(document.createElement('br'));
-        this.scenarioTextEl.appendChild(document.createTextNode(part.scenarioText));
-
-        this.optionsContainerEl.innerHTML = '';
-
-        part.options.forEach((opt, idx) => {
-            const card = document.createElement('button');
-            card.type = 'button';
-            card.className = 'wager-card glass-panel clean-choice-card';
-            card.style.animationDelay = `${idx * 0.1}s`;
-            card.style.cursor = 'pointer';
-            card.style.textAlign = 'left';
-            card.style.userSelect = 'none';
-
-            card.innerHTML = `
-                <div class="choice-text-box" style="pointer-events: none;">
-                    <p class="wager-desc" style="font-size: 1.05rem; font-weight: 600; color: #ffffff; margin-bottom: 0; pointer-events: none;">${opt.text}</p>
-                </div>
-                <div class="select-wager-btn glow-btn" style="margin-top: 16px; pointer-events: none; text-align: center;">
-                    Select Option →
-                </div>
-            `;
-
-            card.onclick = (e) => {
-                if (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
+                if (this.currentScenario.framingPair) {
+                    this.handleFramingSelection(opt);
+                } else {
+                    this.handleOptionSelection(opt);
                 }
-                if (this.isProcessing) return;
-                try { sound.playWagerSelect(); } catch(err){}
-                this.handleMultiPartSelection(opt, part);
             };
 
             this.optionsContainerEl.appendChild(card);
         });
     }
 
-    handleMultiPartSelection(selectedOpt, part) {
+    // --- Framing Pair Selection ---
+
+    // The first scenario of a pair is recorded without scoring; the second one
+    // scores the pair on whether both answers were the same.
+    handleFramingSelection(selectedOpt) {
         if (this.isProcessing) return;
         this.isProcessing = true;
 
         try {
-            this.multiPartState.responses.push({
-                partLabel: part.partLabel,
-                answer: selectedOpt.text,
-                value: selectedOpt.value
-            });
-
             const sc = this.currentScenario;
-            const nextStep = this.multiPartState.currentStep + 1;
+            const pair = FRAMING_PAIRS[sc.framingPair];
+            const earlier = this.framingAnswers[sc.framingPair];
 
-            if (nextStep < sc.multiPart.length) {
-                // More parts to show
-                this.multiPartState.currentStep = nextStep;
+            if (!earlier) {
+                this.framingAnswers[sc.framingPair] = {
+                    scenarioId: sc.id,
+                    answer: selectedOpt.text,
+                    value: selectedOpt.value
+                };
+                this.history.push({ round: this.currentRound, score: this.score });
+                this.chart.updateHistory(this.history);
                 this.saveState();
-                this.isProcessing = false;
 
-                // Re-render for the next part
-                this.renderMultiPartStep();
-
-                if (this.scenarioStageEl) {
-                    this.scenarioStageEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            } else {
-                // All parts completed — evaluate and navigate to reasoning page
-                this.evaluateMultiPartScenario();
+                this.goToReasoningPage({ deferred: true, deltaScore: 0 });
+                return;
             }
+
+            const isConsistent = earlier.value === selectedOpt.value;
+            this.totalWagersMade++;
+            this.choiceLogs.push({
+                scenarioId: sc.id,
+                biasType: sc.biasType,
+                selectedText: isConsistent ? 'Consistent across frames' : 'Inconsistent across frames',
+                biasValue: isConsistent ? 0 : 1
+            });
+            const deltaScore = this.applyScore(isConsistent);
+
+            const reasoning = isConsistent
+                ? `You made the same decision both times. ${pair.reasoning}`
+                : `You made different decisions in the two versions. ${pair.reasoning}`;
+
+            this.goToReasoningPage({
+                isOptimal: isConsistent,
+                deltaScore,
+                bestAnswer: pair.bestAnswer,
+                reasoning,
+                biasName: pair.biasName,
+                bookRef: pair.bookRef,
+                framingResponses: [
+                    { partLabel: pair.labels[earlier.scenarioId], answer: earlier.answer },
+                    { partLabel: pair.labels[sc.id], answer: selectedOpt.text }
+                ]
+            });
         } catch (err) {
-            console.error('Error handling multi-part selection:', err);
+            console.error('Error handling framing selection:', err);
             this.isProcessing = false;
         }
     }
 
-    evaluateMultiPartScenario() {
-        const sc = this.currentScenario;
-        const responses = this.multiPartState.responses;
-
-        // For framing scenarios: check if responses to frame A and frame B are consistent
-        // responses[0] = frame A answer, responses[1] = frame B answer, responses[2] = reflection
-        const frameAValue = responses[0]?.value;
-        const frameBValue = responses[1]?.value;
-        const reflectionValue = responses[2]?.value;
-
-        const isConsistent = frameAValue === frameBValue;
-        const caughtByReflection = !isConsistent && reflectionValue === 'reconsider';
-
-        // Scoring: consistent = optimal (+20), inconsistent but caught in reflection = partial (+5),
-        // inconsistent and stood by = biased (-15)
-        let isOptimal;
+    // Updates score, streak and chart for a scored decision; returns the score change
+    applyScore(isOptimal) {
         let deltaScore;
-
-        if (isConsistent) {
-            isOptimal = true;
-            deltaScore = 20;
+        if (isOptimal) {
             this.successfulWagers++;
             this.streak++;
             if (this.streak > this.maxStreak) this.maxStreak = this.streak;
-        } else if (caughtByReflection) {
-            isOptimal = false;
-            deltaScore = 5;
-            this.streak = 0;
+            deltaScore = 20;
         } else {
-            isOptimal = false;
-            deltaScore = -15;
             this.streak = 0;
+            deltaScore = -15;
         }
 
-        this.totalWagersMade++;
         this.score = Math.max(0, this.score + deltaScore);
         this.history.push({ round: this.currentRound, score: this.score });
         this.chart.updateHistory(this.history);
         this.updateHeaderUI();
-
-        // Log for bias analysis
-        this.choiceLogs.push({
-            scenarioId: sc.id,
-            biasType: sc.biasType,
-            selectedText: isConsistent ? 'Consistent across frames' : 'Inconsistent across frames',
-            biasValue: isConsistent ? 0 : (caughtByReflection ? 0.5 : 1)
-        });
-
-        // Build enhanced reasoning
-        let enhancedReasoning = sc.reasoning;
-        if (isConsistent) {
-            enhancedReasoning = `You answered consistently across both framings — well done! ${sc.reasoning}`;
-        } else if (caughtByReflection) {
-            enhancedReasoning = `You initially gave different answers to the two frames, but caught the inconsistency during reflection. ${sc.reasoning}`;
-        } else {
-            enhancedReasoning = `You gave different answers to the two frames and stood by them. ${sc.reasoning}`;
-        }
-
-        this.multiPartState = null;
         this.saveState();
+        return deltaScore;
+    }
 
-        // Navigate to reasoning page
+    goToReasoningPage(details) {
         const breakdownData = {
-            isOptimal,
-            deltaScore,
-            bestAnswer: sc.bestAnswer,
-            reasoning: enhancedReasoning,
-            biasName: sc.biasName,
-            bookRef: sc.bookRef,
+            framingResponses: null,
+            ...details,
             score: this.score,
             currentRound: this.currentRound,
             maxRounds: this.maxRounds,
-            streak: this.streak,
-            framingResponses: responses
+            streak: this.streak
         };
-
         sessionStorage.setItem('gmb_breakdown', JSON.stringify(breakdownData));
         window.location.href = 'reasoning.html';
     }
@@ -487,40 +395,16 @@ class GradeMyBrainApp {
             this.totalWagersMade++;
             const isOptimal = selectedOpt.isBest === true || selectedOpt.biasValue === 0;
 
-            let deltaScore = 0;
-            if (isOptimal) {
-                this.successfulWagers++;
-                this.streak++;
-                if (this.streak > this.maxStreak) this.maxStreak = this.streak;
-                deltaScore = 20;
-            } else {
-                this.streak = 0;
-                deltaScore = -15;
-            }
+            const deltaScore = this.applyScore(isOptimal);
 
-            this.score = Math.max(0, this.score + deltaScore);
-            this.history.push({ round: this.currentRound, score: this.score });
-            this.chart.updateHistory(this.history);
-            this.updateHeaderUI();
-            this.saveState();
-
-            // Navigate to reasoning page instead of showing inline breakdown
-            const breakdownData = {
+            this.goToReasoningPage({
                 isOptimal,
                 deltaScore,
                 bestAnswer: sc.bestAnswer,
                 reasoning: sc.reasoning,
                 biasName: sc.biasName,
-                bookRef: sc.bookRef,
-                score: this.score,
-                currentRound: this.currentRound,
-                maxRounds: this.maxRounds,
-                streak: this.streak,
-                framingResponses: null
-            };
-
-            sessionStorage.setItem('gmb_breakdown', JSON.stringify(breakdownData));
-            window.location.href = 'reasoning.html';
+                bookRef: sc.bookRef
+            });
 
         } catch (err) {
             console.error('Error handling option selection:', err);
@@ -558,8 +442,12 @@ class GradeMyBrainApp {
         if (this.sys1ValEl) this.sys1ValEl.textContent = `${audit.system1Score}% Heuristic`;
         if (this.sys2ValEl) this.sys2ValEl.textContent = `${audit.system2Score}% Analytical`;
 
+        const emptyNote = text => `<p style="color: var(--text-muted); font-size: 0.9rem;">${text}</p>`;
+
         if (this.vulnerabilitiesListEl) {
-            this.vulnerabilitiesListEl.innerHTML = audit.topVulnerabilities.map(v => `
+            this.vulnerabilitiesListEl.innerHTML = audit.topVulnerabilities.length === 0
+                ? emptyNote('No vulnerabilities detected.')
+                : audit.topVulnerabilities.map(v => `
                 <div class="audit-item vuln">
                     <h4>⚠️ ${v.name} (${v.susceptibilityPercent}% Vulnerability)</h4>
                     <p>${v.description}</p>
@@ -569,7 +457,9 @@ class GradeMyBrainApp {
         }
 
         if (this.strengthsListEl) {
-            this.strengthsListEl.innerHTML = audit.topStrengths.map(s => `
+            this.strengthsListEl.innerHTML = audit.topStrengths.length === 0
+                ? emptyNote('No strengths detected yet.')
+                : audit.topStrengths.map(s => `
                 <div class="audit-item strength">
                     <h4>🛡️ ${s.name} (${100 - s.susceptibilityPercent}% Resiliency)</h4>
                     <p>${s.description}</p>
