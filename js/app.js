@@ -6,7 +6,7 @@
  */
 
 import { sound } from './audio.js';
-import { ScenarioBank, FRAMING_PAIRS } from './scenarioBank.js';
+import { ScenarioBank, PAIRED_TESTS } from './scenarioBank.js';
 import { BiasAnalyzer } from './biasAnalyzer.js';
 import { BrainChart } from './chart.js';
 
@@ -22,7 +22,7 @@ export const GRADES = [
 
 class GradeMyBrainApp {
     constructor() {
-        this.maxRounds = ScenarioBank.getAllScenarios().length;
+        this.maxRounds = 0;
         this.chart = null;
 
         // Header Elements
@@ -131,7 +131,7 @@ class GradeMyBrainApp {
             history: this.history,
             choiceLogs: this.choiceLogs,
             scenarioQueueIds: this.scenarioQueue.map(s => s.id),
-            framingAnswers: this.framingAnswers
+            pairAnswers: this.pairAnswers
         };
         sessionStorage.setItem('gmb_state', JSON.stringify(state));
     }
@@ -146,8 +146,9 @@ class GradeMyBrainApp {
         const queue = (state.scenarioQueueIds || []).map(id =>
             allScenarios.find(s => s.id === id)
         );
-        if (queue.length !== this.maxRounds || queue.some(s => !s)) return false;
+        if (queue.length === 0 || queue.some(s => !s)) return false;
         this.scenarioQueue = queue;
+        this.maxRounds = queue.length;
 
         this.currentRound = state.currentRound;
         this.score = state.score;
@@ -157,7 +158,7 @@ class GradeMyBrainApp {
         this.successfulWagers = state.successfulWagers;
         this.history = state.history;
         this.choiceLogs = state.choiceLogs;
-        this.framingAnswers = state.framingAnswers || {};
+        this.pairAnswers = state.pairAnswers || {};
         this.isProcessing = false;
 
         this.currentScenario = this.scenarioQueue[this.currentRound - 1] || null;
@@ -178,9 +179,10 @@ class GradeMyBrainApp {
         this.history = [{ round: 0, score: 100 }];
         this.choiceLogs = [];
         this.isProcessing = false;
-        this.framingAnswers = {};
+        this.pairAnswers = {};
 
         this.scenarioQueue = ScenarioBank.getRandomizedSessionQueue();
+        this.maxRounds = this.scenarioQueue.length;
 
         this.updateHeaderUI();
         this.chart.updateHistory(this.history);
@@ -271,8 +273,8 @@ class GradeMyBrainApp {
                 }
                 if (this.isProcessing) return;
                 try { sound.playWagerSelect(); } catch(err){}
-                if (this.currentScenario.framingPair) {
-                    this.handleFramingSelection(opt);
+                if (this.currentScenario.pair) {
+                    this.handlePairedSelection(opt);
                 } else {
                     this.handleOptionSelection(opt);
                 }
@@ -282,21 +284,21 @@ class GradeMyBrainApp {
         });
     }
 
-    // --- Framing Pair Selection ---
+    // --- Paired Test Selection ---
 
     // The first scenario of a pair is recorded without scoring; the second one
-    // scores the pair on whether both answers were the same.
-    handleFramingSelection(selectedOpt) {
+    // scores the pair on whether the two answers are consistent with each other.
+    handlePairedSelection(selectedOpt) {
         if (this.isProcessing) return;
         this.isProcessing = true;
 
         try {
             const sc = this.currentScenario;
-            const pair = FRAMING_PAIRS[sc.framingPair];
-            const earlier = this.framingAnswers[sc.framingPair];
+            const pair = PAIRED_TESTS[sc.pair];
+            const earlier = this.pairAnswers[sc.pair];
 
             if (!earlier) {
-                this.framingAnswers[sc.framingPair] = {
+                this.pairAnswers[sc.pair] = {
                     scenarioId: sc.id,
                     answer: selectedOpt.text,
                     value: selectedOpt.value
@@ -309,19 +311,23 @@ class GradeMyBrainApp {
                 return;
             }
 
-            const isConsistent = earlier.value === selectedOpt.value;
+            // isConsistent expects the answers in the order the versions are defined
+            const valueFor = id => (id === sc.id ? selectedOpt.value : earlier.value);
+            const [firstVersion, secondVersion] = pair.versions;
+            const isConsistent = pair.isConsistent(valueFor(firstVersion.id), valueFor(secondVersion.id));
+            const labelFor = id => pair.versions.find(v => v.id === id).label;
             this.totalWagersMade++;
             this.choiceLogs.push({
                 scenarioId: sc.id,
                 biasType: sc.biasType,
-                selectedText: isConsistent ? 'Consistent across frames' : 'Inconsistent across frames',
+                selectedText: isConsistent ? 'Consistent across versions' : 'Inconsistent across versions',
                 biasValue: isConsistent ? 0 : 1
             });
             const deltaScore = this.applyScore(isConsistent);
 
             const reasoning = isConsistent
-                ? `You made the same decision both times. ${pair.reasoning}`
-                : `You made different decisions in the two versions. ${pair.reasoning}`;
+                ? `Your two answers were consistent with each other. ${pair.reasoning}`
+                : `Your two answers were inconsistent with each other. ${pair.reasoning}`;
 
             this.goToReasoningPage({
                 isOptimal: isConsistent,
@@ -331,12 +337,12 @@ class GradeMyBrainApp {
                 biasName: pair.biasName,
                 bookRef: pair.bookRef,
                 framingResponses: [
-                    { partLabel: pair.labels[earlier.scenarioId], answer: earlier.answer },
-                    { partLabel: pair.labels[sc.id], answer: selectedOpt.text }
+                    { partLabel: labelFor(earlier.scenarioId), answer: earlier.answer },
+                    { partLabel: labelFor(sc.id), answer: selectedOpt.text }
                 ]
             });
         } catch (err) {
-            console.error('Error handling framing selection:', err);
+            console.error('Error handling paired selection:', err);
             this.isProcessing = false;
         }
     }
@@ -471,7 +477,8 @@ class GradeMyBrainApp {
         if (this.summaryModal) {
             this.summaryModal.classList.add('active');
             setTimeout(() => {
-                BrainChart.renderRadarChart('bias-radar-chart', audit.summary);
+                // Only plot the biases this session has actually tested
+                BrainChart.renderRadarChart('bias-radar-chart', audit.summary.filter(s => s.count > 0));
             }, 50);
         }
     }

@@ -1,8 +1,9 @@
 /**
- * End-to-end test: plays a full session in headless Brave and checks that
- * every scenario appears exactly once, framing pairs are spaced apart and
- * scored on their second appearance, and the audit summary is shown at the end.
- * Also checks that the audit only lists real vulnerabilities and strengths.
+ * Checks the scenario data and session builder, then plays a full session in
+ * headless Brave and checks that no scenario repeats, paired scenarios are
+ * spaced apart and scored on their second appearance, and the audit summary
+ * is shown at the end. Also checks that the audit only lists real
+ * vulnerabilities and strengths.
  *
  * Run with: npm test
  */
@@ -13,14 +14,16 @@ import path from 'path';
 import assert from 'assert/strict';
 import puppeteer from 'puppeteer-core';
 import { fileURLToPath } from 'url';
-import { MASTER_SCENARIOS } from './js/scenarioBank.js';
+import {
+    MASTER_SCENARIOS, STANDALONE_SCENARIOS, PAIRED_TESTS, BIAS_CATEGORIES,
+    SESSION_ROUNDS, MIN_PAIR_GAP, ScenarioBank
+} from './js/scenarioBank.js';
 import { BiasAnalyzer } from './js/biasAnalyzer.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = 8088;
 const BRAVE_PATH = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser';
-const MIN_FRAMING_GAP = 8;
 
 const MIME_TYPES = {
     '.html': 'text/html',
@@ -60,35 +63,35 @@ async function playSession(page) {
     await page.goto(`http://localhost:${PORT}`, { waitUntil: 'networkidle0' });
 
     const seenIds = [];
-    const framingFirstRound = {};
+    const pairFirstRound = {};
     let expectedScore = 100;
 
-    for (let round = 1; round <= MASTER_SCENARIOS.length; round++) {
+    for (let round = 1; round <= SESSION_ROUNDS; round++) {
         const roundText = await page.$eval('#current-round', el => el.textContent);
-        assert.equal(roundText, `${round} / ${MASTER_SCENARIOS.length}`);
+        assert.equal(roundText, `${round} / ${SESSION_ROUNDS}`);
 
         const title = await page.$eval('#scenario-title', el => el.textContent);
         const scenario = scenariosByTitle.get(title);
         assert.ok(scenario, `Unknown scenario title: ${title}`);
         seenIds.push(scenario.id);
 
-        // Always pick the first option, so framing pairs are always answered consistently
+        // Always pick the first option, which answers every pair consistently
         const cards = await page.$$('.clean-choice-card');
         assert.equal(cards.length, scenario.options.length, `Wrong number of options for ${title}`);
         await clickAndWait(page, cards[0]);
 
         const delta = await page.$eval('#breakdown-score-delta', el => el.textContent);
-        const pair = scenario.framingPair;
+        const pair = scenario.pair;
 
-        if (pair && !(pair in framingFirstRound)) {
-            framingFirstRound[pair] = round;
-            assert.equal(delta, 'Scored later', `First of framing pair should not be scored: ${title}`);
+        if (pair && !(pair in pairFirstRound)) {
+            pairFirstRound[pair] = round;
+            assert.equal(delta, 'Scored later', `First of a pair should not be scored: ${title}`);
         } else if (pair) {
-            const gap = round - framingFirstRound[pair];
-            assert.ok(gap >= MIN_FRAMING_GAP, `Framing pair "${pair}" only ${gap} rounds apart`);
-            assert.equal(delta, '+20 PTS', `Consistent framing answers should score: ${title}`);
+            const gap = round - pairFirstRound[pair];
+            assert.ok(gap >= MIN_PAIR_GAP, `Pair "${pair}" only ${gap} rounds apart`);
+            assert.equal(delta, '+20 PTS', `Consistent pair answers should score: ${title}`);
             const summary = await page.$eval('#framing-summary', el => el.children.length);
-            assert.equal(summary, 2, 'Framing summary should show both answers');
+            assert.equal(summary, 2, 'Pair summary should show both answers');
             expectedScore += 20;
         } else {
             const expectedDelta = scenario.options[0].isBest ? 20 : -15;
@@ -102,7 +105,11 @@ async function playSession(page) {
         await clickAndWait(page, '#next-scenario-btn');
     }
 
-    assert.equal(new Set(seenIds).size, MASTER_SCENARIOS.length, 'A scenario was repeated or skipped');
+    assert.equal(new Set(seenIds).size, SESSION_ROUNDS, 'A scenario was repeated');
+    const seenPairs = seenIds.map(id => MASTER_SCENARIOS.find(s => s.id === id).pair).filter(Boolean);
+    for (const pair of new Set(seenPairs)) {
+        assert.equal(seenPairs.filter(p => p === pair).length, 2, `Pair ${pair} was split up`);
+    }
 
     const auditShown = await page.$eval('#summary-modal', el => el.classList.contains('active'));
     assert.ok(auditShown, 'Audit summary should be shown after the last round');
@@ -114,7 +121,7 @@ async function playSession(page) {
 // The audit only lists real vulnerabilities and strengths
 function checkAuditLists() {
     const logsWithBiasValue = value => MASTER_SCENARIOS
-        .filter(s => !s.framingPair || s.id.endsWith('survival') || s.id.endsWith('pass'))
+        .filter(s => !s.pair || s.id === PAIRED_TESTS[s.pair].versions[0].id)
         .map(s => ({ scenarioId: s.id, biasType: s.biasType, biasValue: value }));
 
     const perfect = BiasAnalyzer.analyzeSession(logsWithBiasValue(0));
@@ -130,14 +137,56 @@ function checkAuditLists() {
         'Untested categories should not be listed');
 }
 
+// Every scenario is well formed and every pair's scoring rule works
+function checkScenarioData() {
+    const ids = MASTER_SCENARIOS.map(s => s.id);
+    assert.equal(new Set(ids).size, ids.length, 'Duplicate scenario ids');
+    const titles = MASTER_SCENARIOS.map(s => s.title);
+    assert.equal(new Set(titles).size, titles.length, 'Duplicate scenario titles');
+
+    for (const s of MASTER_SCENARIOS) {
+        assert.ok(BIAS_CATEGORIES[s.biasType], `Unknown bias type on ${s.id}`);
+        assert.ok(s.scenarioText && s.options.length >= 2, `Incomplete scenario ${s.id}`);
+    }
+    for (const s of STANDALONE_SCENARIOS) {
+        assert.equal(s.options.filter(o => o.isBest).length, 1, `${s.id} needs exactly one best option`);
+        assert.ok(s.bestAnswer && s.reasoning && s.biasName && s.bookRef, `${s.id} is missing explanation fields`);
+    }
+    for (const [pairId, pair] of Object.entries(PAIRED_TESTS)) {
+        assert.equal(pair.versions.length, 2, `Pair ${pairId} needs two versions`);
+        const [a, b] = pair.versions;
+        assert.ok(pair.isConsistent(a.options[0].value, b.options[0].value),
+            `Pair ${pairId}: matching first answers should be consistent`);
+        assert.ok(!pair.isConsistent(a.options.at(-1).value, b.options[0].value),
+            `Pair ${pairId}: opposite answers should be inconsistent`);
+    }
+}
+
+// Sessions never repeat a scenario, keep pairs together, and space them apart
+function checkSessionBuilder() {
+    for (let i = 0; i < 500; i++) {
+        const queue = ScenarioBank.getRandomizedSessionQueue();
+        assert.equal(queue.length, SESSION_ROUNDS);
+        assert.equal(new Set(queue.map(s => s.id)).size, SESSION_ROUNDS, 'Session repeated a scenario');
+        const positions = {};
+        queue.forEach((s, idx) => { if (s.pair) (positions[s.pair] ||= []).push(idx); });
+        for (const [pairId, pos] of Object.entries(positions)) {
+            assert.equal(pos.length, 2, `Pair ${pairId} was split up`);
+            assert.ok(pos[1] - pos[0] >= MIN_PAIR_GAP, `Pair ${pairId} too close together`);
+        }
+    }
+}
+
 server.listen(PORT, async () => {
     let browser;
     try {
+        checkScenarioData();
+        checkSessionBuilder();
         checkAuditLists();
         browser = await puppeteer.launch({ executablePath: BRAVE_PATH, headless: 'new' });
         const page = await browser.newPage();
         const finalScore = await playSession(page);
-        console.log(`PASS: played ${MASTER_SCENARIOS.length} rounds, final score ${finalScore}`);
+        console.log(`PASS: ${MASTER_SCENARIOS.length} scenarios checked, played ${SESSION_ROUNDS} rounds, final score ${finalScore}`);
     } catch (e) {
         console.error('FAIL:', e.message);
         process.exitCode = 1;

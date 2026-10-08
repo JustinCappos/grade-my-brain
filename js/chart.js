@@ -178,7 +178,7 @@ export class BrainChart {
             // Label position slightly outside radius
             const labelX = centerX + Math.cos(angle) * (radius + 28);
             const labelY = centerY + Math.sin(angle) * (radius + 24);
-            const shortName = cat.name.split(' ')[0];
+            const shortName = cat.shortName || cat.name.split(' ')[0];
             ctx.fillText(shortName, labelX, labelY);
 
             // Compute data point (resiliency = 100 - susceptibility)

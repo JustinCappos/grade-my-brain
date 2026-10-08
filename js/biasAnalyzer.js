@@ -48,6 +48,7 @@ export class BiasAnalyzer {
             summary.push({
                 type,
                 name: data.meta.name,
+                shortName: data.meta.shortName,
                 description: data.meta.description,
                 bookRef: data.meta.bookReference,
                 susceptibilityPercent: percent,
