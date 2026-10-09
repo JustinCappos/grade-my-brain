@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+</head>
+<body>
+<title>Grade My Brain Question Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<style>
+/* Layout: one reading column of question cards under a sticky filter bar; each card ends in a review strip. */
+:root {
+    --bg: #f4f6f9;
+    --surface: #ffffff;
+    --surface-2: #eef1f5;
+    --ink: #18212d;
+    --muted: #5a6575;
+    --line: #d9dfe7;
+    --accent: #1f5fbf;
+    --accent-soft: #e3ecfa;
+    --keep: #1a7a48;
+    --keep-soft: #e1f3e9;
+    --unsure: #9a6200;
+    --unsure-soft: #fbf0d9;
+    --cut: #b3222f;
+    --cut-soft: #fbe3e5;
+    --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #0e131a;
+        --surface: #161d27;
+        --surface-2: #1d2632;
+        --ink: #e5eaf1;
+        --muted: #97a2b2;
+        --line: #2a3442;
+        --accent: #7ea9ff;
+        --accent-soft: #1d2b44;
+        --keep: #52c48d;
+        --keep-soft: #16301f;
+        --unsure: #e3a83d;
+        --unsure-soft: #33280f;
+        --cut: #f17580;
+        --cut-soft: #3a1a1e;
+        color-scheme: dark;
+    }
+}
+:root[data-theme="dark"] {
+    --bg: #0e131a;
+    --surface: #161d27;
+    --surface-2: #1d2632;
+    --ink: #e5eaf1;
+    --muted: #97a2b2;
+    --line: #2a3442;
+    --accent: #7ea9ff;
+    --accent-soft: #1d2b44;
+    --keep: #52c48d;
+    --keep-soft: #16301f;
+    --unsure: #e3a83d;
+    --unsure-soft: #33280f;
+    --cut: #f17580;
+    --cut-soft: #3a1a1e;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.55;
+}
+.page {
+    max-width: 980px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 32px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+h1 { font-size: 2rem; line-height: 1.15; }
+p { margin: 0; }
+a { color: var(--accent); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.intro { display: flex; flex-direction: column; gap: 8px; max-width: 68ch; }
+.intro p { color: var(--muted); }
+.storage-note {
+    font-size: 0.85rem;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+}
+.storage-note strong { color: var(--ink); font-weight: 600; }
+
+.summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.summary-pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+.summary-pill b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
+
+.filters {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+.filters input[type="search"],
+.filters select {
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--bg);
+    min-width: 0;
+}
+.filters input[type="search"] { flex: 1 1 200px; }
+.filters select { flex: 0 1 auto; max-width: 100%; }
+.filters label { display: inline-flex; gap: 6px; align-items: center; font-size: 0.88rem; color: var(--muted); }
+.result-count { margin-left: auto; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.cards { display: flex; flex-direction: column; gap: 16px; }
+.card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 22px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+.card[data-mine="keep"] { box-shadow: inset 4px 0 0 var(--keep); }
+.card[data-mine="unsure"] { box-shadow: inset 4px 0 0 var(--unsure); }
+.card[data-mine="cut"] { box-shadow: inset 4px 0 0 var(--cut); }
+
+.card-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.qid { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); margin-right: 4px; }
+.chip {
+    font-size: 0.74rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 5px;
+    background: var(--surface-2);
+    color: var(--muted);
+    white-space: nowrap;
+}
+.chip-bias { background: var(--accent-soft); color: var(--accent); }
+.card h2 { font-size: 1.3rem; }
+.prompt { max-width: 72ch; }
+
+.options { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.options li {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    font-size: 0.92rem;
+}
+.options li.best { background: var(--keep-soft); }
+.opt-mark { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); min-width: 4.5em; flex: none; }
+.options li.best .opt-mark { color: var(--keep); font-weight: 500; }
+
+.versions { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.version {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+.version-label { font-size: 0.78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.version h3 { font-size: 1.02rem; }
+.rule { font-size: 0.88rem; color: var(--muted); }
+
+.explain { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; }
+.label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: var(--muted);
+}
+.best-answer { color: var(--keep); font-weight: 600; }
+.cite { font-size: 0.85rem; color: var(--muted); font-style: italic; }
+
+details.topic { border-top: 1px dashed var(--line); padding-top: 10px; }
+details.topic summary { cursor: pointer; font-size: 0.88rem; color: var(--muted); font-weight: 500; }
+.topic-body { display: flex; flex-direction: column; gap: 8px; padding: 10px 0 2px; font-size: 0.9rem; }
+.topic-body ul { margin: 0; padding-left: 18px; }
+.kind { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-right: 6px; }
+.kind-deceptive { color: var(--cut); }
+.kind-good { color: var(--keep); }
+.kind-example { color: var(--muted); }
+
+.review {
+    margin: 4px -22px 0;
+    padding: 14px 22px 16px;
+    background: var(--surface-2);
+    border-top: 1px solid var(--line);
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.review-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.verdicts { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.verdicts button {
+    border: 0;
+    padding: 6px 14px;
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+.verdicts button + button { border-left: 1px solid var(--line); }
+.verdicts button[aria-pressed="true"][data-verdict="keep"] { background: var(--keep-soft); color: var(--keep); }
+.verdicts button[aria-pressed="true"][data-verdict="unsure"] { background: var(--unsure-soft); color: var(--unsure); }
+.verdicts button[aria-pressed="true"][data-verdict="cut"] { background: var(--cut-soft); color: var(--cut); }
+.verdicts button:disabled { cursor: default; opacity: 0.6; }
+.tally { font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tally .t-keep { color: var(--keep); }
+.tally .t-unsure { color: var(--unsure); }
+.tally .t-cut { color: var(--cut); }
+.save-state { font-size: 0.8rem; color: var(--muted); margin-left: auto; }
+.review textarea {
+    width: 100%;
+    min-height: 56px;
+    resize: vertical;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--surface);
+}
+.others { display: flex; flex-direction: column; gap: 6px; }
+.other-note { font-size: 0.88rem; display: flex; flex-wrap: wrap; gap: 4px 8px; }
+.other-note .who { font-weight: 600; }
+.other-note .v-keep { color: var(--keep); }
+.other-note .v-unsure { color: var(--unsure); }
+.other-note .v-cut { color: var(--cut); }
+
+.tool-btn {
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+.empty { padding: 32px; text-align: center; color: var(--muted); }
+
+@media (max-width: 560px) {
+    .page { padding-inline: 16px; padding-block: 20px 48px; }
+    h1 { font-size: 1.6rem; }
+    .card { padding: 16px 16px 0; }
+    .review { margin: 4px -16px 0; padding: 12px 16px 14px; }
+    .result-count { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    * { scroll-behavior: auto !important; }
+}
+</style>
+
+<div class="page">
+    <header class="intro">
+        <h1>Grade My Brain question bank</h1>
+        <p>
+            Every question the game can ask, with its answers, explanation and source. Mark each one
+            <strong>Keep</strong>, <strong>Unsure</strong> or <strong>Cut</strong>, and add a note on anything that
+            should change. Paired questions are shown together because they are scored together.
+        </p>
+        <div class="storage-note">
+            <span id="storage-mode">Connecting…</span>
+            <button id="copy-marks" class="tool-btn" type="button">Copy my marks as JSON</button>
+            <span id="copy-status" aria-live="polite"></span>
+        </div>
+    </header>
+
+    <div class="summary" id="summary"></div>
+
+    <div class="filters" role="search">
+        <input id="f-search" type="search" placeholder="Search text, ids, citations" aria-label="Search questions">
+        <select id="f-bias" aria-label="Bias type"></select>
+        <select id="f-kind" aria-label="Question kind">
+            <option value="">All kinds</option>
+            <option value="standalone">Standalone</option>
+            <option value="pair">Paired</option>
+            <option value="practice">Practice only</option>
+        </select>
+        <select id="f-source" aria-label="Source">
+            <option value="">All sources</option>
+            <option value="book">Thinking, Fast and Slow</option>
+            <option value="other">Other research</option>
+        </select>
+        <select id="f-sort" aria-label="Sort order">
+            <option value="pool">Pool order</option>
+            <option value="cut">Most cut votes</option>
+            <option value="unreviewed">Fewest reviews</option>
+        </select>
+        <label><input id="f-unmarked" type="checkbox"> Only ones I haven't marked</label>
+        <span class="result-count" id="result-count"></span>
+    </div>
+
+    <main class="cards" id="cards" aria-live="polite">
+        <p class="empty">Loading questions…</p>
+    </main>
+</div>
+
+<script type="module">
+import { STANDALONE_SCENARIOS, PAIRED_TESTS, BIAS_CATEGORIES } from './js/scenarioBank.js';
+
+const VERDICTS = [
+    { key: 'keep', label: 'Keep' },
+    { key: 'unsure', label: 'Unsure' },
+    { key: 'cut', label: 'Cut' }
+];
+const LOCAL_KEY = 'gmb_question_review_marks';
+const RULE_TEXT = {
+    sameAnswer: 'Scored as consistent when both versions get the same answer.',
+    firstNotHigher: 'Scored as consistent when the first version\'s answer is not higher than the second\'s.'
+};
+const KIND_LABEL = { deceptive: 'Deceptive', good: 'Better practice', example: 'Example' };
+
+// ---------- Question items ----------
+
+const items = [
+    ...STANDALONE_SCENARIOS.map(s => ({
+        key: s.id,
+        kind: s.practiceOnly ? 'practice' : 'standalone',
+        biasType: s.biasType,
+        title: s.title,
+        bookRef: s.bookRef,
+        scenario: s,
+        searchText: [s.id, s.title, s.scenarioText, s.bestAnswer, s.reasoning, s.bookRef, ...s.options.map(o => o.text)].join(' ')
+    })),
+    ...Object.entries(PAIRED_TESTS).map(([pairId, p]) => ({
+        key: 'pair:' + pairId,
+        kind: 'pair',
+        biasType: p.biasType,
+        title: p.biasName,
+        bookRef: p.bookRef,
+        pair: p,
+        pairId,
+        searchText: [pairId, p.biasName, p.reasoning, p.bestAnswer, p.bookRef,
+            ...p.versions.flatMap(v => [v.id, v.title, v.scenarioText, ...v.options.map(o => o.text)])].join(' ')
+    }))
+];
+items.forEach((item, idx) => {
+    item.order = idx;
+    item.isBook = /Thinking, Fast and Slow/.test(item.bookRef);
+    item.searchText = item.searchText.toLowerCase();
+});
+
+// ---------- Review state ----------
+
+const state = {
+    mode: 'local',      // 'shared' or 'local'
+    readOnly: false,
+    myId: null,
+    mine: {},           // key -> { verdict, note }
+    others: {},         // reviewerId -> { key -> { verdict, note } }
+    names: {}
+};
+let db = null;
+let user = null;
+
+function loadLocal() {
+    try { return JSON.parse(localStorage.getItem(LOCAL_KEY)) || {}; } catch (err) { return {}; }
+}
+function saveLocal() {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state.mine)); } catch (err) { /* storage blocked */ }
+}
+
+// Shared writes: one at a time, coalescing bursts into the latest state
+let writeInFlight = false;
+let writeQueued = false;
+let saveTimer = null;
+async function flushShared() {
+    if (writeInFlight) { writeQueued = true; return; }
+    writeInFlight = true;
+    setSaveState('Saving…');
+    try {
+        await db.doc('votes/' + state.myId).set({ marks: state.mine, updatedAt: Date.now() });
+        setSaveState('Saved');
+    } catch (err) {
+        if (err && err.code === 'invalid_argument') {
+            state.readOnly = true;
+            renderStorageMode();
+            renderAll();
+            setSaveState('');
+        } else if (err && err.code === 'quota_exceeded') {
+            setSaveState('Not saved: the shared store is full');
+        } else {
+            setSaveState('Not saved; try again');
+        }
+    } finally {
+        writeInFlight = false;
+        if (writeQueued) { writeQueued = false; flushShared(); }
+    }
+}
+function persist(delay = 0) {
+    if (state.mode === 'local') {
+        saveLocal();
+        setSaveState('Saved in this browser');
+        return;
+    }
+    clearTimeout(saveTimer);
+    setSaveState('Unsaved changes');
+    saveTimer = setTimeout(flushShared, delay);
+}
+function setSaveState(text) {
+    document.querySelectorAll('.save-state').forEach(el => { el.textContent = ''; });
+    if (lastEditedKey) {
+        const el = document.querySelector(`.card[data-key="${CSS.escape(lastEditedKey)}"] .save-state`);
+        if (el) el.textContent = text;
+    }
+}
+let lastEditedKey = null;
+
+// ---------- Rendering ----------
+
+const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const cardsEl = document.getElementById('cards');
+
+function optionsHtml(options, { scored }) {
+    return `<ul class="options">${options.map(o => {
+        const mark = scored
+            ? (o.isBest ? '✓ best' : `bias ${o.biasValue}`)
+            : `value ${esc(o.value)}`;
+        return `<li class="${scored && o.isBest ? 'best' : ''}"><span class="opt-mark">${mark}</span><span>${esc(o.text)}</span></li>`;
+    }).join('')}</ul>`;
+}
+
+function topicHtml(biasType) {
+    const c = BIAS_CATEGORIES[biasType];
+    const examples = c.examples || [];
+    return `
+        <details class="topic">
+            <summary>Topic notes: ${esc(c.name)}</summary>
+            <div class="topic-body">
+                <p>${esc(c.description)}</p>
+                <p><span class="label">How to think differently</span><br>${esc(c.tip || 'No tip yet.')}</p>
+                ${examples.length ? `<div><span class="label">Real-world examples</span><ul>${examples.map(ex => `
+                    <li><span class="kind kind-${esc(ex.kind)}">${esc(KIND_LABEL[ex.kind] || 'Example')}</span><a href="${esc(ex.url)}" target="_blank" rel="noopener noreferrer">${esc(ex.label)}</a>${ex.source ? ` · ${esc(ex.source)}` : ''}</li>`).join('')}</ul></div>` : ''}
+            </div>
+        </details>`;
+}
+
+function cardBodyHtml(item) {
+    if (item.kind === 'pair') {
+        const p = item.pair;
+        return `
+            <p class="rule">${esc(RULE_TEXT[p.isConsistent.name] || 'Custom consistency rule.')} The two versions are asked at least 8 questions apart.</p>
+            <div class="versions">${p.versions.map(v => `
+                <section class="version">
+                    <span class="version-label">${esc(v.label)} · <span class="qid">${esc(v.id)}</span></span>
+                    <h3>${esc(v.title)}</h3>
+                    <p>${esc(v.scenarioText)}</p>
+                    ${optionsHtml(v.options, { scored: false })}
+                </section>`).join('')}
+            </div>
+            <div class="explain">
+                <span class="label">Counts as correct</span>
+                <p class="best-answer">${esc(p.bestAnswer)}</p>
+                <span class="label">Explanation</span>
+                <p>${esc(p.reasoning)}</p>
+                <p class="cite">${esc(p.bookRef)}</p>
+            </div>`;
+    }
+    const s = item.scenario;
+    return `
+        <p class="prompt">${esc(s.scenarioText)}</p>
+        ${optionsHtml(s.options, { scored: true })}
+        <div class="explain">
+            <span class="label">Best answer</span>
+            <p class="best-answer">${esc(s.bestAnswer)}</p>
+            <span class="label">Explanation</span>
+            <p>${esc(s.reasoning)}</p>
+            <p class="cite">${esc(s.bookRef)}</p>
+        </div>`;
+}
+
+function renderCards() {
+    cardsEl.innerHTML = items.map(item => {
+        const c = BIAS_CATEGORIES[item.biasType];
+        const kindChip = { standalone: 'Standalone', pair: 'Paired', practice: 'Practice only' }[item.kind];
+        return `
+            <article class="card" data-key="${esc(item.key)}">
+                <div class="card-meta">
+                    <span class="qid">${esc(item.key)}</span>
+                    <span class="chip chip-bias">${esc(c.name)}</span>
+                    <span class="chip">${kindChip}</span>
+                    <span class="chip">${item.isBook ? 'Book' : 'Other research'}</span>
+                </div>
+                <h2>${esc(item.title)}</h2>
+                ${cardBodyHtml(item)}
+                ${topicHtml(item.biasType)}
+                <div class="review">
+                    <div class="review-row">
+                        <div class="verdicts" role="group" aria-label="Your verdict">
+                            ${VERDICTS.map(v => `<button type="button" data-verdict="${v.key}" aria-pressed="false">${v.label}</button>`).join('')}
+                        </div>
+                        <span class="tally"></span>
+                        <span class="save-state" aria-live="polite"></span>
+                    </div>
+                    <textarea id="note-${esc(item.key.replace(/[^a-z0-9-]/gi, '-'))}" placeholder="Note for the team (optional)" aria-label="Your note"></textarea>
+                    <div class="others"></div>
+                </div>
+            </article>`;
+    }).join('');
+
+    cardsEl.querySelectorAll('.card').forEach(card => {
+        const key = card.dataset.key;
+        card.querySelectorAll('.verdicts button').forEach(btn => {
+            btn.onclick = () => {
+                if (state.readOnly) return;
+                const verdict = btn.dataset.verdict;
+                const current = state.mine[key] || {};
+                const next = { ...current, verdict: current.verdict === verdict ? null : verdict };
+                setMine(key, next);
+                lastEditedKey = key;
+                renderReview(key);
+                renderSummary();
+                persist(0);
+            };
+        });
+        const ta = card.querySelector('textarea');
+        ta.oninput = () => {
+            if (state.readOnly) return;
+            setMine(key, { ...(state.mine[key] || {}), note: ta.value });
+            lastEditedKey = key;
+            persist(800);
+        };
+    });
+}
+
+function setMine(key, mark) {
+    const clean = { verdict: mark.verdict || null, note: (mark.note || '').slice(0, 2000) };
+    if (!clean.verdict && !clean.note) delete state.mine[key];
+    else state.mine[key] = clean;
+}
+
+function marksFor(key) {
+    const all = Object.entries(state.others).map(([id, marks]) => [id, marks[key]]).filter(([, m]) => m);
+    if (state.mode === 'local' && state.mine[key]) all.push(['me', state.mine[key]]);
+    if (state.mode === 'shared' && state.mine[key]) all.push([state.myId, state.mine[key]]);
+    return all;
+}
+
+function renderReview(key) {
+    const card = cardsEl.querySelector(`.card[data-key="${CSS.escape(key)}"]`);
+    if (!card) return;
+    const mine = state.mine[key] || {};
+    card.dataset.mine = mine.verdict || '';
+    card.querySelectorAll('.verdicts button').forEach(btn => {
+        btn.setAttribute('aria-pressed', String(mine.verdict === btn.dataset.verdict));
+        btn.disabled = state.readOnly;
+    });
+    const ta = card.querySelector('textarea');
+    ta.disabled = state.readOnly;
+    ta.placeholder = state.readOnly ? 'You can read reviews here but not add your own.' : 'Note for the team (optional)';
+    if (document.activeElement !== ta) ta.value = mine.note || '';
+
+    const marks = marksFor(key);
+    const count = v => marks.filter(([, m]) => m.verdict === v).length;
+    card.querySelector('.tally').innerHTML = marks.length
+        ? `<span class="t-keep">Keep ${count('keep')}</span> · <span class="t-unsure">Unsure ${count('unsure')}</span> · <span class="t-cut">Cut ${count('cut')}</span>`
+        : 'No reviews yet';
+
+    const othersEl = card.querySelector('.others');
+    othersEl.textContent = '';
+    Object.entries(state.others).forEach(([id, theirMarks]) => {
+        const m = theirMarks[key];
+        if (!m || (!m.note && !m.verdict)) return;
+        const row = document.createElement('p');
+        row.className = 'other-note';
+        const who = document.createElement('span');
+        who.className = 'who';
+        who.textContent = state.names[id] || 'A reviewer';
+        row.appendChild(who);
+        if (m.verdict) {
+            const v = document.createElement('span');
+            v.className = 'v-' + m.verdict;
+            v.textContent = VERDICTS.find(x => x.key === m.verdict)?.label || '';
+            row.appendChild(v);
+        }
+        if (m.note) {
+            const n = document.createElement('span');
+            n.textContent = m.note;
+            row.appendChild(n);
+        }
+        othersEl.appendChild(row);
+    });
+}
+
+function renderSummary() {
+    const mineCounts = { keep: 0, unsure: 0, cut: 0 };
+    Object.values(state.mine).forEach(m => { if (m.verdict) mineCounts[m.verdict]++; });
+    const marked = mineCounts.keep + mineCounts.unsure + mineCounts.cut;
+    const reviewers = Object.keys(state.others).length + (Object.keys(state.mine).length ? 1 : 0);
+    const pill = (label, value) => `<span class="summary-pill">${label} <b>${value}</b></span>`;
+    document.getElementById('summary').innerHTML = [
+        pill('Questions', items.length),
+        pill('You kept', mineCounts.keep),
+        pill('Unsure', mineCounts.unsure),
+        pill('Cut', mineCounts.cut),
+        pill('Not marked by you', items.length - marked),
+        state.mode === 'shared' ? pill('Reviewers so far', reviewers) : ''
+    ].join('');
+}
+
+function cutVotes(key) {
+    return marksFor(key).filter(([, m]) => m.verdict === 'cut').length;
+}
+
+function applyFilters() {
+    const q = document.getElementById('f-search').value.trim().toLowerCase();
+    const bias = document.getElementById('f-bias').value;
+    const kind = document.getElementById('f-kind').value;
+    const source = document.getElementById('f-source').value;
+    const sort = document.getElementById('f-sort').value;
+    const unmarked = document.getElementById('f-unmarked').checked;
+
+    const sorted = [...items].sort((a, b) => {
+        if (sort === 'cut') return cutVotes(b.key) - cutVotes(a.key) || a.order - b.order;
+        if (sort === 'unreviewed') return marksFor(a.key).length - marksFor(b.key).length || a.order - b.order;
+        return a.order - b.order;
+    });
+    let shown = 0;
+    sorted.forEach(item => {
+        const card = cardsEl.querySelector(`.card[data-key="${CSS.escape(item.key)}"]`);
+        const visible = (!q || item.searchText.includes(q))
+            && (!bias || item.biasType === bias)
+            && (!kind || item.kind === kind)
+            && (!source || (source === 'book') === item.isBook)
+            && (!unmarked || !(state.mine[item.key] && state.mine[item.key].verdict));
+        card.hidden = !visible;
+        cardsEl.appendChild(card);
+        if (visible) shown++;
+    });
+    document.getElementById('result-count').textContent = `${shown} of ${items.length} shown`;
+}
+
+function renderAll() {
+    items.forEach(item => renderReview(item.key));
+    renderSummary();
+    applyFilters();
+}
+
+function renderStorageMode() {
+    const el = document.getElementById('storage-mode');
+    if (state.mode === 'shared') {
+        el.innerHTML = state.readOnly
+            ? '<strong>Read-only.</strong> You can see everyone\'s reviews, but your access level doesn\'t allow adding your own.'
+            : '<strong>Shared review.</strong> Your marks and notes are saved for everyone reviewing this page.';
+    } else {
+        el.innerHTML = '<strong>Saved in this browser only.</strong> Use "Copy my marks" to send your review to the team.';
+    }
+}
+
+// ---------- Filters ----------
+
+const biasSelect = document.getElementById('f-bias');
+biasSelect.innerHTML = '<option value="">All bias types</option>' +
+    Object.entries(BIAS_CATEGORIES)
+        .filter(([key]) => items.some(i => i.biasType === key))
+        .sort((a, b) => a[1].name.localeCompare(b[1].name))
+        .map(([key, c]) => `<option value="${key}">${esc(c.name)}</option>`).join('');
+['f-search', 'f-bias', 'f-kind', 'f-source', 'f-sort', 'f-unmarked'].forEach(id => {
+    document.getElementById(id).addEventListener('input', applyFilters);
+});
+
+document.getElementById('copy-marks').onclick = async () => {
+    const text = JSON.stringify(state.mine, null, 2);
+    const status = document.getElementById('copy-status');
+    try {
+        await navigator.clipboard.writeText(text);
+        status.textContent = 'Copied.';
+    } catch (err) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        status.textContent = 'Press Ctrl+C or ⌘C to copy the selected text.';
+    }
+};
+
+// ---------- Start ----------
+
+renderCards();
+state.mine = loadLocal();
+renderStorageMode();
+renderAll();
+
+// When published with the db capability, switch to the shared store
+(async () => {
+    if (!window.claude || typeof window.claude.use !== 'function') return;
+    [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+    const myId = user ? await user.id() : null;
+    if (!db || !myId) return;
+
+    state.mode = 'shared';
+    state.myId = myId;
+    state.mine = {};
+    state.readOnly = (await user.can('data.write')) === false;
+
+    let first = true;
+    db.collection('votes').onSnapshot(async snap => {
+        const others = {};
+        snap.docs.forEach(doc => {
+            const body = doc.data() || {};
+            if (doc.id === myId) {
+                if (first) state.mine = body.marks || {};
+            } else {
+                others[doc.id] = body.marks || {};
+            }
+        });
+        first = false;
+        state.others = others;
+        const ids = Object.keys(others);
+        if (ids.length) {
+            const profiles = await user.profiles(ids);
+            ids.forEach(id => { state.names[id] = profiles[id]?.name || 'A reviewer'; });
+        }
+        renderStorageMode();
+        renderAll();
+    }, () => {
+        document.getElementById('storage-mode').innerHTML =
+            '<strong>Shared reviews are unavailable right now.</strong> Reload the page to try again.';
+    });
+})();
+</script>
+</body>
+</html>

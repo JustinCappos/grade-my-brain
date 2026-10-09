@@ -2,6 +2,7 @@
   "name": "grade-my-brain",
   "version": "1.0.0",
   "scripts": {
+    "start": "node serve.js",
     "test": "node test_brave.js"
   },
   "keywords": [],

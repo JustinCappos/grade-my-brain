@@ -14,8 +14,8 @@
         <div class="brand-section">
             <h1 class="brand-title">Grade My Brain</h1>
             <div class="grade-badge-container">
-                <div id="grade-badge" class="grade-badge">C</div>
-                <div id="grade-title" class="grade-title">Calculated Analyst</div>
+                <div id="grade-badge" class="grade-badge">?</div>
+                <div id="grade-title" class="grade-title">Not graded yet</div>
             </div>
         </div>
 
@@ -25,26 +25,48 @@
                 <span id="current-score" class="stat-val">100</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Round</span>
-                <span id="current-round" class="stat-val">1 / 24</span>
+                <span class="stat-label">Question</span>
+                <span id="current-round" class="stat-val">–</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Streak</span>
-                <span id="current-streak" class="stat-val">0🔥</span>
+                <span class="stat-label">Next Review</span>
+                <span id="next-review" class="stat-val">10</span>
             </div>
         </div>
 
         <div class="header-controls">
             <button id="view-audit-btn" class="control-btn" style="background: rgba(6, 182, 212, 0.2); border-color: rgba(6, 182, 212, 0.4);">📊 View Audit</button>
             <button id="sound-toggle-btn" class="control-btn">🔊 Sound: ON</button>
-            <button id="restart-btn" class="control-btn">🔄 Restart</button>
+            <button id="switch-id-btn" class="control-btn">👤 Switch ID</button>
         </div>
     </header>
 
     <!-- Main Game Layout -->
     <main class="main-container">
+        <!-- ID Code & Consent -->
+        <section id="intro-view" class="intro-panel glass-panel" hidden>
+            <h2 class="brand-title" style="font-size: 1.8rem;">Before you begin</h2>
+            <p class="intro-text">
+                Enter the ID code you were given. Your progress is saved under this code, so you can
+                come back later and pick up where you left off.
+            </p>
+
+            <form id="intro-form" class="intro-form" novalidate>
+                <label for="id-code-input" class="intro-label">ID code</label>
+                <input id="id-code-input" class="intro-input" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. NYU-4821">
+                <p id="id-code-error" class="form-error" hidden>Enter your ID code to continue.</p>
+
+                <label class="consent-row" for="privacy-consent">
+                    <input type="checkbox" id="privacy-consent" checked>
+                    <span>I have read and agree to the <a href="privacy.html" target="_blank" rel="noopener" id="privacy-link">Privacy Policy</a>.</span>
+                </label>
+
+                <button id="intro-continue-btn" type="submit" class="glow-btn intro-continue">Continue →</button>
+            </form>
+        </section>
+
         <!-- Active Scenario Stage -->
-        <section id="scenario-stage" class="wagers-section">
+        <section id="scenario-stage" class="wagers-section" hidden>
             <!-- Scenario Prompt Card -->
             <div class="scenario-banner glass-panel">
                 <h2 id="scenario-title" class="section-title">Loading Scenario...</h2>
@@ -60,9 +82,10 @@
                     <!-- Dynamic Scenario Options -->
                 </div>
             </div>
-
-
         </section>
+
+        <!-- Review checkpoint: explanations, practice questions, or the all-done message -->
+        <section id="checkpoint-view" class="checkpoint-panel glass-panel" hidden></section>
 
         <!-- Sidebar Analytics -->
         <aside class="sidebar">
@@ -76,41 +99,41 @@
 
             <!-- Grade Scale Panel -->
             <div class="grade-scale-panel glass-panel">
-                <h3 class="section-title">🏆 Grade Thresholds</h3>
+                <h3 class="section-title">🏆 Grades by Accuracy</h3>
                 <div class="grade-list">
                     <div class="grade-row">
                         <span class="grade-tag" style="background:#06b6d4;">S+</span>
-                        <span>396+ PTS</span>
+                        <span>95–100%</span>
                         <span>Transcendent Genius</span>
                     </div>
                     <div class="grade-row">
                         <span class="grade-tag" style="background:#ec4899;">S</span>
-                        <span>296 - 395</span>
+                        <span>90–94%</span>
                         <span>Elite Mastermind</span>
                     </div>
                     <div class="grade-row">
                         <span class="grade-tag" style="background:#8b5cf6;">A</span>
-                        <span>216 - 295</span>
+                        <span>80–89%</span>
                         <span>Grandmaster</span>
                     </div>
                     <div class="grade-row">
                         <span class="grade-tag" style="background:#3b82f6;">B</span>
-                        <span>156 - 215</span>
+                        <span>70–79%</span>
                         <span>Tactical Mind</span>
                     </div>
                     <div class="grade-row">
                         <span class="grade-tag" style="background:#eab308;">C</span>
-                        <span>111 - 155</span>
+                        <span>60–69%</span>
                         <span>Calculated Analyst</span>
                     </div>
                     <div class="grade-row">
                         <span class="grade-tag" style="background:#f97316;">D</span>
-                        <span>80 - 110</span>
+                        <span>50–59%</span>
                         <span>Novice Risk-Taker</span>
                     </div>
                     <div class="grade-row">
                         <span class="grade-tag" style="background:#ef4444;">F</span>
-                        <span>0 - 79</span>
+                        <span>Below 50%</span>
                         <span>Cognitive Casualty</span>
                     </div>
                 </div>
@@ -137,6 +160,9 @@
                     <p style="font-size: 1.1rem;">Brain Score: <strong id="final-score" style="color: var(--primary-cyan);">250</strong> PTS | System 2 Accuracy: <strong id="stat-accuracy" style="color: #34d399;">70%</strong></p>
                 </div>
             </div>
+
+            <!-- Progress across sessions for this ID code -->
+            <div id="progress-summary" class="progress-summary"></div>
 
             <!-- System 1 vs System 2 Meter -->
             <div class="system-balance-box">
@@ -178,8 +204,8 @@
                 </div>
             </div>
 
-            <button id="play-again-btn" class="glow-btn" style="margin-top: 25px; width: 240px; font-size: 1.1rem; margin-left: auto; margin-right: auto; display: block;">
-                🔄 Restart Audit Session
+            <button id="play-again-btn" class="glow-btn" style="margin-top: 25px; width: 260px; font-size: 1.1rem; margin-left: auto; margin-right: auto; display: block;">
+                ▶ Retest Weak Topics
             </button>
         </div>
     </div>

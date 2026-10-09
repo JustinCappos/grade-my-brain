@@ -5,133 +5,156 @@
  * Each scenario provides clear operational requirements, best answers, reasoning, and book citations.
  */
 
+import { REAL_WORLD_EXAMPLES } from './realWorldExamples.js';
+
 export const BIAS_CATEGORIES = {
     // --- From Thinking, Fast and Slow ---
     HALO: {
         name: "Halo Effect",
         shortName: "Halo",
         description: "Letting the first or most salient trait color the judgment of everything else about a person or product.",
-        bookReference: "Thinking, Fast and Slow - Chapter 7"
+        bookReference: "Thinking, Fast and Slow - Chapter 7",
+        tip: "Judge each trait separately before forming an overall impression. Ask: if I had heard these facts in the opposite order, would my rating change?"
     },
     WYSIATI: {
         name: "What You See Is All There Is",
         shortName: "WYSIATI",
         description: "Drawing confident conclusions from the evidence in front of you while ignoring the evidence you were not shown.",
-        bookReference: "Thinking, Fast and Slow - Chapter 7"
+        bookReference: "Thinking, Fast and Slow - Chapter 7",
+        tip: "Before concluding, ask what evidence you are not being shown: who failed, who was left out, and who chose what to show you."
     },
     SMALL_NUMBERS: {
         name: "Law of Small Numbers",
         shortName: "Small N",
         description: "Treating results from small samples as if they were as reliable as results from large ones.",
-        bookReference: "Thinking, Fast and Slow - Chapter 10"
+        bookReference: "Thinking, Fast and Slow - Chapter 10",
+        tip: "Check the sample size before the result. Extreme results (best and worst) come disproportionately from small groups."
     },
     ANCHORING: {
         name: "Anchoring Effect",
         shortName: "Anchoring",
         description: "Disproportionate reliance on an initial arbitrary number when making estimates or bids.",
-        bookReference: "Thinking, Fast and Slow - Chapter 11"
+        bookReference: "Thinking, Fast and Slow - Chapter 11",
+        tip: "Notice the first number you saw and ask whether it carries real information. Form your own estimate from independent facts before looking at the offered number."
     },
     AVAILABILITY: {
         name: "Availability Heuristic",
         shortName: "Availability",
         description: "Overestimating the likelihood of events that are vivid or recent in memory.",
-        bookReference: "Thinking, Fast and Slow - Chapters 12 & 13"
+        bookReference: "Thinking, Fast and Slow - Chapters 12 & 13",
+        tip: "When something feels common, ask whether it is actually frequent or just vivid, recent, or heavily covered. Look for base statistics before judging risk."
     },
     REPRESENTATIVENESS: {
         name: "Representativeness Fallacy",
         shortName: "Conjunction",
         description: "Judging probability by similarity to a stereotype while ignoring statistical set logic (Conjunction Fallacy).",
-        bookReference: "Thinking, Fast and Slow - Chapter 15"
+        bookReference: "Thinking, Fast and Slow - Chapter 15",
+        tip: "Adding details makes a story more plausible but never more probable. Every extra condition can only lower the probability."
     },
     LESS_IS_MORE: {
         name: "Less Is More (Separate Evaluation)",
         shortName: "Less-is-more",
         description: "Valuing a smaller, flawless set above a larger set that contains it, when each is judged on its own.",
-        bookReference: "Thinking, Fast and Slow - Chapters 15 & 33"
+        bookReference: "Thinking, Fast and Slow - Chapters 15 & 33",
+        tip: "Compare totals, not averages or impressions. Ask what each option contains in full, and whether one includes everything the other has."
     },
     BASE_RATE: {
         name: "Base Rate Neglect",
         shortName: "Base rate",
         description: "Ignoring general statistical baseline frequencies in favor of specific anecdotes.",
-        bookReference: "Thinking, Fast and Slow - Chapter 16"
+        bookReference: "Thinking, Fast and Slow - Chapter 16",
+        tip: "Start with how common the thing is in the first place, then adjust for the new evidence. Picture 1,000 people and count the true and false positives."
     },
     REGRESSION: {
         name: "Regression to the Mean",
         shortName: "Regression",
         description: "Inventing causes for changes that are simply extreme results drifting back toward average.",
-        bookReference: "Thinking, Fast and Slow - Chapters 17 & 18"
+        bookReference: "Thinking, Fast and Slow - Chapters 17 & 18",
+        tip: "Expect extreme results to be followed by less extreme ones. Before crediting a cause for a change, ask whether luck alone would have produced it."
     },
     OUTCOME_BIAS: {
         name: "Outcome Bias",
         shortName: "Outcome",
         description: "Judging the quality of a decision by how it turned out rather than by what was knowable when it was made.",
-        bookReference: "Thinking, Fast and Slow - Chapter 19"
+        bookReference: "Thinking, Fast and Slow - Chapter 19",
+        tip: "Judge a decision by what was knowable when it was made, not by how it turned out. Ask: with the same information, would this be the right call again?"
     },
     INTUITION_VS_FORMULA: {
         name: "Intuition vs. Formulas",
         shortName: "Formulas",
         description: "Trusting a holistic gut impression over a simple, consistent scoring rule that predicts better.",
-        bookReference: "Thinking, Fast and Slow - Chapter 21"
+        bookReference: "Thinking, Fast and Slow - Chapter 21",
+        tip: "Decide the criteria in advance, score them consistently, and trust the score. Use your gut as one more input, not as a veto."
     },
     PLANNING: {
         name: "Planning Fallacy",
         shortName: "Planning",
         description: "Unrealistic optimism regarding time, costs, and risks of future projects.",
-        bookReference: "Thinking, Fast and Slow - Chapter 23"
+        bookReference: "Thinking, Fast and Slow - Chapter 23",
+        tip: "Take the outside view: look at how long and how much similar projects actually took, then adjust from there rather than from the best case."
     },
     LOSS_AVERSION: {
         name: "Loss Aversion",
         shortName: "Loss aversion",
         description: "Feeling the pain of losses ~2x more intensely than the pleasure of equivalent gains.",
-        bookReference: "Thinking, Fast and Slow - Chapter 26 (Prospect Theory)"
+        bookReference: "Thinking, Fast and Slow - Chapter 26 (Prospect Theory)",
+        tip: "Ask whether you would accept this as one of many similar bets. For small stakes you can afford, a favorable bet is worth taking even though a loss stings."
     },
     ENDOWMENT: {
         name: "Endowment Effect",
         shortName: "Endowment",
         description: "Demanding more to give something up than you would pay to get it in the first place.",
-        bookReference: "Thinking, Fast and Slow - Chapter 27"
+        bookReference: "Thinking, Fast and Slow - Chapter 27",
+        tip: "Ask what you would pay for this item if you did not already have it. That number, not your attachment, is what it is worth to you."
     },
     FOURFOLD: {
         name: "Certainty & Possibility Effects",
         shortName: "Fourfold",
         description: "Overpaying for certainty and for tiny chances of big wins, and gambling to avoid sure losses (the fourfold pattern).",
-        bookReference: "Thinking, Fast and Slow - Chapter 29"
+        bookReference: "Thinking, Fast and Slow - Chapter 29",
+        tip: "Compare expected values, and be suspicious when a sure thing or a long shot feels especially attractive. Certainty and tiny chances both get extra weight."
     },
     DENOMINATOR: {
         name: "Denominator Neglect",
         shortName: "Denominator",
         description: "Reacting to the vivid count of cases (\"1,286 people\") instead of the actual rate.",
-        bookReference: "Thinking, Fast and Slow - Chapter 30"
+        bookReference: "Thinking, Fast and Slow - Chapter 30",
+        tip: "Convert counts into rates before comparing them. \"8 out of 100\" and \"1 out of 10\" become 8% and 10%."
     },
     NARROW_FRAMING: {
         name: "Narrow Framing",
         shortName: "Narrow frame",
         description: "Evaluating each risky choice in isolation instead of as part of a portfolio of similar choices.",
-        bookReference: "Thinking, Fast and Slow - Chapter 31"
+        bookReference: "Thinking, Fast and Slow - Chapter 31",
+        tip: "Evaluate repeated risky choices as a portfolio. Small losses on individual bets matter less than the total over many of them."
     },
     SUNK_COST: {
         name: "Sunk Cost Fallacy",
         shortName: "Sunk cost",
         description: "Throwing additional resources into a failing project to justify past unrecoverable expenses.",
-        bookReference: "Thinking, Fast and Slow - Chapter 32"
+        bookReference: "Thinking, Fast and Slow - Chapter 32",
+        tip: "Ignore what is already spent; it is gone whatever you do. Compare only the future costs and benefits of each option from here."
     },
     FRAMING: {
         name: "Framing Effect",
         shortName: "Framing",
         description: "Shifting preferences based on positive vs negative wording of mathematically identical outcomes.",
-        bookReference: "Thinking, Fast and Slow - Chapter 34"
+        bookReference: "Thinking, Fast and Slow - Chapter 34",
+        tip: "Restate the information the other way (survival as mortality, gains as losses) and check whether your choice still holds."
     },
     DEFAULTS: {
         name: "Default Effect",
         shortName: "Defaults",
         description: "Letting the pre-selected option make the decision for you.",
-        bookReference: "Thinking, Fast and Slow - Chapter 34"
+        bookReference: "Thinking, Fast and Slow - Chapter 34",
+        tip: "Treat the pre-selected option as a suggestion from someone with their own interests. Ask what you would choose if nothing were selected."
     },
     PEAK_END: {
         name: "Peak-End Rule",
         shortName: "Peak-end",
         description: "Judging an experience by its worst moment and its ending, while ignoring how long it lasted.",
-        bookReference: "Thinking, Fast and Slow - Chapter 35"
+        bookReference: "Thinking, Fast and Slow - Chapter 35",
+        tip: "Judge experiences by their total, not just the worst moment and the ending. More of something unpleasant is never better."
     },
 
     // --- Behavioral economics (not in the book) ---
@@ -139,19 +162,22 @@ export const BIAS_CATEGORIES = {
         name: "Compromise Effect",
         shortName: "Compromise",
         description: "Tendency to select intermediate options when presented with extreme alternatives.",
-        bookReference: "Behavioral Economics (Simonson 1989)"
+        bookReference: "Behavioral Economics (Simonson 1989)",
+        tip: "Ignore where an option sits in the lineup. Decide what you actually need first, then pick the cheapest option that meets it."
     },
     DECOY: {
         name: "Decoy Effect",
         shortName: "Decoy",
         description: "Preference shifts caused by the presence of an asymmetric, inferior third option.",
-        bookReference: "Behavioral Economics (Huber et al. 1982)"
+        bookReference: "Behavioral Economics (Huber et al. 1982)",
+        tip: "Remove the option nobody would choose and see whether your preference changes. If it does, the extra option was steering you."
     },
     SALIENCE_RARITY: {
         name: "Salience & Rarity Bias",
         shortName: "Rarity",
         description: "Choosing cosmetically rare or prestigious items over options with strictly higher expected utility.",
-        bookReference: "Behavioral Economics (Salience & Heuristic Valuation)"
+        bookReference: "Behavioral Economics (Salience & Heuristic Valuation)",
+        tip: "Ignore labels like \"Legendary\" or \"Premium\" and compare the numbers: probability times payoff."
     },
 
     // --- Deceptive advertising & dark patterns ---
@@ -159,43 +185,57 @@ export const BIAS_CATEGORIES = {
         name: "Drip Pricing",
         shortName: "Drip pricing",
         description: "Sticking with a low advertised price after mandatory fees are revealed late in checkout.",
-        bookReference: "Marketing research (Santana, Dallas & Morwitz 2020; FTC)"
+        bookReference: "Marketing research (Santana, Dallas & Morwitz 2020; FTC)",
+        tip: "Compare total prices including every mandatory fee. Time already spent on checkout is not a reason to pay more."
     },
     RELATIVE_RISK: {
         name: "Relative vs. Absolute Risk",
         shortName: "Relative risk",
         description: "Being impressed by a big relative change (\"cuts risk in half\") in a risk that was tiny to begin with.",
-        bookReference: "Risk communication (Gigerenzer, Risk Savvy 2014)"
+        bookReference: "Risk communication (Gigerenzer, Risk Savvy 2014)",
+        tip: "Ask for the absolute numbers: out of how many people, and how many fewer cases? \"Half\" of a tiny risk is still tiny."
     },
     FAKE_URGENCY: {
         name: "Manufactured Urgency",
         shortName: "Urgency",
         description: "Rushing a decision because of countdown timers and \"only 2 left\" claims that are often fabricated.",
-        bookReference: "Dark patterns research (Mathur et al. 2019)"
+        bookReference: "Dark patterns research (Mathur et al. 2019)",
+        tip: "Assume timers and \"only 2 left\" banners may be fake. A real deal will usually survive the few minutes it takes to compare prices."
     },
     PRICE_FRAMING: {
         name: "Price Framing",
         shortName: "Price frame",
         description: "Judging the same price differently depending on how it is broken down or presented.",
-        bookReference: "Marketing research (Gourville 1998, \"pennies-a-day\")"
+        bookReference: "Marketing research (Gourville 1998, \"pennies-a-day\")",
+        tip: "Convert every offer to the same terms (total price, or price per item) before comparing."
     },
     UNIT_PRICE: {
         name: "Size & Unit Price Illusions",
         shortName: "Unit price",
         description: "Trusting \"value size\" labels and package claims instead of comparing price per unit.",
-        bookReference: "Consumer protection research (unit pricing & shrinkflation)"
+        bookReference: "Consumer protection research (unit pricing & shrinkflation)",
+        tip: "Compare price per ounce or per unit, not package size or labels. The shelf tag usually shows it."
     },
     ZERO_PRICE: {
         name: "Zero-Price Effect",
         shortName: "Free!",
         description: "Overreacting to the word \"free\", even when the paid option is the better deal.",
-        bookReference: "Behavioral Economics (Shampanier, Mazar & Ariely 2007)"
+        bookReference: "Behavioral Economics (Shampanier, Mazar & Ariely 2007)",
+        tip: "Treat \"free\" as a price of zero and compare it like any other price. Ask what the paid option gives you for the difference."
+    },
+    ROACH_MOTEL: {
+        name: "Hard-to-Cancel Subscriptions",
+        shortName: "Cancel maze",
+        description: "Signing up takes one click, but canceling takes a maze of screens, offers and warnings designed to make you give up.",
+        bookReference: "Dark patterns research (Brignull; FTC v. Amazon 2023)",
+        tip: "Before you sign up, find out how to cancel. Once you've decided to leave, treat every \"Are you sure?\" screen and retention offer as an obstacle, not new information."
     },
     MISLEADING_CHARTS: {
         name: "Misleading Charts",
         shortName: "Charts",
         description: "Reading the size of a difference from how a chart looks rather than from the numbers on its axis.",
-        bookReference: "Statistics literacy (Huff, How to Lie with Statistics 1954)"
+        bookReference: "Statistics literacy (Huff, How to Lie with Statistics 1954)",
+        tip: "Read the axis labels before the bars. Check whether the axis starts at zero and compute the real difference from the numbers."
     }
 };
 
@@ -916,8 +956,346 @@ export const STANDALONE_SCENARIOS = [
             { text: "About 40% longer", biasValue: 0.5, isBest: false },
             { text: "About 4% longer", biasValue: 0, isBest: true }
         ]
+    },
+    {
+        id: "ads-cancel-maze",
+        biasType: "ROACH_MOTEL",
+        title: "Streaming Cancellation Flow",
+        scenarioText: "You signed up for a streaming service's free trial with one click and no longer use it. To cancel, you click through four screens: \"Are you sure? You'll lose your watch history,\" then a survey, then an offer of 50% off for three months, then a final \"Pause instead?\" button in large type with \"Continue to cancel\" in small grey text. What do you do?",
+        bestAnswer: "Click \"Continue to cancel\" and finish canceling",
+        reasoning: "Nothing on those screens changed the fact that you don't use the service. Each step is there to make leaving feel like a loss or to wear you down. In 2025 Amazon paid $2.5 billion to settle FTC charges that included a cancellation flow like this, which the FTC said Amazon internally called \"Iliad.\"",
+        biasName: "Hard-to-Cancel Subscriptions",
+        bookRef: "Dark patterns research (Brignull; FTC v. Amazon 2023)",
+        options: [
+            { text: "Take the 50% off offer", biasValue: 1, isBest: false },
+            { text: "Choose \"Pause instead\"", biasValue: 0.5, isBest: false },
+            { text: "Click \"Continue to cancel\" and finish canceling", biasValue: 0, isBest: true }
+        ]
+    },
+
+    // =============================================================
+    // PRACTICE-ONLY QUESTIONS
+    // Used for practice during reviews and to fill retests, never in the
+    // regular question draw. One for each bias type that otherwise has no
+    // second standalone question to practice on.
+    // =============================================================
+    {
+        id: "practice-halo-interview",
+        practiceOnly: true,
+        biasType: "HALO",
+        title: "Charismatic Candidate",
+        scenarioText: "A candidate for an analyst role is warm, confident, and impressively well spoken in the interview. Their take-home analysis, scored blind by two reviewers, came out average. How should you rate their likely analytical work?",
+        bestAnswer: "Average, based on the blind-scored work sample",
+        reasoning: "Charm and confidence are real strengths, but they say little about analytical quality. The halo effect lets one impressive trait raise your rating of unrelated ones. The blind-scored work sample is the direct evidence about the skill you are hiring for.",
+        biasName: "Halo Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 7",
+        options: [
+            { text: "Excellent, given how impressive they were in person", biasValue: 1, isBest: false },
+            { text: "Above average; the interview should lift the score", biasValue: 0.5, isBest: false },
+            { text: "Average, based on the blind-scored work sample", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-wysiati-policy",
+        practiceOnly: true,
+        biasType: "WYSIATI",
+        title: "Neighborhood Crime Report",
+        scenarioText: "A news article says a city's new policing policy worked: crime fell 10% the next year in the five neighborhoods it reported on. The article does not mention the city's other 20 neighborhoods. What can you conclude about the policy citywide?",
+        bestAnswer: "Very little without data from the other neighborhoods",
+        reasoning: "Five chosen neighborhoods out of 25 might be the ones where crime fell for other reasons. The story feels complete because it is coherent, but the missing 20 neighborhoods could show anything. What you see is not all there is.",
+        biasName: "What You See Is All There Is",
+        bookRef: "Thinking, Fast and Slow - Chapter 7",
+        options: [
+            { text: "The policy cut crime by about 10% citywide", biasValue: 1, isBest: false },
+            { text: "The policy probably helped somewhat citywide", biasValue: 0.5, isBest: false },
+            { text: "Very little without data from the other neighborhoods", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-lessmore-books",
+        practiceOnly: true,
+        biasType: "LESS_IS_MORE",
+        title: "Used Textbook Bundles",
+        scenarioText: "A student sells two textbook bundles. Bundle A: 10 books, all like new. Bundle B: the same 10 like-new books, plus 5 more books with worn covers but every page intact. Which bundle is worth more?",
+        bestAnswer: "Bundle B",
+        reasoning: "Bundle B contains everything in Bundle A plus five more usable books, so it cannot be worth less. Judged one at a time, people often value the smaller, flawless set more, because the worn books drag down the average impression.",
+        biasName: "Less Is More (Separate Evaluation)",
+        bookRef: "Thinking, Fast and Slow - Chapters 15 & 33",
+        options: [
+            { text: "Bundle A", biasValue: 1, isBest: false },
+            { text: "Bundle B", biasValue: 0, isBest: true },
+            { text: "They're worth the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "practice-outcome-drivers",
+        practiceOnly: true,
+        biasType: "OUTCOME_BIAS",
+        title: "Two Drives Home",
+        scenarioText: "Two friends each had the same two drinks at a party and drove home on the same road. One got home without incident. The other hit a deer that jumped out in front of the car. Who made the worse decision?",
+        bestAnswer: "They made the same decision",
+        reasoning: "Both made the same choice with the same information and the same risk. The deer was luck. Judging the second driver more harshly because of the outcome is outcome bias.",
+        biasName: "Outcome Bias",
+        bookRef: "Thinking, Fast and Slow - Chapter 19",
+        options: [
+            { text: "The driver who hit the deer", biasValue: 1, isBest: false },
+            { text: "The driver who got home safely", biasValue: 1, isBest: false },
+            { text: "They made the same decision", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-formula-loans",
+        practiceOnly: true,
+        biasType: "INTUITION_VS_FORMULA",
+        title: "Loan Officer's Hunch",
+        scenarioText: "A bank's lending model, checked against years of repayment records, rates an applicant as high risk. The loan officer met the applicant and found them sincere and trustworthy. Which is the better guide to whether the loan will be repaid?",
+        bestAnswer: "The lending model",
+        reasoning: "A validated model applies the same evidence the same way every time. A face-to-face impression is a small, noisy sample and is easily swayed by likability. Chapter 21 describes decades of evidence that simple formulas beat this kind of intuition.",
+        biasName: "Intuition vs. Formulas",
+        bookRef: "Thinking, Fast and Slow - Chapter 21",
+        options: [
+            { text: "The lending model", biasValue: 0, isBest: true },
+            { text: "The loan officer's impression", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "practice-loss-promotion",
+        practiceOnly: true,
+        biasType: "LOSS_AVERSION",
+        title: "Seasonal Promotion Bet",
+        scenarioText: "Your store can run a seasonal promotion. There is a 50% chance it brings in $60,000 in extra profit and a 50% chance it loses $30,000 on unsold stock. The store runs several promotions like this a year and can easily absorb a $30,000 loss. Do you run it?",
+        bestAnswer: "Run the promotion",
+        reasoning: "The upside is twice the downside at even odds, and the store can afford the loss. Many people still hesitate because the possible loss looms larger than the equal-sized gain. Treating this as one of many similar bets makes the right answer clear.",
+        biasName: "Loss Aversion",
+        bookRef: "Thinking, Fast and Slow - Chapters 26 & 31",
+        options: [
+            { text: "Run the promotion", biasValue: 0, isBest: true },
+            { text: "Skip the promotion", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "practice-endowment-mug",
+        practiceOnly: true,
+        biasType: "ENDOWMENT",
+        title: "Free Conference Mug",
+        scenarioText: "You got a free mug at a conference. Identical mugs sell for $8 in the gift shop, and you don't especially need another mug. A colleague who forgot to pick one up offers you $10 for yours. Do you sell it?",
+        bestAnswer: "Sell it for $10",
+        reasoning: "You would not pay $10 for this mug, since the shop sells it for $8 and you don't need one. Refusing $10 for it means valuing it more just because it is yours. That is the endowment effect, first shown with exactly this kind of mug.",
+        biasName: "Endowment Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 27",
+        options: [
+            { text: "Sell it for $10", biasValue: 0, isBest: true },
+            { text: "Keep it", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "practice-denominator-treatment",
+        practiceOnly: true,
+        biasType: "DENOMINATOR",
+        title: "Treatment Success Rates",
+        scenarioText: "Two treatments have the same cost and side effects. Treatment A helps 1 in every 20 patients. Treatment B helps 4 in every 100 patients. Which helps a larger share of patients?",
+        bestAnswer: "Treatment A",
+        reasoning: "1 in 20 is 5%; 4 in 100 is 4%. The bigger count of successes in Treatment B is more vivid, but it comes out of a bigger group. Convert both to rates before comparing.",
+        biasName: "Denominator Neglect",
+        bookRef: "Thinking, Fast and Slow - Chapter 30",
+        options: [
+            { text: "Treatment A", biasValue: 0, isBest: true },
+            { text: "Treatment B", biasValue: 1, isBest: false },
+            { text: "They're the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "practice-narrow-protection",
+        practiceOnly: true,
+        biasType: "NARROW_FRAMING",
+        title: "Shipping Protection Policy",
+        scenarioText: "Your small business ships about 50 packages a year. Each time, the carrier offers $30 protection against loss. Records show about 1 in 10 packages is lost, and a lost package costs you about $200 to replace. What policy should you adopt?",
+        bestAnswer: "Skip the protection on every package",
+        reasoning: "Each package has an expected loss of about $20 (1 in 10 × $200), less than the $30 protection. Over 50 packages, buying protection every time costs about $1,500 to avoid about $1,000 in losses. One package at a time, each $200 loss feels worth avoiding; as a policy, the protection clearly loses money.",
+        biasName: "Narrow Framing",
+        bookRef: "Thinking, Fast and Slow - Chapter 31",
+        options: [
+            { text: "Buy the protection on every package", biasValue: 1, isBest: false },
+            { text: "Decide package by package", biasValue: 0.5, isBest: false },
+            { text: "Skip the protection on every package", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-framing-yogurt",
+        practiceOnly: true,
+        biasType: "FRAMING",
+        title: "Yogurt Label Comparison",
+        scenarioText: "Two cups of yogurt are the same size and price. One is labeled \"90% fat-free.\" The other is labeled \"contains 10% fat.\" Which is lower in fat?",
+        bestAnswer: "They have the same amount of fat",
+        reasoning: "\"90% fat-free\" and \"10% fat\" describe exactly the same product. Positive wording makes the first sound healthier. Restating a claim the other way round is a quick check for framing.",
+        biasName: "Framing Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 34",
+        options: [
+            { text: "The \"90% fat-free\" yogurt", biasValue: 1, isBest: false },
+            { text: "The \"10% fat\" yogurt", biasValue: 1, isBest: false },
+            { text: "They have the same amount of fat", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-defaults-setup",
+        practiceOnly: true,
+        biasType: "DEFAULTS",
+        title: "New Laptop Setup",
+        scenarioText: "Setting up a new laptop, you see a large blue \"Use Recommended Settings\" button and a small grey \"Customize\" link. The recommended settings turn on ad personalization, location history, and sharing usage data with the manufacturer. You'd rather not share that data. What do you do?",
+        bestAnswer: "Choose Customize and turn those settings off",
+        reasoning: "The recommended settings are what the manufacturer prefers, not what you prefer. Large, bright buttons for the default and small links for the alternative are a common dark pattern. Most people accept defaults, which is why companies design them carefully.",
+        biasName: "Default Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 34",
+        options: [
+            { text: "Use Recommended Settings", biasValue: 1, isBest: false },
+            { text: "Choose Customize and turn those settings off", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-peakend-cleaning",
+        practiceOnly: true,
+        biasType: "PEAK_END",
+        title: "Dental Cleaning Options",
+        scenarioText: "Cleaning A: 10 minutes of mild discomfort that ends with a sharp twinge. Cleaning B: the same 10 minutes, followed by 3 more minutes of gentle polishing that is only slightly uncomfortable. Which involves more total discomfort?",
+        bestAnswer: "Cleaning B",
+        reasoning: "Cleaning B includes all of Cleaning A plus three more uncomfortable minutes. It will probably be remembered as less unpleasant because it ends gently, but memory's focus on the peak and the end hides the extra minutes.",
+        biasName: "Peak-End Rule & Duration Neglect",
+        bookRef: "Thinking, Fast and Slow - Chapter 35",
+        options: [
+            { text: "Cleaning A", biasValue: 1, isBest: false },
+            { text: "Cleaning B", biasValue: 0, isBest: true },
+            { text: "About the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "practice-drip-concert",
+        practiceOnly: true,
+        biasType: "DRIP_PRICING",
+        title: "Concert Ticket Checkout",
+        scenarioText: "Site A lists a concert ticket at $65. At checkout it adds an $18.50 service fee, a $6 facility fee, and a $4 order processing fee. Site B sells the same seat for $90 with all fees included. Which is cheaper?",
+        bestAnswer: "Site B",
+        reasoning: "Site A's real price is $93.50 ($65 + $18.50 + $6 + $4), $3.50 more than Site B. The low first number sticks in mind as the price even after the fees appear.",
+        biasName: "Drip Pricing",
+        bookRef: "Marketing research (Santana, Dallas & Morwitz 2020; FTC)",
+        options: [
+            { text: "Site A", biasValue: 1, isBest: false },
+            { text: "Site B", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-relative-meat",
+        practiceOnly: true,
+        biasType: "RELATIVE_RISK",
+        title: "Processed Meat Headline",
+        scenarioText: "A headline says eating processed meat every day raises bowel cancer risk by 18%. Suppose a person's lifetime risk is about 6 in 100 without it. About what is their risk if they eat processed meat every day?",
+        bestAnswer: "About 7 in 100",
+        reasoning: "An 18% increase on 6 in 100 is about 1 more case per 100 people (6 × 1.18 ≈ 7). \"18%\" sounds like it adds 18 points, but it is a relative change to a fairly small starting risk.",
+        biasName: "Relative vs. Absolute Risk",
+        bookRef: "Risk communication (Gigerenzer, Risk Savvy 2014)",
+        options: [
+            { text: "About 24 in 100", biasValue: 1, isBest: false },
+            { text: "About 18 in 100", biasValue: 1, isBest: false },
+            { text: "About 7 in 100", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-urgency-timer",
+        practiceOnly: true,
+        biasType: "FAKE_URGENCY",
+        title: "Resetting Countdown",
+        scenarioText: "An online course page says \"Price goes up in 15:00!\" with a ticking timer. You reload the page and the timer starts again at 15:00. What does this most likely tell you?",
+        bestAnswer: "The timer is fake and the price probably won't change",
+        reasoning: "A real deadline does not reset when you reload. Timers that restart for each visitor exist only to create pressure. Researchers have found many like this on shopping sites.",
+        biasName: "Manufactured Urgency",
+        bookRef: "Dark patterns research (Mathur et al. 2019)",
+        options: [
+            { text: "The deal is real; buy within 15 minutes", biasValue: 1, isBest: false },
+            { text: "The timer is fake and the price probably won't change", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-price-gym",
+        practiceOnly: true,
+        biasType: "PRICE_FRAMING",
+        title: "Gym Membership Pitch",
+        scenarioText: "Gym A advertises membership for \"just $1.50 a day.\" Gym B, with the same facilities, charges $40 a month. Which is cheaper?",
+        bestAnswer: "Gym B",
+        reasoning: "$1.50 a day is about $45.60 a month (30.4 days on average), $5.60 more than Gym B. Daily prices feel small because they get compared with a coffee rather than with the monthly bill.",
+        biasName: "Price Framing (Pennies-a-Day)",
+        bookRef: "Marketing research (Gourville 1998, \"pennies-a-day\")",
+        options: [
+            { text: "Gym A", biasValue: 1, isBest: false },
+            { text: "Gym B", biasValue: 0, isBest: true },
+            { text: "About the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "practice-unit-detergent",
+        practiceOnly: true,
+        biasType: "UNIT_PRICE",
+        title: "Family Size Detergent",
+        scenarioText: "A \"Family Size\" 32 oz bottle of dish soap costs $6.40. Next to it, a 16 oz bottle of the same soap costs $2.99. Which is cheaper per ounce?",
+        bestAnswer: "The 16 oz bottle",
+        reasoning: "The 16 oz bottle costs about 18.7¢ per ounce; the Family Size costs 20¢. Two small bottles ($5.98) beat one big one ($6.40) for the same amount of soap.",
+        biasName: "Size & Unit Price Illusions",
+        bookRef: "Consumer protection research (unit pricing & shrinkflation)",
+        options: [
+            { text: "The 32 oz Family Size", biasValue: 1, isBest: false },
+            { text: "The 16 oz bottle", biasValue: 0, isBest: true },
+            { text: "They're the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "practice-zero-shipping",
+        practiceOnly: true,
+        biasType: "ZERO_PRICE",
+        title: "Free Shipping Offer",
+        scenarioText: "Store A sells a shirt for $20 with free shipping. Store B sells the same shirt for $14 plus $4 shipping. Which is cheaper?",
+        bestAnswer: "Store B",
+        reasoning: "Store B costs $18 in total, $2 less than Store A. \"Free shipping\" feels like a gift, but the price of the shirt has simply absorbed it.",
+        biasName: "Zero-Price Effect",
+        bookRef: "Behavioral Economics (Shampanier, Mazar & Ariely 2007)",
+        options: [
+            { text: "Store A (free shipping)", biasValue: 1, isBest: false },
+            { text: "Store B", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-charts-unemployment",
+        practiceOnly: true,
+        biasType: "MISLEADING_CHARTS",
+        title: "Unemployment Chart",
+        scenarioText: "A news chart shows a line shooting from the bottom to the top of the graph. The vertical axis runs from 4.0% to 4.4%, and the unemployment rate went from 4.1% to 4.3%. How big was the change?",
+        bestAnswer: "A rise of 0.2 percentage points",
+        reasoning: "The rate rose from 4.1% to 4.3%, 0.2 percentage points. Because the axis covers only 0.4 points, a small change fills most of the chart's height and looks dramatic.",
+        biasName: "Misleading Charts",
+        bookRef: "Statistics literacy (Huff, How to Lie with Statistics 1954)",
+        options: [
+            { text: "Unemployment nearly tripled", biasValue: 1, isBest: false },
+            { text: "Unemployment rose by about half", biasValue: 0.5, isBest: false },
+            { text: "A rise of 0.2 percentage points", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-cancel-gym",
+        practiceOnly: true,
+        biasType: "ROACH_MOTEL",
+        title: "Gym Contract Fine Print",
+        scenarioText: "A gym offers a $10 first month and lets you join online in two minutes. The contract says canceling requires a certified letter or an in-person visit during weekday business hours. You expect to stop going within a few months. What's the best move?",
+        bestAnswer: "Choose a gym that lets you cancel the same way you joined",
+        reasoning: "The cheap first month is the bait; the hard cancellation is where the gym makes its money, because many people keep paying rather than deal with it. California now requires businesses to let customers cancel online if they signed up online, and the FTC has pursued companies over hard-to-cancel subscriptions.",
+        biasName: "Hard-to-Cancel Subscriptions",
+        bookRef: "Dark patterns research (Brignull; FTC v. Amazon 2023)",
+        options: [
+            { text: "Join; you can deal with canceling later", biasValue: 1, isBest: false },
+            { text: "Choose a gym that lets you cancel the same way you joined", biasValue: 0, isBest: true }
+        ]
     }
 ];
+
+Object.entries(REAL_WORLD_EXAMPLES).forEach(([type, examples]) => {
+    if (BIAS_CATEGORIES[type]) BIAS_CATEGORIES[type].examples = examples;
+});
 
 // -----------------------------------------------------------------
 // PAIRED TESTS
@@ -1389,12 +1767,15 @@ export const MASTER_SCENARIOS = [
     )
 ];
 
-// The pool is larger than one session; each session draws a subset
-export const SESSION_ROUNDS = 24;
-// Each pair shows a neutral "scored later" page the first time, so keep them rare
-const MAX_PAIRS_PER_SESSION = 4;
-// Minimum number of rounds between the two versions of a pair
-export const MIN_PAIR_GAP = 8;
+// A session goes through every question the player hasn't seen, with a
+// review after every block of this many questions
+export const REVIEW_BLOCK = 10;
+// Each full block holds up to two pairs, laid out crosswise: one pair in
+// slots 1 and 9, the other in slots 2 and 10. Both versions are answered
+// before the block's review, always exactly MIN_PAIR_GAP questions apart.
+// A short final block holds no pairs.
+const PAIRS_PER_BLOCK = 2;
+export const MIN_PAIR_GAP = REVIEW_BLOCK - PAIRS_PER_BLOCK;
 
 function shuffle(arr) {
     const a = [...arr];
@@ -1405,47 +1786,46 @@ function shuffle(arr) {
     return a;
 }
 
-function pairsSpacedApart(queue) {
-    const firstSeen = {};
-    for (let i = 0; i < queue.length; i++) {
-        const pair = queue[i].pair;
-        if (!pair) continue;
-        if (pair in firstSeen) {
-            if (i - firstSeen[pair] < MIN_PAIR_GAP) return false;
-        } else {
-            firstSeen[pair] = i;
-        }
-    }
-    return true;
+const SCENARIOS_BY_ID = new Map(MASTER_SCENARIOS.map(s => [s.id, s]));
+
+function countPairs(scenarios) {
+    return new Set(scenarios.filter(s => s.pair).map(s => s.pair)).size;
 }
 
-// Picks scenarios round-robin across bias types so a session covers as many
-// biases as possible. A pair is one unit that takes two rounds.
-function selectSessionScenarios(rounds) {
-    const unitsByType = {};
-    const addUnit = (type, unit) => (unitsByType[type] ||= []).push(unit);
-    STANDALONE_SCENARIOS.forEach(s => addUnit(s.biasType, [s]));
-    Object.keys(PAIRED_TESTS).forEach(pairId => {
-        const versions = MASTER_SCENARIOS.filter(s => s.pair === pairId);
-        addUnit(PAIRED_TESTS[pairId].biasType, versions);
-    });
-    Object.keys(unitsByType).forEach(type => { unitsByType[type] = shuffle(unitsByType[type]); });
+const pairCapacity = length => PAIRS_PER_BLOCK * Math.floor(length / REVIEW_BLOCK);
 
-    const selected = [];
-    let pairsUsed = 0;
-    while (selected.length < rounds) {
-        const types = shuffle(Object.keys(unitsByType).filter(t => unitsByType[t].length > 0));
-        if (types.length === 0) break;
-        for (const type of types) {
-            if (selected.length >= rounds) break;
-            const unit = unitsByType[type].shift();
-            const isPair = unit.length > 1;
-            if (isPair && (pairsUsed >= MAX_PAIRS_PER_SESSION || rounds - selected.length < 2)) continue;
-            if (isPair) pairsUsed++;
-            selected.push(...unit);
-        }
+// Orders scenarios so every pair sits inside one full review block (see
+// PAIRS_PER_BLOCK) and everything else fills the remaining slots at random.
+// Pairs that don't fit are left out; they stay unseen for a later session.
+function layoutWithPairs(scenarios) {
+    let kept = [...scenarios];
+    while (countPairs(kept) > pairCapacity(kept.length)) {
+        const pairIds = [...new Set(kept.filter(s => s.pair).map(s => s.pair))];
+        const drop = pairIds[pairIds.length - 1];
+        kept = kept.filter(s => s.pair !== drop);
     }
-    return selected;
+
+    const pairs = shuffle([...new Set(kept.filter(s => s.pair).map(s => s.pair))])
+        .map(id => shuffle(kept.filter(s => s.pair === id)));
+    const singles = shuffle(kept.filter(s => !s.pair));
+    const queue = new Array(kept.length).fill(null);
+
+    const blocks = shuffle([...Array(Math.floor(kept.length / REVIEW_BLOCK)).keys()]);
+    const pairsInBlock = blocks.map((_, i) => pairs.filter((_, p) => p % blocks.length === i));
+    blocks.forEach((block, i) => {
+        const inBlock = pairsInBlock[i];
+        // A lone pair takes the 1st/9th or the 2nd/10th slots at random
+        const offsets = inBlock.length === 1 ? [Math.floor(Math.random() * PAIRS_PER_BLOCK)] : [0, 1];
+        inBlock.forEach(([first, second], j) => {
+            const start = block * REVIEW_BLOCK + offsets[j];
+            queue[start] = first;
+            queue[start + MIN_PAIR_GAP] = second;
+        });
+    });
+    for (let i = 0; i < queue.length; i++) {
+        if (!queue[i]) queue[i] = singles.shift();
+    }
+    return queue;
 }
 
 export class ScenarioBank {
@@ -1453,13 +1833,66 @@ export class ScenarioBank {
         return MASTER_SCENARIOS;
     }
 
-    // No scenario repeats, and both versions of a pair are spaced apart
-    static getRandomizedSessionQueue(rounds = SESSION_ROUNDS) {
-        const selected = selectSessionScenarios(rounds);
-        let queue = shuffle(selected);
-        for (let attempt = 0; attempt < 1000 && !pairsSpacedApart(queue); attempt++) {
-            queue = shuffle(selected);
+    static getScenario(id) {
+        return SCENARIOS_BY_ID.get(id) || null;
+    }
+
+    /**
+     * Builds the start of a session: every regular question the player has
+     * not seen (pairs laid out inside review blocks), followed by one retest
+     * for each of `retestTypes` (bias types whose latest answer was wrong).
+     * The game appends more retests during the session as the player misses
+     * questions (see pickRetestScenario). Returns [{ id, retest }] in play order.
+     */
+    static buildSession({ seenIds = new Set(), retestTypes = [], missedIds = new Set() } = {}) {
+        const fresh = layoutWithPairs(MASTER_SCENARIOS.filter(s => !s.practiceOnly && !seenIds.has(s.id)));
+        const used = new Set(fresh.map(s => s.id));
+        const retests = [];
+        for (const type of retestTypes) {
+            const sc = ScenarioBank.pickRetestScenario(type, { excludeIds: used, missedIds, askedIds: seenIds });
+            if (!sc) continue;
+            used.add(sc.id);
+            retests.push(sc);
         }
-        return queue;
+        return [
+            ...fresh.map(s => ({ id: s.id, retest: false })),
+            ...shuffle(retests).map(s => ({ id: s.id, retest: true }))
+        ];
+    }
+
+    /**
+     * A standalone scenario that retests `biasType`, never one in
+     * `excludeIds` (still coming up, already queued as a retest, or being
+     * used for practice). Prefers, in order: a question the player hasn't
+     * been asked (`askedIds`), one they answered right, and finally the one
+     * they missed, which by then they have seen explained. Null if the bias
+     * type has nothing left to retest with.
+     */
+    static pickRetestScenario(biasType, { excludeIds = new Set(), missedIds = new Set(), askedIds = new Set() } = {}) {
+        const candidates = shuffle(STANDALONE_SCENARIOS.filter(s =>
+            s.biasType === biasType && !excludeIds.has(s.id)
+        ));
+        return candidates.find(s => !askedIds.has(s.id) && !missedIds.has(s.id))
+            || candidates.find(s => !askedIds.has(s.id))
+            || candidates.find(s => !missedIds.has(s.id))
+            || candidates[0]
+            || null;
+    }
+
+    /**
+     * A standalone scenario of `biasType` to practice on during a review,
+     * preferring an unseen practice-only question, then any unseen question,
+     * then one the player has already seen. Never returns one in
+     * `excludeIds` (e.g. questions still coming up this session). Null if
+     * the bias type has no standalone scenarios left to use.
+     */
+    static pickPracticeScenario(biasType, { seenIds = new Set(), excludeIds = new Set() } = {}) {
+        const candidates = shuffle(STANDALONE_SCENARIOS.filter(s =>
+            s.biasType === biasType && !excludeIds.has(s.id)
+        ));
+        return candidates.find(s => s.practiceOnly && !seenIds.has(s.id))
+            || candidates.find(s => !seenIds.has(s.id))
+            || candidates[0]
+            || null;
     }
 }

@@ -1,141 +1,45 @@
 /**
- * Checks the scenario data and session builder, then plays a full session in
- * headless Brave and checks that no scenario repeats, paired scenarios are
- * spaced apart and scored on their second appearance, and the audit summary
- * is shown at the end. Also checks that the audit only lists real
- * vulnerabilities and strengths.
+ * Checks the scenario data, the session builder and player progress, then
+ * plays two sessions in headless Brave:
+ *   - the ID/consent screen (the greyed-out Continue still works),
+ *   - the first session goes through every regular question once, with no
+ *     feedback until each review (every 10 questions),
+ *   - reviews give practice questions with instant feedback and append
+ *     retests of missed topics, so the session grows with the misses,
+ *   - the next session retests only the topics still answered wrong,
+ *   - a reload resumes the session, and Switch ID returns to the ID screen.
+ * Also checks that the audit only lists real vulnerabilities and strengths.
  *
  * Run with: npm test
  */
 
-import http from 'http';
-import fs from 'fs';
-import path from 'path';
 import assert from 'assert/strict';
 import puppeteer from 'puppeteer-core';
-import { fileURLToPath } from 'url';
+import { createStaticServer } from './serve.js';
 import {
     MASTER_SCENARIOS, STANDALONE_SCENARIOS, PAIRED_TESTS, BIAS_CATEGORIES,
-    SESSION_ROUNDS, MIN_PAIR_GAP, ScenarioBank
+    MIN_PAIR_GAP, REVIEW_BLOCK, ScenarioBank
 } from './js/scenarioBank.js';
 import { BiasAnalyzer } from './js/biasAnalyzer.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { Progress } from './js/progress.js';
 
 const PORT = 8088;
 const BRAVE_PATH = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser';
+const CHECKPOINT_EVERY = REVIEW_BLOCK;
 
-const MIME_TYPES = {
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.js': 'text/javascript',
-    '.json': 'application/json'
-};
-
-const server = http.createServer((req, res) => {
-    const filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url);
-    const contentType = MIME_TYPES[path.extname(filePath)] || 'application/octet-stream';
-
-    fs.readFile(filePath, (err, content) => {
-        if (err) {
-            res.writeHead(404);
-            res.end(`File not found: ${req.url}`);
-        } else {
-            res.writeHead(200, { 'Content-Type': contentType });
-            res.end(content, 'utf-8');
-        }
-    });
-});
-
+const MAIN_POOL = MASTER_SCENARIOS.filter(s => !s.practiceOnly);
 const scenariosByTitle = new Map(MASTER_SCENARIOS.map(s => [s.title, s]));
 
-async function clickAndWait(page, elementOrSelector) {
-    await Promise.all([
-        page.waitForNavigation({ waitUntil: 'networkidle0' }),
-        typeof elementOrSelector === 'string' ? page.click(elementOrSelector) : elementOrSelector.click()
-    ]);
+function memoryStorage() {
+    const data = {};
+    return {
+        getItem: k => (k in data ? data[k] : null),
+        setItem: (k, v) => { data[k] = String(v); },
+        removeItem: k => { delete data[k]; }
+    };
 }
 
-async function playSession(page) {
-    const pageErrors = [];
-    page.on('pageerror', e => pageErrors.push(e.message));
-
-    await page.goto(`http://localhost:${PORT}`, { waitUntil: 'networkidle0' });
-
-    const seenIds = [];
-    const pairFirstRound = {};
-    let expectedScore = 100;
-
-    for (let round = 1; round <= SESSION_ROUNDS; round++) {
-        const roundText = await page.$eval('#current-round', el => el.textContent);
-        assert.equal(roundText, `${round} / ${SESSION_ROUNDS}`);
-
-        const title = await page.$eval('#scenario-title', el => el.textContent);
-        const scenario = scenariosByTitle.get(title);
-        assert.ok(scenario, `Unknown scenario title: ${title}`);
-        seenIds.push(scenario.id);
-
-        // Always pick the first option, which answers every pair consistently
-        const cards = await page.$$('.clean-choice-card');
-        assert.equal(cards.length, scenario.options.length, `Wrong number of options for ${title}`);
-        await clickAndWait(page, cards[0]);
-
-        const delta = await page.$eval('#breakdown-score-delta', el => el.textContent);
-        const pair = scenario.pair;
-
-        if (pair && !(pair in pairFirstRound)) {
-            pairFirstRound[pair] = round;
-            assert.equal(delta, 'Scored later', `First of a pair should not be scored: ${title}`);
-        } else if (pair) {
-            const gap = round - pairFirstRound[pair];
-            assert.ok(gap >= MIN_PAIR_GAP, `Pair "${pair}" only ${gap} rounds apart`);
-            assert.equal(delta, '+20 PTS', `Consistent pair answers should score: ${title}`);
-            const summary = await page.$eval('#framing-summary', el => el.children.length);
-            assert.equal(summary, 2, 'Pair summary should show both answers');
-            expectedScore += 20;
-        } else {
-            const expectedDelta = scenario.options[0].isBest ? 20 : -15;
-            assert.equal(delta, `${expectedDelta > 0 ? '+' : ''}${expectedDelta} PTS`, `Wrong score change for ${title}`);
-            expectedScore = Math.max(0, expectedScore + expectedDelta);
-        }
-
-        const score = Number(await page.$eval('#current-score', el => el.textContent));
-        assert.equal(score, expectedScore, `Score mismatch after round ${round}`);
-
-        await clickAndWait(page, '#next-scenario-btn');
-    }
-
-    assert.equal(new Set(seenIds).size, SESSION_ROUNDS, 'A scenario was repeated');
-    const seenPairs = seenIds.map(id => MASTER_SCENARIOS.find(s => s.id === id).pair).filter(Boolean);
-    for (const pair of new Set(seenPairs)) {
-        assert.equal(seenPairs.filter(p => p === pair).length, 2, `Pair ${pair} was split up`);
-    }
-
-    const auditShown = await page.$eval('#summary-modal', el => el.classList.contains('active'));
-    assert.ok(auditShown, 'Audit summary should be shown after the last round');
-    assert.deepEqual(pageErrors, [], 'Page threw errors');
-
-    return expectedScore;
-}
-
-// The audit only lists real vulnerabilities and strengths
-function checkAuditLists() {
-    const logsWithBiasValue = value => MASTER_SCENARIOS
-        .filter(s => !s.pair || s.id === PAIRED_TESTS[s.pair].versions[0].id)
-        .map(s => ({ scenarioId: s.id, biasType: s.biasType, biasValue: value }));
-
-    const perfect = BiasAnalyzer.analyzeSession(logsWithBiasValue(0));
-    assert.equal(perfect.topVulnerabilities.length, 0, 'Perfect run should list no vulnerabilities');
-    assert.equal(perfect.topStrengths.length, 2, 'Perfect run should list strengths');
-
-    const worst = BiasAnalyzer.analyzeSession(logsWithBiasValue(1));
-    assert.equal(worst.topStrengths.length, 0, 'Worst run should list no strengths');
-    assert.equal(worst.topVulnerabilities.length, 2, 'Worst run should list vulnerabilities');
-
-    const empty = BiasAnalyzer.analyzeSession([]);
-    assert.equal(empty.topVulnerabilities.length + empty.topStrengths.length, 0,
-        'Untested categories should not be listed');
-}
+// ---------- Data and logic checks (no browser) ----------
 
 // Every scenario is well formed and every pair's scoring rule works
 function checkScenarioData() {
@@ -160,33 +64,301 @@ function checkScenarioData() {
         assert.ok(!pair.isConsistent(a.options.at(-1).value, b.options[0].value),
             `Pair ${pairId}: opposite answers should be inconsistent`);
     }
-}
-
-// Sessions never repeat a scenario, keep pairs together, and space them apart
-function checkSessionBuilder() {
-    for (let i = 0; i < 500; i++) {
-        const queue = ScenarioBank.getRandomizedSessionQueue();
-        assert.equal(queue.length, SESSION_ROUNDS);
-        assert.equal(new Set(queue.map(s => s.id)).size, SESSION_ROUNDS, 'Session repeated a scenario');
-        const positions = {};
-        queue.forEach((s, idx) => { if (s.pair) (positions[s.pair] ||= []).push(idx); });
-        for (const [pairId, pos] of Object.entries(positions)) {
-            assert.equal(pos.length, 2, `Pair ${pairId} was split up`);
-            assert.ok(pos[1] - pos[0] >= MIN_PAIR_GAP, `Pair ${pairId} too close together`);
+    for (const [type, c] of Object.entries(BIAS_CATEGORIES)) {
+        assert.ok(c.tip, `${type} needs a "how to think differently" tip`);
+        assert.ok(ScenarioBank.pickPracticeScenario(type), `${type} has no standalone question to practice on`);
+        for (const ex of c.examples || []) {
+            assert.ok(/^https:\/\//.test(ex.url) && ex.label, `${type} has a malformed example`);
+            assert.ok(['deceptive', 'good', 'example'].includes(ex.kind), `${type} example has unknown kind`);
         }
     }
 }
 
-server.listen(PORT, async () => {
+function checkQueue(queue, label) {
+    const ids = queue.map(e => e.id);
+    assert.equal(new Set(ids).size, ids.length, `${label}: a scenario repeated`);
+    const positions = {};
+    ids.forEach((id, idx) => {
+        const s = ScenarioBank.getScenario(id);
+        if (s.pair) (positions[s.pair] ||= []).push(idx);
+    });
+    for (const [pairId, [first, second]] of Object.entries(positions)) {
+        assert.ok(second !== undefined, `${label}: pair ${pairId} was split up`);
+        // Both halves sit in one full review block: slots 1 and 9, or 2 and 10
+        const block = Math.floor(first / REVIEW_BLOCK);
+        assert.ok(first % REVIEW_BLOCK < 2, `${label}: pair ${pairId} should open in a block's first two questions`);
+        assert.equal(second - first, MIN_PAIR_GAP, `${label}: pair ${pairId} should close in the block's last two questions`);
+        assert.ok((block + 1) * REVIEW_BLOCK <= ids.length, `${label}: pair ${pairId} is in a short block`);
+    }
+}
+
+// A first session covers every regular question; later sessions retest missed topics
+function checkSessionBuilder() {
+    for (let i = 0; i < 200; i++) {
+        const queue = ScenarioBank.buildSession();
+        assert.equal(queue.length, MAIN_POOL.length, 'A first session should cover every regular question');
+        assert.ok(queue.every(e => !e.retest), 'A first session should start with no retests');
+        checkQueue(queue, 'first session');
+    }
+
+    // A few questions unseen: those come first, then one retest per missed topic
+    const unseen = new Set(['anchoring-1', 'ads-truncated-axis']);
+    const seenIds = new Set(MAIN_POOL.map(s => s.id).filter(id => !unseen.has(id)));
+    const retestTypes = ['BASE_RATE', 'SUNK_COST', 'HALO'];
+    const queue = ScenarioBank.buildSession({ seenIds, retestTypes, missedIds: new Set(['baserate-1']) });
+    assert.deepEqual(queue.filter(e => !e.retest).map(e => e.id).sort(), [...unseen].sort());
+    const retests = queue.filter(e => e.retest).map(e => ScenarioBank.getScenario(e.id));
+    assert.deepEqual(retests.map(s => s.biasType).sort(), [...retestTypes].sort(), 'One retest per missed topic');
+    assert.ok(retests.every(s => !s.pair), 'Retests are standalone questions');
+    assert.ok(!retests.some(s => s.id === 'baserate-1'), 'Retests should avoid the exact question missed');
+    checkQueue(queue, 'retest session');
+
+    // Everything seen and nothing missed: nothing left to play
+    assert.equal(ScenarioBank.buildSession({ seenIds: new Set(MAIN_POOL.map(s => s.id)) }).length, 0);
+
+    // Retests and practice never reuse a question already in the session
+    const anchoring = STANDALONE_SCENARIOS.filter(s => s.biasType === 'ANCHORING').map(s => s.id);
+    const taken = new Set(anchoring.slice(1));
+    assert.equal(ScenarioBank.pickRetestScenario('ANCHORING', { excludeIds: taken }).id, anchoring[0]);
+    assert.equal(ScenarioBank.pickRetestScenario('ANCHORING', { excludeIds: new Set(anchoring) }), null);
+    const practice = ScenarioBank.pickPracticeScenario('ANCHORING', { excludeIds: taken });
+    assert.ok(practice && !taken.has(practice.id));
+}
+
+// Retest topics follow each topic's most recent scored answer; practice doesn't count
+function checkProgress() {
+    const storage = memoryStorage();
+    const p = new Progress('  Tester-1 ', storage);
+    assert.equal(p.id, 'tester-1');
+    p.recordResult({ scenarioId: 'a', biasType: 'ANCHORING', correct: false, kind: 'main' });
+    p.recordResult({ scenarioId: 'b', biasType: 'BASE_RATE', correct: false, kind: 'main' });
+    p.recordResult({ scenarioId: 'c', biasType: 'ANCHORING', correct: true, kind: 'retest' });
+    p.recordResult({ scenarioId: 'd', biasType: 'HALO', correct: false, kind: 'practice' });
+    p.recordResult({ scenarioId: 'e', biasType: 'FRAMING', correct: false, kind: 'main' });
+    p.markSeen('a');
+    p.save();
+
+    const reloaded = new Progress('TESTER-1', storage);
+    assert.deepEqual(reloaded.retestTypes(), ['FRAMING', 'BASE_RATE']);
+    assert.deepEqual([...reloaded.missedIds()].sort(), ['a', 'b', 'e']);
+    assert.ok(reloaded.seenIds.has('a'));
+    assert.ok(Progress.exists('tester-1', storage));
+    reloaded.reset();
+    assert.equal(new Progress('tester-1', storage).data.results.length, 0);
+}
+
+// The audit only lists real vulnerabilities and strengths
+function checkAuditLists() {
+    const logsWithBiasValue = value => MASTER_SCENARIOS
+        .filter(s => !s.pair || s.id === PAIRED_TESTS[s.pair].versions[0].id)
+        .map(s => ({ scenarioId: s.id, biasType: s.biasType, biasValue: value }));
+
+    const perfect = BiasAnalyzer.analyzeSession(logsWithBiasValue(0));
+    assert.equal(perfect.topVulnerabilities.length, 0, 'Perfect run should list no vulnerabilities');
+    assert.equal(perfect.topStrengths.length, 2, 'Perfect run should list strengths');
+
+    const worst = BiasAnalyzer.analyzeSession(logsWithBiasValue(1));
+    assert.equal(worst.topStrengths.length, 0, 'Worst run should list no strengths');
+    assert.equal(worst.topVulnerabilities.length, 2, 'Worst run should list vulnerabilities');
+
+    const empty = BiasAnalyzer.analyzeSession([]);
+    assert.equal(empty.topVulnerabilities.length + empty.topStrengths.length, 0,
+        'Untested categories should not be listed');
+}
+
+// ---------- Browser checks ----------
+
+const settle = () => new Promise(r => setTimeout(r, 400));
+const text = (page, selector) => page.$eval(selector, el => el.textContent.trim());
+const isHidden = (page, selector) => page.$eval(selector, el => el.hidden);
+
+async function enterId(page, id, { uncheckConsent }) {
+    assert.equal(await isHidden(page, '#intro-view'), false, 'ID screen should show first');
+    await page.type('#id-code-input', id);
+    if (uncheckConsent) {
+        await page.click('#privacy-consent');
+        const looksDisabled = await page.$eval('#intro-continue-btn', el => el.classList.contains('looks-disabled'));
+        assert.ok(looksDisabled, 'Continue should look disabled once consent is unchecked');
+    }
+    await page.click('#intro-continue-btn');
+    await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
+}
+
+// Answers practice questions (first option) and checks they give feedback right away
+async function doPractice(page) {
+    let answered = 0;
+    for (;;) {
+        const card = await page.$('.practice-options .clean-choice-card');
+        if (!card) break;
+        await card.click();
+        answered++;
+        await page.waitForFunction(n => document.querySelectorAll('.practice-feedback').length >= n, {}, answered);
+    }
+    return answered;
+}
+
+// Plays one full session picking the first option every time. Returns the
+// queue the game used and the final score.
+async function playSession(page, label) {
+    const sessionState = () => page.evaluate(() => window.brainApp.session);
+    const startingQueue = (await sessionState()).queue;
+    const played = [];
+    const missedTypes = new Set();
+    const pairFirstRound = {};
+    let expectedScore = 100;
+    let shownScore = 100;
+    let practiceAnswered = 0;
+    let lastReviewed = 0;
+
+    for (let round = 1; ; round++) {
+        const total = (await sessionState()).queue.length;
+        assert.equal(await text(page, '#current-round'), `${round} / ${total}`, `${label}: round counter`);
+        assert.equal(Number(await text(page, '#current-score')), shownScore,
+            `${label}: score must stay hidden until the review`);
+
+        const scenario = scenariosByTitle.get(await text(page, '#scenario-title'));
+        assert.ok(scenario, `${label}: unknown scenario on round ${round}`);
+        played.push(scenario.id);
+
+        let correct;
+        if (scenario.pair) {
+            if (!(scenario.pair in pairFirstRound)) {
+                pairFirstRound[scenario.pair] = round;
+            } else {
+                assert.equal(round - pairFirstRound[scenario.pair], MIN_PAIR_GAP, `${label}: pair spacing`);
+                correct = true; // first options always answer a pair consistently
+            }
+        } else {
+            correct = scenario.options[0].isBest === true;
+        }
+        if (correct !== undefined) {
+            expectedScore = Math.max(0, expectedScore + (correct ? 20 : -15));
+            if (!correct) missedTypes.add(scenario.biasType);
+        }
+
+        const cards = await page.$$('#options-container .clean-choice-card');
+        assert.equal(cards.length, scenario.options.length, `${label}: wrong option count for ${scenario.id}`);
+        await cards[0].click();
+
+        const atReview = round % CHECKPOINT_EVERY === 0 || round === total;
+        if (!atReview) {
+            await page.waitForFunction(r => document.getElementById('current-round').textContent.startsWith(`${r} /`), {}, round + 1);
+            continue;
+        }
+
+        await page.waitForFunction(() => !document.getElementById('checkpoint-view').hidden);
+        const eyebrow = await text(page, '.checkpoint-eyebrow');
+        assert.ok(eyebrow.includes(`${lastReviewed + 1}–${round}`), `${label}: review should cover questions ${lastReviewed + 1}–${round}`);
+        lastReviewed = round;
+        const summary = await text(page, '.checkpoint-summary');
+        assert.ok(!summary.includes('scored later'), `${label}: a pair was left unscored at the review`);
+        shownScore = expectedScore;
+        assert.equal(Number(await text(page, '#current-score')), shownScore, `${label}: score after review`);
+
+        practiceAnswered += await doPractice(page);
+        const queueLength = (await sessionState()).queue.length;
+        await page.click('#checkpoint-continue-btn');
+        if (round < queueLength) {
+            await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
+        } else {
+            break;
+        }
+    }
+
+    await page.waitForFunction(() => document.getElementById('summary-modal').classList.contains('active'));
+    await settle(); // the radar chart draws just after the audit opens
+    assert.equal(Number(await text(page, '#final-score')), expectedScore, `${label}: final score`);
+    assert.equal(await isHidden(page, '#play-again-btn'), false, `${label}: next-session button should show`);
+
+    // Questions added after the start are retests of topics missed in this session
+    const finalQueue = (await sessionState()).queue;
+    assert.deepEqual(finalQueue.slice(0, startingQueue.length), startingQueue, `${label}: planned questions changed`);
+    const added = finalQueue.slice(startingQueue.length);
+    assert.ok(added.every(e => e.retest), `${label}: added questions should be retests`);
+    assert.ok(added.every(e => missedTypes.has(ScenarioBank.getScenario(e.id).biasType)),
+        `${label}: a retest covers a topic that wasn't missed`);
+    assert.ok(added.every(e => !ScenarioBank.getScenario(e.id).pair), `${label}: retests should be standalone`);
+    // Planned questions never repeat; a retest may re-ask an earlier question but never another retest
+    checkQueue(startingQueue, label);
+    const retestIds = finalQueue.filter(e => e.retest).map(e => e.id);
+    assert.equal(new Set(retestIds).size, retestIds.length, `${label}: the same retest was queued twice`);
+    assert.deepEqual(played, finalQueue.map(e => e.id), `${label}: played order should match the queue`);
+    return { queue: finalQueue, added: added.length, finalScore: expectedScore, practiceAnswered };
+}
+
+async function runBrowserChecks(browser) {
+    const page = await browser.newPage();
+    // No smooth scrolling or fades, so clicks never land mid-animation
+    await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+    const pageErrors = [];
+    page.on('pageerror', e => pageErrors.push(e.message));
+    await page.goto(`http://localhost:${PORT}`, { waitUntil: 'networkidle0' });
+
+    // Empty ID is rejected
+    await page.click('#intro-continue-btn');
+    assert.equal(await isHidden(page, '#id-code-error'), false, 'Empty ID should show an error');
+
+    await enterId(page, 'E2E-Player', { uncheckConsent: true });
+    const consent = await page.evaluate(() => JSON.parse(localStorage.getItem('gmb_progress_e2e-player')).consent);
+    assert.equal(consent.checked, false, 'Unchecked consent should be recorded');
+
+    const first = await playSession(page, 'session 1');
+    const firstPlanned = first.queue.filter(e => !e.retest).map(e => e.id);
+    assert.deepEqual([...firstPlanned].sort(), MAIN_POOL.map(s => s.id).sort(), 'Session 1 should ask every regular question once');
+    assert.ok(first.added > 0, 'Missed topics should add retests to session 1');
+
+    // Next session retests only the topics still answered wrong
+    await page.click('#play-again-btn');
+    await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
+    const secondStart = await page.evaluate(() => window.brainApp.session.queue);
+    const stillWrong = await page.evaluate(() => window.brainApp.progress.retestTypes());
+    assert.ok(secondStart.length > 0 && secondStart.every(e => e.retest), 'Session 2 should be all retests');
+    assert.ok(secondStart.length <= stillWrong.length, 'Session 2 should retest each weak topic once');
+
+    // A reload resumes the same question
+    const firstTitle = await text(page, '#scenario-title');
+    await page.reload({ waitUntil: 'networkidle0' });
+    assert.equal(await isHidden(page, '#scenario-stage'), false, 'Reload should resume the session');
+    assert.equal(await text(page, '#scenario-title'), firstTitle, 'Reload changed the question');
+
+    const second = await playSession(page, 'session 2');
+
+    // Switch ID returns to the ID screen; a new ID starts fresh
+    await page.click('#close-audit-modal-btn');
+    await page.waitForFunction(() => getComputedStyle(document.getElementById('summary-modal')).visibility === 'hidden');
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.click('#switch-id-btn');
+    assert.equal(await isHidden(page, '#intro-view'), false, 'Switch ID should show the ID screen');
+    await enterId(page, 'second-player', { uncheckConsent: false });
+    assert.equal(await text(page, '#current-round'), `1 / ${MAIN_POOL.length}`);
+
+    // The privacy policy loads and mentions that the greyed-out button still works
+    await page.goto(`http://localhost:${PORT}/privacy.html`, { waitUntil: 'networkidle0' });
+    const policy = await page.$eval('main', el => el.textContent);
+    assert.ok(/greyed out/.test(policy) && /still works/.test(policy), 'Policy should mention the greyed-out button');
+
+    // The question review page renders every question
+    await page.goto(`http://localhost:${PORT}/questions.html`, { waitUntil: 'networkidle0' });
+    const reviewCards = await page.$$eval('.card', els => els.length);
+    assert.equal(reviewCards, STANDALONE_SCENARIOS.length + Object.keys(PAIRED_TESTS).length, 'Review page card count');
+
+    assert.deepEqual(pageErrors, [], 'Page threw errors');
+    return { first, second };
+}
+
+const server = createStaticServer().listen(PORT, async () => {
     let browser;
     try {
         checkScenarioData();
         checkSessionBuilder();
+        checkProgress();
         checkAuditLists();
+
         browser = await puppeteer.launch({ executablePath: BRAVE_PATH, headless: 'new' });
-        const page = await browser.newPage();
-        const finalScore = await playSession(page);
-        console.log(`PASS: ${MASTER_SCENARIOS.length} scenarios checked, played ${SESSION_ROUNDS} rounds, final score ${finalScore}`);
+        const { first, second } = await runBrowserChecks(browser);
+        console.log(`PASS: ${MASTER_SCENARIOS.length} scenarios checked; session 1 had ${first.queue.length} questions ` +
+            `(${first.added} retests added), session 2 had ${second.queue.length}; ` +
+            `${first.practiceAnswered + second.practiceAnswered} practice questions answered`);
     } catch (e) {
         console.error('FAIL:', e.message);
         process.exitCode = 1;
