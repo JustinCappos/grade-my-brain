@@ -1132,6 +1132,66 @@ body.intro-mode .main-container {
 .practice-right .practice-verdict { color: #34d399; }
 .practice-wrong .practice-verdict { color: #f87171; }
 
+/* End-of-session privacy policy debrief */
+.policy-debrief {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
+    padding: 22px 24px;
+    border-radius: 14px;
+    text-align: left;
+    background: rgba(251, 191, 36, 0.07);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    color: #e2e8f0;
+    line-height: 1.6;
+}
+
+.policy-debrief-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fbbf24;
+}
+
+.policy-debrief-title {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.policy-debrief-link {
+    display: inline-block;
+    width: auto;
+    align-self: flex-start;
+    padding: 10px 18px;
+    text-decoration: none;
+    text-align: center;
+}
+
+.policy-debrief-subtitle {
+    margin-top: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.policy-debrief-list {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.93rem;
+}
+
+.policy-debrief-list strong {
+    color: var(--text-main);
+}
+
 /* Session picker and missed questions in the audit */
 .audit-session-picker {
     display: flex;

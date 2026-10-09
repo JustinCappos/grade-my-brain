@@ -290,6 +290,10 @@ async function playSession(page, label) {
     assert.equal(Number(await text(page, '#final-score')), expectedScore, `${label}: final score`);
     assert.equal(await isHidden(page, '#play-again-btn'), false, `${label}: next-session button should show`);
 
+    // The final screen points players back to the privacy policy
+    assert.equal(await isHidden(page, '#policy-debrief'), false, `${label}: privacy policy debrief should show`);
+    assert.ok(await page.$('#policy-debrief a[href="privacy.html"]'), `${label}: debrief should link to the policy`);
+
     // The audit lists every missed topic, each opening to its missed questions
     const auditTopics = await page.$$eval('.missed-topic', els => els.map(el => el.dataset.bias));
     assert.deepEqual([...auditTopics].sort(), [...missedTypes].sort(), `${label}: audit should list every missed topic`);
@@ -335,6 +339,8 @@ async function runBrowserChecks(browser) {
     assert.equal(consent.checked, false, 'Unchecked consent should be recorded');
 
     const first = await playSession(page, 'session 1');
+    const debrief = await text(page, '#policy-debrief');
+    assert.ok(debrief.includes('unchecked'), 'Debrief should reflect that the player unchecked the box');
     const firstPlanned = first.queue.filter(e => !e.retest).map(e => e.id);
     assert.deepEqual([...firstPlanned].sort(), MAIN_POOL.map(s => s.id).sort(), 'Session 1 should ask every regular question once');
     assert.ok(first.added > 0, 'Missed topics should add retests to session 1');

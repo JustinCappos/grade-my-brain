@@ -108,6 +108,7 @@ class GradeMyBrainApp {
         this.auditPickerEl = document.getElementById('audit-session-picker');
         this.auditSelectEl = document.getElementById('audit-session-select');
         this.missedByTopicEl = document.getElementById('missed-by-topic');
+        this.policyDebriefEl = document.getElementById('policy-debrief');
         this.sys1BarEl = document.getElementById('sys1-bar');
         this.sys2BarEl = document.getElementById('sys2-bar');
         this.sys1ValEl = document.getElementById('sys1-val');
@@ -905,12 +906,47 @@ class GradeMyBrainApp {
         });
 
         const session = this.session;
-        this.playAgainBtn.hidden = !(session && session.phase === 'complete');
+        const sessionComplete = Boolean(session && session.phase === 'complete');
+        this.renderPolicyDebrief(sessionComplete);
+        this.playAgainBtn.hidden = !sessionComplete;
         this.playAgainBtn.textContent = retestNames.length > 0 ? '▶ Retest Weak Topics' : '✓ Finish';
         setTimeout(() => {
             // Only plot the biases this session has actually reviewed
             BrainChart.renderRadarChart('bias-radar-chart', audit.summary.filter(s => s.count > 0));
         }, 50);
+    }
+
+    // Shown when a session ends, so nobody misses that the entry screen's
+    // privacy policy was itself a lesson in deceptive design
+    renderPolicyDebrief(show) {
+        this.policyDebriefEl.hidden = !show;
+        if (!show) return;
+        const { checked, openedPolicy } = this.progress.data.consent;
+        const youDid = checked
+            ? (openedPolicy ? 'You opened the privacy policy, then agreed to it anyway.' : 'You agreed to the privacy policy without opening it.')
+            : (openedPolicy
+                ? 'You read the privacy policy, unchecked the box, and clicked the greyed-out button anyway. Well spotted.'
+                : 'You unchecked the consent box and clicked the greyed-out button anyway.');
+
+        this.policyDebriefEl.innerHTML = `
+            <p class="policy-debrief-eyebrow">Before you go</p>
+            <h3 id="policy-debrief-title" class="policy-debrief-title">Did you read the privacy policy?</h3>
+            <p>${esc(youDid)} Go read it now: it grants us naming rights to your firstborn child, shares your data
+                with a raccoon named Gerald, and settles disputes by rock-paper-scissors by mail. Section 3.2 also says
+                the Continue button only <em>looked</em> disabled when the box was unchecked. It worked the whole time.</p>
+            <a class="glow-btn policy-debrief-link" href="privacy.html" target="_blank" rel="noopener">Read the privacy policy ↗</a>
+            <p class="policy-debrief-subtitle">What that screen was teaching</p>
+            <ul class="policy-debrief-list">
+                <li><strong>The box was checked for you.</strong> Pre-selected consent is a default effect: most people keep
+                    whatever is chosen for them. In 2019 the EU's top court ruled that a pre-ticked box is not valid
+                    consent for cookies.</li>
+                <li><strong>The greyed-out button wasn't disabled.</strong> It only looked that way. Visual cues steer
+                    people even when they're false, which is why dark patterns lean on them.</li>
+                <li><strong>Almost nobody reads these.</strong> In a study by Obar and Oeldorf-Hirsch, most people
+                    skipped a fake social network's privacy policy, and 98% missed a clause handing over their
+                    firstborn child.</li>
+            </ul>
+            ${this.examplesHtml(BIAS_CATEGORIES.DEFAULTS)}`;
     }
 
     // Every missed question, grouped by topic (most missed first). Each topic
