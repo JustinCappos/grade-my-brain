@@ -6,8 +6,8 @@
     "test": "node test_brave.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Justin Cappos",
+  "license": "Apache-2.0",
   "description": "Browser game that tests decision-making against cognitive biases from Thinking, Fast and Slow.",
   "dependencies": {
     "puppeteer-core": "^25.10.0"
