@@ -143,8 +143,14 @@ function checkProgress() {
     assert.deepEqual([...reloaded.missedIds()].sort(), ['a', 'b', 'e']);
     assert.ok(reloaded.seenIds.has('a'));
     assert.ok(Progress.exists('tester-1', storage));
+    const finished = { queue: [{ id: 'a' }], shownScore: 120, reviewed: [{ scenarioId: 'a', correct: true }] };
+    reloaded.archiveSession(finished);
+    reloaded.archiveSession(finished);
+    assert.equal(reloaded.pastSessions.length, 1, 'A session should only be archived once');
     reloaded.reset();
-    assert.equal(new Progress('tester-1', storage).data.results.length, 0);
+    const afterReset = new Progress('tester-1', storage);
+    assert.equal(afterReset.data.results.length, 0);
+    assert.equal(afterReset.pastSessions.length, 1, 'Starting over should keep past session results');
 }
 
 // The audit only lists real vulnerabilities and strengths
@@ -209,6 +215,7 @@ async function playSession(page, label) {
     let shownScore = 100;
     let practiceAnswered = 0;
     let lastReviewed = 0;
+    let tokensSettled = 0;
 
     for (let round = 1; ; round++) {
         const total = (await sessionState()).queue.length;
@@ -252,6 +259,19 @@ async function playSession(page, label) {
         lastReviewed = round;
         const summary = await text(page, '.checkpoint-summary');
         assert.ok(!summary.includes('scored later'), `${label}: a pair was left unscored at the review`);
+
+        // Bonus Token trades follow the random-price rules and settle at the review
+        const tokens = await page.evaluate(() => window.brainApp.session.checkpoint.tokens || []);
+        for (const t of tokens) {
+            const shouldTrade = t.kind === 'sell' ? t.drawn >= t.price : t.drawn <= t.price;
+            assert.equal(t.traded, shouldTrade, `${label}: token trade rule`);
+            assert.equal(t.held, t.kind === 'sell' ? !t.traded : t.traded, `${label}: token ownership`);
+            assert.ok(t.held ? [0, 40].includes(t.payout) : t.payout === 0, `${label}: token payout`);
+            assert.equal(t.net, t.cash + t.payout, `${label}: token points`);
+        }
+        tokensSettled += tokens.length;
+        const tokenNet = tokens.reduce((sum, t) => sum + t.net, 0);
+        if (tokenNet !== 0) expectedScore = Math.max(0, expectedScore + tokenNet);
         shownScore = expectedScore;
         assert.equal(Number(await text(page, '#current-score')), shownScore, `${label}: score after review`);
 
@@ -270,6 +290,16 @@ async function playSession(page, label) {
     assert.equal(Number(await text(page, '#final-score')), expectedScore, `${label}: final score`);
     assert.equal(await isHidden(page, '#play-again-btn'), false, `${label}: next-session button should show`);
 
+    // The audit lists every missed topic, each opening to its missed questions
+    const auditTopics = await page.$$eval('.missed-topic', els => els.map(el => el.dataset.bias));
+    assert.deepEqual([...auditTopics].sort(), [...missedTypes].sort(), `${label}: audit should list every missed topic`);
+    const firstVuln = await page.$('.audit-item-link');
+    if (firstVuln) {
+        await firstVuln.click();
+        const opened = await page.$eval('.missed-topic[open]', el => el.querySelectorAll('.review-card').length);
+        assert.ok(opened > 0, `${label}: clicking a vulnerability should open its missed questions`);
+    }
+
     // Questions added after the start are retests of topics missed in this session
     const finalQueue = (await sessionState()).queue;
     assert.deepEqual(finalQueue.slice(0, startingQueue.length), startingQueue, `${label}: planned questions changed`);
@@ -283,6 +313,8 @@ async function playSession(page, label) {
     const retestIds = finalQueue.filter(e => e.retest).map(e => e.id);
     assert.equal(new Set(retestIds).size, retestIds.length, `${label}: the same retest was queued twice`);
     assert.deepEqual(played, finalQueue.map(e => e.id), `${label}: played order should match the queue`);
+    const tokenQuestions = played.filter(id => ScenarioBank.getScenario(id).token).length;
+    assert.equal(tokensSettled, tokenQuestions, `${label}: every Bonus Token question should settle at a review`);
     return { queue: finalQueue, added: added.length, finalScore: expectedScore, practiceAnswered };
 }
 
@@ -322,6 +354,12 @@ async function runBrowserChecks(browser) {
     assert.equal(await text(page, '#scenario-title'), firstTitle, 'Reload changed the question');
 
     const second = await playSession(page, 'session 2');
+
+    // The audit can switch back to the first session's results
+    const sessionOptions = await page.$$eval('#audit-session-select option', els => els.map(el => el.value));
+    assert.deepEqual(sessionOptions, ['past-1', 'past-0'], 'Audit should offer both finished sessions, newest first');
+    await page.select('#audit-session-select', 'past-0');
+    assert.equal(Number(await text(page, '#final-score')), first.finalScore, 'Audit should show session 1 again');
 
     // Switch ID returns to the ID screen; a new ID starts fresh
     await page.click('#close-audit-modal-btn');

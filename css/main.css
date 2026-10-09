@@ -1068,6 +1068,36 @@ body.intro-mode .main-container {
     background: rgba(148, 163, 184, 0.15);
 }
 
+/* Bonus Token results */
+.token-results {
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: rgba(251, 191, 36, 0.07);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.92rem;
+    color: #e2e8f0;
+}
+
+.token-results-title {
+    font-weight: 700;
+    color: #fbbf24;
+}
+
+.token-results ul {
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.token-results-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
 /* Practice */
 .practice-tip {
     font-size: 0.95rem;
@@ -1101,6 +1131,112 @@ body.intro-mode .main-container {
 
 .practice-right .practice-verdict { color: #34d399; }
 .practice-wrong .practice-verdict { color: #f87171; }
+
+/* Session picker and missed questions in the audit */
+.audit-session-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 16px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.audit-session-picker select {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--panel-border);
+    background: rgba(2, 6, 23, 0.55);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+}
+
+.audit-item-link {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+.audit-item-link:hover {
+    border-color: rgba(239, 68, 68, 0.6);
+}
+
+.audit-item-link:focus-visible {
+    outline: 2px solid var(--primary-cyan);
+    outline-offset: 2px;
+}
+
+.audit-item-more {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #fca5a5;
+}
+
+.missed-by-topic {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 28px;
+    text-align: left;
+}
+
+.missed-by-topic:empty {
+    display: none;
+}
+
+.missed-topics {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.missed-topic {
+    border-radius: 12px;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    background: rgba(239, 68, 68, 0.05);
+    scroll-margin-top: 16px;
+}
+
+.missed-topic summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.02rem;
+}
+
+.missed-topic summary:focus-visible {
+    outline: 2px solid var(--primary-cyan);
+    outline-offset: 2px;
+    border-radius: 12px;
+}
+
+.missed-topic-count {
+    flex: none;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fca5a5;
+}
+
+.missed-topic-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 18px 18px;
+}
 
 /* Progress summary in the audit */
 .progress-summary {

@@ -12,7 +12,7 @@
  */
 
 import { sound } from './audio.js';
-import { ScenarioBank, PAIRED_TESTS, BIAS_CATEGORIES, REVIEW_BLOCK } from './scenarioBank.js';
+import { ScenarioBank, PAIRED_TESTS, BIAS_CATEGORIES, REVIEW_BLOCK, BONUS_TOKEN } from './scenarioBank.js';
 import { BiasAnalyzer } from './biasAnalyzer.js';
 import { BrainChart } from './chart.js';
 import { Progress, normalizeId } from './progress.js';
@@ -105,6 +105,9 @@ class GradeMyBrainApp {
         this.finalScoreEl = document.getElementById('final-score');
         this.statAccuracyEl = document.getElementById('stat-accuracy');
         this.progressSummaryEl = document.getElementById('progress-summary');
+        this.auditPickerEl = document.getElementById('audit-session-picker');
+        this.auditSelectEl = document.getElementById('audit-session-select');
+        this.missedByTopicEl = document.getElementById('missed-by-topic');
         this.sys1BarEl = document.getElementById('sys1-bar');
         this.sys2BarEl = document.getElementById('sys2-bar');
         this.sys1ValEl = document.getElementById('sys1-val');
@@ -153,6 +156,8 @@ class GradeMyBrainApp {
             playSafely(() => sound.playClick());
             this.showCognitiveAuditSummary({ final: false });
         };
+
+        this.auditSelectEl.onchange = () => this.renderAudit(this.auditSelectEl.value);
 
         this.closeAuditModalBtn.onclick = () => {
             playSafely(() => sound.playClick());
@@ -239,6 +244,10 @@ class GradeMyBrainApp {
     // --- Session Flow ---
 
     startSession() {
+        // A session finished before archiving existed is saved before it's replaced
+        const previous = this.session;
+        if (previous && previous.phase === 'complete') this.progress.archiveSession(previous);
+
         const queue = ScenarioBank.buildSession({
             seenIds: this.progress.seenIds,
             retestTypes: this.progress.retestTypes(),
@@ -247,6 +256,7 @@ class GradeMyBrainApp {
 
         this.progress.data.session = {
             queue,
+            startedAt: Date.now(),
             position: 0,
             phase: 'question',
             pendingPairs: {},
@@ -258,6 +268,7 @@ class GradeMyBrainApp {
             shownHistory: [{ round: 0, score: STARTING_SCORE }],
             lastReviewedPosition: 0,
             retestCounts: {},
+            tokens: [],
             checkpoint: null
         };
         this.progress.save();
@@ -356,6 +367,7 @@ class GradeMyBrainApp {
         const entry = session.queue[session.position];
         const sc = ScenarioBank.getScenario(entry.id);
         this.progress.markSeen(sc.id);
+        if (sc.token) this.tradeToken(sc.token, selectedOpt.value);
 
         if (sc.pair) {
             this.handlePairedAnswer(sc, entry, selectedOpt);
@@ -418,6 +430,35 @@ class GradeMyBrainApp {
         });
     }
 
+    // Runs a Bonus Token trade with a random drawn price (the Becker-DeGroot-
+    // Marschak method): stating your true value is always the best choice.
+    // Points from the trade and the token's payout land at the next review.
+    tradeToken(kind, price) {
+        const session = this.session;
+        const drawn = Math.floor(Math.random() * (BONUS_TOKEN.maxDrawnPrice + 1));
+        const traded = kind === 'sell' ? drawn >= price : drawn <= price;
+        const held = kind === 'sell' ? !traded : traded;
+        const cash = !traded ? 0 : (kind === 'sell' ? drawn : -drawn);
+        (session.tokens ||= []).push({ kind, price, drawn, traded, held, cash, payout: null });
+    }
+
+    // Flips the coin for every token still held and applies all token points at once
+    settleTokens() {
+        const session = this.session;
+        const tokens = session.tokens || [];
+        session.tokens = [];
+        tokens.forEach(t => {
+            t.payout = t.held ? (Math.random() < BONUS_TOKEN.chance ? BONUS_TOKEN.payout : 0) : 0;
+            t.net = t.cash + t.payout;
+        });
+        const net = tokens.reduce((sum, t) => sum + t.net, 0);
+        if (net !== 0) {
+            session.score = Math.max(0, session.score + net);
+            session.history.push({ round: session.history.length, score: session.score });
+        }
+        return tokens;
+    }
+
     // Scores a result now but leaves it hidden until the next review
     addResult(item) {
         const session = this.session;
@@ -436,6 +477,7 @@ class GradeMyBrainApp {
         const session = this.session;
         const items = session.unreviewed;
         session.unreviewed = [];
+        const tokens = this.settleTokens();
 
         // Questions still to come this session are never used for practice
         const upcoming = new Set(session.queue.slice(session.position).map(e => e.id));
@@ -475,6 +517,7 @@ class GradeMyBrainApp {
             delta: session.score - session.shownScore,
             pendingCount: Object.keys(session.pendingPairs).length,
             addedRetests,
+            tokens,
             items,
             practice
         };
@@ -507,6 +550,7 @@ class GradeMyBrainApp {
         if (session.phase !== 'complete') {
             session.phase = 'complete';
             this.progress.data.sessionsCompleted++;
+            this.progress.archiveSession(session);
             this.progress.save();
         }
         this.showCognitiveAuditSummary({ final: true });
@@ -549,6 +593,7 @@ class GradeMyBrainApp {
                 <span class="breakdown-delta-badge ${cp.delta >= 0 ? 'delta-up' : 'delta-down'}">${deltaText}</span>
             </div>
             <p class="checkpoint-summary">${esc(scoredText + pendingText + retestText)}</p>
+            ${this.tokenResultsHtml(cp.tokens || [])}
 
             ${missed.length > 0 ? `
                 <section class="missed-section" aria-labelledby="missed-heading">
@@ -578,6 +623,28 @@ class GradeMyBrainApp {
         this.checkpointEl.querySelector('#checkpoint-continue-btn').onclick = () => this.handleCheckpointContinue();
     }
 
+    tokenResultsHtml(tokens) {
+        if (tokens.length === 0) return '';
+        const pts = n => `${n} ${Math.abs(n) === 1 ? 'point' : 'points'}`;
+        const line = t => {
+            if (t.kind === 'sell') {
+                const trade = t.traded
+                    ? `The drawn price was ${t.drawn}, at least your ${t.price}, so you sold it for ${pts(t.drawn)}.`
+                    : `The drawn price was ${t.drawn}, below your ${t.price}, so you kept it`;
+                return t.traded ? trade : `${trade}, and it paid ${pts(t.payout)}.`;
+            }
+            if (!t.traded) return `You'd pay up to ${t.price}. The drawn price was ${t.drawn}, so there was no sale.`;
+            return `You'd pay up to ${t.price}. The drawn price was ${t.drawn}, so you bought it for ${pts(t.drawn)}, and it paid ${pts(t.payout)}.`;
+        };
+        const net = tokens.reduce((sum, t) => sum + t.net, 0);
+        return `
+            <div class="token-results">
+                <p class="token-results-title">Bonus Tokens · ${net >= 0 ? '+' : ''}${pts(net)}</p>
+                <ul>${tokens.map(t => `<li>${esc(line(t))}</li>`).join('')}</ul>
+                <p class="token-results-note">Token points don't affect your accuracy grade.</p>
+            </div>`;
+    }
+
     // Each missed question, followed by the practice question for its bias
     // type right after the first miss of that type
     missedWithPracticeHtml(missed, practice) {
@@ -593,7 +660,12 @@ class GradeMyBrainApp {
         }).join('');
     }
 
-    reviewCardHtml(item) {
+    // False for a saved result whose question has since been removed from the bank
+    isKnownItem(item) {
+        return item.kind === 'pair' ? Boolean(PAIRED_TESTS[item.pairId]) : Boolean(ScenarioBank.getScenario(item.scenarioId));
+    }
+
+    reviewCardHtml(item, { showExamples = true } = {}) {
         const category = BIAS_CATEGORIES[item.biasType];
         const retestBadge = item.retest
             ? `<span class="retest-badge">${item.correct ? 'Retest · learned it' : 'Retest · still tricky'}</span>`
@@ -634,7 +706,7 @@ class GradeMyBrainApp {
                 <p class="answer-row"><span class="answer-label">${item.correct ? 'Best answer' : 'Better answer'}</span><span class="answer-best">${esc(bestAnswer)}</span></p>
                 <p class="review-reasoning">${esc(reasoning)}</p>
                 <span class="book-ref">📖 ${esc(bookRef)}</span>
-                ${item.correct ? '' : this.examplesHtml(category)}
+                ${item.correct || !showExamples ? '' : this.examplesHtml(category)}
             </article>`;
     }
 
@@ -728,14 +800,54 @@ class GradeMyBrainApp {
 
     // --- Audit ---
 
-    showCognitiveAuditSummary({ final }) {
+    // Sessions the audit can show: every archived session, plus the current
+    // one while it's still in progress
+    auditViews() {
+        const views = this.progress.pastSessions.map((past, idx) => ({
+            key: `past-${idx}`,
+            data: past,
+            label: `Session ${past.number}`,
+            date: past.completedAt
+        }));
         const session = this.session;
+        if (session && !session.archived && (session.reviewed.length > 0 || views.length === 0)) {
+            views.push({ key: 'current', data: session, label: 'Current session (in progress)', date: null });
+        }
+        return views;
+    }
+
+    showCognitiveAuditSummary({ final }) {
         if (final) playSafely(() => sound.playGameOver());
+        const views = this.auditViews();
+        const defaultKey = views.length ? views[views.length - 1].key : null;
+
+        const dateText = ts => new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        this.auditSelectEl.innerHTML = views.slice().reverse().map(v => {
+            const accuracy = this.accuracyOf(v.data);
+            const details = [
+                v.date ? dateText(v.date) : null,
+                `${v.data.reviewed.length} answered`,
+                accuracy === null ? null : `${accuracy}% right`
+            ].filter(Boolean).join(' · ');
+            return `<option value="${v.key}">${esc(v.label)} · ${esc(details)}</option>`;
+        }).join('');
+        this.auditPickerEl.hidden = views.length < 2;
+
+        this.summaryModal.classList.add('active');
+        this.renderAudit(defaultKey);
+    }
+
+    // Renders the audit for one session (see auditViews)
+    renderAudit(key) {
+        const view = this.auditViews().find(v => v.key === key);
+        const data = view ? view.data : { reviewed: [], shownScore: STARTING_SCORE };
+        if (view) this.auditSelectEl.value = key;
+        const reviewed = data.reviewed.filter(i => this.isKnownItem(i));
 
         // Only reviewed answers count, so the audit never reveals unreviewed results
-        const logs = session.reviewed.map(i => ({ scenarioId: i.scenarioId, biasType: i.biasType, biasValue: i.biasValue }));
+        const logs = reviewed.map(i => ({ scenarioId: i.scenarioId, biasType: i.biasType, biasValue: i.biasValue }));
         const audit = BiasAnalyzer.analyzeSession(logs);
-        const accuracy = this.accuracyOf(session);
+        const accuracy = this.accuracyOf({ reviewed });
         const gradeInfo = this.getGradeInfo(accuracy);
 
         this.finalGradeBadge.textContent = gradeInfo.grade;
@@ -743,7 +855,7 @@ class GradeMyBrainApp {
         this.finalGradeBadge.style.boxShadow = `0 0 25px ${gradeInfo.color}aa`;
         this.finalGradeTitle.textContent = gradeInfo.title;
         this.finalGradeTitle.style.color = gradeInfo.color;
-        this.finalScoreEl.textContent = session.shownScore;
+        this.finalScoreEl.textContent = data.shownScore;
         this.statAccuracyEl.textContent = accuracy === null ? '–' : `${accuracy}%`;
 
         this.sys1BarEl.style.width = `${audit.system1Score}%`;
@@ -763,14 +875,16 @@ class GradeMyBrainApp {
                 : 'No topics need a retest right now.'}</p>`;
 
         const emptyNote = text => `<p style="color: var(--text-muted); font-size: 0.9rem;">${text}</p>`;
+        const missedCount = type => reviewed.filter(i => !i.correct && i.biasType === type).length;
         this.vulnerabilitiesListEl.innerHTML = audit.topVulnerabilities.length === 0
             ? emptyNote('No vulnerabilities detected.')
             : audit.topVulnerabilities.map(v => `
-                <div class="audit-item vuln">
+                <button type="button" class="audit-item vuln audit-item-link" data-bias="${esc(v.type)}">
                     <h4>⚠️ ${esc(v.name)} (${v.susceptibilityPercent}% Vulnerability)</h4>
                     <p>${esc(v.description)}</p>
                     <span class="book-ref">📖 ${esc(v.bookRef)}</span>
-                </div>`).join('');
+                    <span class="audit-item-more">See the ${missedCount(v.type)} missed ${missedCount(v.type) === 1 ? 'question' : 'questions'} explained ↓</span>
+                </button>`).join('');
         this.strengthsListEl.innerHTML = audit.topStrengths.length === 0
             ? emptyNote('No strengths detected yet.')
             : audit.topStrengths.map(s => `
@@ -780,13 +894,58 @@ class GradeMyBrainApp {
                     <span class="book-ref">📖 ${esc(s.bookRef)}</span>
                 </div>`).join('');
 
-        this.playAgainBtn.hidden = !final;
+        this.renderMissedByTopic(reviewed);
+        this.vulnerabilitiesListEl.querySelectorAll('.audit-item-link').forEach(btn => {
+            btn.onclick = () => {
+                const topic = this.missedByTopicEl.querySelector(`details[data-bias="${CSS.escape(btn.dataset.bias)}"]`);
+                if (!topic) return;
+                topic.open = true;
+                topic.scrollIntoView({ block: 'start' });
+            };
+        });
+
+        const session = this.session;
+        this.playAgainBtn.hidden = !(session && session.phase === 'complete');
         this.playAgainBtn.textContent = retestNames.length > 0 ? '▶ Retest Weak Topics' : '✓ Finish';
-        this.summaryModal.classList.add('active');
         setTimeout(() => {
             // Only plot the biases this session has actually reviewed
             BrainChart.renderRadarChart('bias-radar-chart', audit.summary.filter(s => s.count > 0));
         }, 50);
+    }
+
+    // Every missed question, grouped by topic (most missed first). Each topic
+    // opens to show its tip, real-world examples and each question explained.
+    renderMissedByTopic(reviewed) {
+        const missed = reviewed.filter(i => !i.correct);
+        if (missed.length === 0) {
+            this.missedByTopicEl.innerHTML = '';
+            return;
+        }
+        const byType = new Map();
+        missed.forEach(i => byType.set(i.biasType, [...(byType.get(i.biasType) || []), i]));
+        const topics = [...byType.entries()].sort((a, b) => b[1].length - a[1].length);
+
+        this.missedByTopicEl.innerHTML = `
+            <h3 class="missed-heading">What you got wrong <span class="missed-count">${missed.length} missed</span></h3>
+            <p class="checkpoint-summary">Select a topic to see each question you missed, explained, with a tip for next time.</p>
+            <div class="missed-topics">
+                ${topics.map(([type, items]) => {
+                    const category = BIAS_CATEGORIES[type];
+                    return `
+                        <details class="missed-topic" data-bias="${esc(type)}">
+                            <summary>
+                                <span class="missed-topic-name">${esc(category.name)}</span>
+                                <span class="missed-topic-count">${items.length} missed</span>
+                            </summary>
+                            <div class="missed-topic-body">
+                                <p class="review-scenario">${esc(category.description)}</p>
+                                <p class="practice-tip"><span class="answer-label">How to think differently</span>${esc(category.tip)}</p>
+                                ${this.examplesHtml(category)}
+                                <div class="review-list">${items.map(i => this.reviewCardHtml(i, { showExamples: false })).join('')}</div>
+                            </div>
+                        </details>`;
+                }).join('')}
+            </div>`;
     }
 
     hideSummaryModal() {

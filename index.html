@@ -175,6 +175,12 @@
             <!-- Progress across sessions for this ID code -->
             <div id="progress-summary" class="progress-summary"></div>
 
+            <!-- Which session's results the audit shows -->
+            <div id="audit-session-picker" class="audit-session-picker" hidden>
+                <label for="audit-session-select">Showing</label>
+                <select id="audit-session-select"></select>
+            </div>
+
             <!-- System 1 vs System 2 Meter -->
             <div class="system-balance-box">
                 <div class="balance-labels">
@@ -214,6 +220,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Every missed question, grouped by topic, each expandable -->
+            <section id="missed-by-topic" class="missed-by-topic"></section>
 
             <button id="play-again-btn" class="glow-btn" style="margin-top: 25px; width: 260px; font-size: 1.1rem; margin-left: auto; margin-right: auto; display: block;">
                 ▶ Retest Weak Topics

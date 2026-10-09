@@ -33,6 +33,8 @@ function freshData() {
         // { scenarioId, biasType, correct, kind: 'main' | 'retest' | 'practice', at }
         results: [],
         sessionsCompleted: 0,
+        // Completed sessions, oldest first, kept so the audit can show them again
+        pastSessions: [],
         session: null
     };
 }
@@ -59,7 +61,9 @@ export class Progress {
     load() {
         try {
             const data = JSON.parse(this.storage.getItem(this.key));
-            return data && data.version === DATA_VERSION ? data : null;
+            if (!data || data.version !== DATA_VERSION) return null;
+            data.pastSessions ||= [];
+            return data;
         } catch (err) {
             return null;
         }
@@ -71,10 +75,11 @@ export class Progress {
         } catch (err) { /* storage full or blocked; progress lasts for this page only */ }
     }
 
+    // Starts the question pool over, keeping consent and past session results
     reset() {
-        const consent = this.data.consent;
+        const { consent, pastSessions, sessionsCompleted } = this.data;
         this.data = freshData();
-        this.data.consent = consent;
+        Object.assign(this.data, { consent, pastSessions, sessionsCompleted });
         this.save();
     }
 
@@ -88,6 +93,24 @@ export class Progress {
 
     recordResult({ scenarioId, biasType, correct, kind }) {
         this.data.results.push({ scenarioId, biasType, correct, kind, at: Date.now() });
+    }
+
+    // Saves what the audit needs from a finished session; safe to call twice
+    archiveSession(session) {
+        if (!session || session.archived) return;
+        session.archived = true;
+        this.data.pastSessions.push({
+            number: this.data.pastSessions.length + 1,
+            startedAt: session.startedAt || null,
+            completedAt: Date.now(),
+            questionCount: session.queue.length,
+            shownScore: session.shownScore,
+            reviewed: session.reviewed
+        });
+    }
+
+    get pastSessions() {
+        return this.data.pastSessions;
     }
 
     // Results that measure the player (practice answers come right after an explanation)

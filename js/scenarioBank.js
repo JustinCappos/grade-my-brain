@@ -1309,6 +1309,12 @@ Object.entries(REAL_WORLD_EXAMPLES).forEach(([type, examples]) => {
 const sameAnswer = (a, b) => a === b;
 // The first version's answer (a numeric rank) should not be higher than the second's
 const firstNotHigher = (a, b) => a <= b;
+// Bonus Token: the selling price (first version) may exceed the buying
+// price (second version) by at most one 5-point step
+const sellNotAboveBuy = (sellPrice, buyPrice) => sellPrice <= buyPrice + 5;
+
+// Bonus Token terms, used by the token questions and the game's payouts
+export const BONUS_TOKEN = { payout: 40, chance: 0.5, maxDrawnPrice: 40 };
 
 export const PAIRED_TESTS = {
     surgery: {
@@ -1535,38 +1541,44 @@ export const PAIRED_TESTS = {
             }
         ]
     },
-    concertTicket: {
+    bonusToken: {
         biasType: "ENDOWMENT",
-        bestAnswer: "A selling price no higher than your buying price",
-        reasoning: "The ticket is worth the same to you whether you already hold it or not, so the lowest price you would sell at should be close to the most you would pay. In experiments, owners typically demand about twice what buyers will pay for the same item, as in the Cornell mug studies in Chapter 27. If your selling price was higher than your buying price, you showed the endowment effect.",
+        bestAnswer: "A selling price no more than 5 points above your buying price",
+        reasoning: "A Bonus Token is worth 20 points on average (a 50% chance of 40). It is worth the same to you whether you are holding it or not, so the lowest price you'd sell it for should be about the most you'd pay for it. In experiments, owners typically demand about twice what buyers will pay for the same item, as in the Cornell mug studies in Chapter 27. If you asked noticeably more to give the token up than you'd pay to get it, owning it made giving it up feel like a loss.",
         biasName: "Endowment Effect",
         bookRef: "Thinking, Fast and Slow - Chapter 27",
-        isConsistent: firstNotHigher,
+        isConsistent: sellNotAboveBuy,
         versions: [
             {
-                id: "endowment-ticket-sell",
+                id: "endowment-token-sell",
+                token: "sell",
                 label: "Selling version",
-                title: "Concert Ticket Resale",
-                scenarioText: "You won a free ticket to a sold-out concert by a band you like. Resale listings for similar seats run around $100. A friend asks to buy it from you. What is the lowest price you would accept?",
+                title: "Bonus Token Offer",
+                scenarioText: "You've just been given a Bonus Token. At your next review it pays 40 Brain Points with a 50% chance, and nothing otherwise. You can sell it now: pick the lowest price you'd accept. The game then draws a random price from 0 to 40 points. If the drawn price is at least your price, you sell the token for the drawn price; if not, you keep it. You're paid the drawn price, not yours, so picking the price that truly matches what the token is worth to you is your best move.",
                 options: [
-                    { text: "Under $60", value: 1 },
-                    { text: "$60 to $99", value: 2 },
-                    { text: "$100 to $139", value: 3 },
-                    { text: "$140 to $199", value: 4 },
-                    { text: "$200 or more", value: 5 }
+                    { text: "5 points", value: 5 },
+                    { text: "10 points", value: 10 },
+                    { text: "15 points", value: 15 },
+                    { text: "20 points", value: 20 },
+                    { text: "25 points", value: 25 },
+                    { text: "30 points", value: 30 },
+                    { text: "35 points", value: 35 }
                 ]
             },
             {
-                id: "endowment-ticket-buy",
+                id: "endowment-token-buy",
+                token: "buy",
                 label: "Buying version",
-                title: "Sold-Out Show Tickets",
-                scenarioText: "A band you like is playing a sold-out concert. Resale listings for decent seats run around $100. A friend has a spare ticket. What is the most you would pay for it?",
+                title: "Bonus Token for Sale",
+                scenarioText: "You can buy a Bonus Token. At your next review it pays 40 Brain Points with a 50% chance, and nothing otherwise. Pick the most you'd pay. The game then draws a random price from 0 to 40 points. If the drawn price is at or below your price, you buy the token at the drawn price; if not, there's no sale. You pay the drawn price, not yours, so picking the price that truly matches what the token is worth to you is your best move.",
                 options: [
-                    { text: "Under $60", value: 1 },
-                    { text: "$60 to $99", value: 2 },
-                    { text: "$100 to $139", value: 3 },
-                    { text: "$140 to $199", value: 4 },
-                    { text: "$200 or more", value: 5 }
+                    { text: "5 points", value: 5 },
+                    { text: "10 points", value: 10 },
+                    { text: "15 points", value: 15 },
+                    { text: "20 points", value: 20 },
+                    { text: "25 points", value: 25 },
+                    { text: "30 points", value: 30 },
+                    { text: "35 points", value: 35 }
                 ]
             }
         ]
