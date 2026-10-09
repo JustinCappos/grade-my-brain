@@ -550,22 +550,22 @@ class GradeMyBrainApp {
             </div>
             <p class="checkpoint-summary">${esc(scoredText + pendingText + retestText)}</p>
 
-            ${missed.length > 0 ? `<div class="review-list">${missed.map(i => this.reviewCardHtml(i)).join('')}</div>` : ''}
+            ${missed.length > 0 ? `
+                <section class="missed-section" aria-labelledby="missed-heading">
+                    <h3 id="missed-heading" class="missed-heading">Read these first <span class="missed-count">${missed.length} missed</span></h3>
+                    <p class="checkpoint-summary">Each one explains the better answer. Where there's a practice question, try it before moving on; practice doesn't affect your score.</p>
+                    <div class="review-list">${this.missedWithPracticeHtml(missed, cp.practice)}</div>
+                </section>` : ''}
+
+            <button id="checkpoint-continue-btn" class="glow-btn checkpoint-continue" type="button">
+                ${isLast ? 'See your session results →' : `Continue to question ${session.position + 1} →`}
+            </button>
 
             ${right.length > 0 ? `
                 <details class="right-answers" ${missed.length === 0 ? 'open' : ''}>
                     <summary>What you got right (${right.length})</summary>
                     <div class="review-list">${right.map(i => this.reviewCardHtml(i)).join('')}</div>
                 </details>` : ''}
-
-            ${cp.practice.length > 0 ? `
-                <h3 class="checkpoint-subtitle">Practice</h3>
-                <p class="checkpoint-summary">One more question on each idea you missed, with feedback right away. Practice doesn't affect your score.</p>
-                <div class="practice-list">${cp.practice.map((p, idx) => this.practiceCardHtml(p, idx)).join('')}</div>` : ''}
-
-            <button id="checkpoint-continue-btn" class="glow-btn checkpoint-continue" type="button">
-                ${isLast ? 'See your session results →' : `Continue to question ${session.position + 1} →`}
-            </button>
         `;
 
         cp.practice.forEach((p, idx) => {
@@ -576,6 +576,21 @@ class GradeMyBrainApp {
             this.renderOptions(container, sc, opt => this.handlePracticeAnswer(idx, opt));
         });
         this.checkpointEl.querySelector('#checkpoint-continue-btn').onclick = () => this.handleCheckpointContinue();
+    }
+
+    // Each missed question, followed by the practice question for its bias
+    // type right after the first miss of that type
+    missedWithPracticeHtml(missed, practice) {
+        const placed = new Set();
+        return missed.map(item => {
+            let html = this.reviewCardHtml(item);
+            const idx = practice.findIndex(p => p.biasType === item.biasType);
+            if (idx !== -1 && !placed.has(idx)) {
+                placed.add(idx);
+                html += this.practiceCardHtml(practice[idx], idx);
+            }
+            return html;
+        }).join('');
     }
 
     reviewCardHtml(item) {
@@ -643,12 +658,12 @@ class GradeMyBrainApp {
     practiceCardHtml(practice, idx) {
         const category = BIAS_CATEGORIES[practice.biasType];
         const tipHtml = `
+            <p class="practice-eyebrow">Practice · ${esc(category.name)}</p>
             <p class="practice-tip"><span class="answer-label">How to think differently</span>${esc(category.tip)}</p>`;
 
         if (!practice.scenarioId) {
             return `
                 <article class="practice-card">
-                    <span class="bias-chip">${esc(category.name)}</span>
                     ${tipHtml}
                     <p class="checkpoint-summary">There's no separate practice question for this one yet.</p>
                 </article>`;
@@ -664,7 +679,6 @@ class GradeMyBrainApp {
 
         return `
             <article class="practice-card">
-                <span class="bias-chip">${esc(category.name)}</span>
                 ${tipHtml}
                 <h4 class="review-title">${esc(sc.title)}</h4>
                 <p class="review-scenario">${esc(sc.scenarioText)}</p>
