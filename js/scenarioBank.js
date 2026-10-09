@@ -853,9 +853,9 @@ export const STANDALONE_SCENARIOS = [
         id: "peakend-procedure",
         biasType: "PEAK_END",
         title: "Repeat Medical Procedure",
-        scenarioText: "You need a routine medical procedure again next year and can choose how it is done. Version A: 20 minutes of moderate discomfort that is at its worst in the final minute. Version B: the same 20 minutes, followed by 5 extra minutes of milder discomfort before it ends. Which version involves less discomfort overall?",
+        scenarioText: "You need a routine medical procedure again next year and can choose how it is done. Version A: 20 minutes of steady, moderate discomfort, and then it's over. Version B: the same 20 minutes of steady, moderate discomfort, followed by 5 more minutes of milder discomfort before it ends. Which version involves less discomfort overall?",
         bestAnswer: "Version A",
-        reasoning: "Version B contains all of Version A's discomfort plus 5 more minutes. Yet in Kahneman's cold-hand and colonoscopy studies, most people remember the longer version as less unpleasant, and choose to repeat it, because memory keeps the peak and the ending and ignores duration.",
+        reasoning: "Version B contains all of Version A's discomfort plus 5 more minutes of milder discomfort, so it involves more in total. Yet in Kahneman's cold-hand study (60 seconds in painfully cold water, versus the same 60 seconds plus 30 more as the water warmed slightly), most people remembered the longer trial as less unpleasant and chose to repeat it. Colonoscopy patients showed the same pattern. Memory keeps the peak and the ending and ignores duration, so a gentler ending makes more discomfort feel like less.",
         biasName: "Peak-End Rule & Duration Neglect",
         bookRef: "Thinking, Fast and Slow - Chapter 35",
         options: [
@@ -1156,9 +1156,9 @@ export const STANDALONE_SCENARIOS = [
         practiceOnly: true,
         biasType: "PEAK_END",
         title: "Dental Cleaning Options",
-        scenarioText: "Cleaning A: 10 minutes of mild discomfort that ends with a sharp twinge. Cleaning B: the same 10 minutes, followed by 3 more minutes of gentle polishing that is only slightly uncomfortable. Which involves more total discomfort?",
+        scenarioText: "Cleaning A: 10 minutes of steady, mild discomfort, and then it's done. Cleaning B: the same 10 minutes of steady, mild discomfort, followed by 3 more minutes of gentle polishing that is only slightly uncomfortable. Which involves more total discomfort?",
         bestAnswer: "Cleaning B",
-        reasoning: "Cleaning B includes all of Cleaning A plus three more uncomfortable minutes. It will probably be remembered as less unpleasant because it ends gently, but memory's focus on the peak and the end hides the extra minutes.",
+        reasoning: "Cleaning B includes all of Cleaning A plus three more slightly uncomfortable minutes, so it involves more in total. It will probably be remembered as less unpleasant because it ends on a gentler note, but memory's focus on the peak and the end hides the extra minutes.",
         biasName: "Peak-End Rule & Duration Neglect",
         bookRef: "Thinking, Fast and Slow - Chapter 35",
         options: [
