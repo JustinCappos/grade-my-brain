@@ -1,5 +1,21 @@
 /* Grade My Brain - Stealth Cognitive Diagnostic Styling */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap');
+/* Fonts are bundled with the site (SIL Open Font License, see fonts/) so the
+   game never contacts another server */
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('../fonts/inter-latin-variable.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Outfit';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('../fonts/outfit-latin-variable.woff2') format('woff2');
+}
 
 :root {
     --bg-dark: #080c14;
@@ -17,8 +33,8 @@
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
 
-    --font-heading: 'Outfit', sans-serif;
-    --font-body: 'Inter', sans-serif;
+    --font-heading: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 [hidden] {

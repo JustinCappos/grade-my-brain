@@ -330,6 +330,14 @@ async function runBrowserChecks(browser) {
     page.on('pageerror', e => pageErrors.push(e.message));
     await page.goto(`http://localhost:${PORT}`, { waitUntil: 'networkidle0' });
 
+    // The game loads nothing from any other server (the privacy policy promises this)
+    const outsideHosts = async () => page.evaluate(() => {
+        const hosts = performance.getEntriesByType('resource').map(e => new URL(e.name).host);
+        return [...new Set(hosts)].filter(h => h !== location.host);
+    });
+    await page.evaluate(() => document.fonts.ready);
+    assert.deepEqual(await outsideHosts(), [], 'The game should not contact other servers');
+
     // Empty ID is rejected
     await page.click('#intro-continue-btn');
     assert.equal(await isHidden(page, '#id-code-error'), false, 'Empty ID should show an error');
@@ -379,6 +387,9 @@ async function runBrowserChecks(browser) {
     // The privacy policy loads and mentions that the greyed-out button still works
     await page.goto(`http://localhost:${PORT}/privacy.html`, { waitUntil: 'networkidle0' });
     const policy = await page.$eval('main', el => el.textContent);
+    await page.evaluate(() => document.fonts.ready);
+    assert.deepEqual(await outsideHosts(), [], 'The privacy policy should not contact other servers');
+    assert.ok(/collects no data/.test(policy), 'Policy should include the serious data section');
     assert.ok(/greyed out/.test(policy) && /still works/.test(policy), 'Policy should mention the greyed-out button');
 
     // The question review page renders every question

@@ -42,7 +42,25 @@
         .policy strong {
             color: var(--text-main);
         }
+        .policy-serious {
+            margin-top: 40px;
+            padding: 24px 26px;
+            border-radius: 12px;
+            background: rgba(16, 185, 129, 0.06);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #e2e8f0;
+        }
+        .policy-serious h2 {
+            margin-top: 0;
+            color: #6ee7b7;
+        }
+        .policy-serious a {
+            color: #7dd3fc;
+        }
         @media (max-width: 600px) {
+            .policy-serious {
+                padding: 20px 18px;
+            }
             .policy {
                 padding: 24px 18px;
                 margin: 16px auto 32px;
@@ -173,6 +191,41 @@
             If you have questions about this Policy, contact our Data Protection Officer, who is also Gerald, at
             privacy@grade-my-brain.example.
         </p>
+
+        <section class="policy-serious" aria-labelledby="serious-heading">
+            <h2 id="serious-heading">What actually happens to your data</h2>
+            <p>
+                Everything above is a joke, written to show how rarely people read the terms they agree to. This
+                section is serious and accurate.
+            </p>
+            <ul>
+                <li>
+                    <strong>Grade My Brain collects no data.</strong> There are no accounts, analytics, advertising,
+                    cookies, or trackers, and nothing you do in the game is sent to us or to anyone else.
+                </li>
+                <li>
+                    <strong>Your data stays on your computer.</strong> Your ID code, answers, scores, progress, and
+                    whether you checked the consent box are saved only in your browser's local storage on this device.
+                    Clearing this site's data in your browser deletes them permanently.
+                </li>
+                <li>
+                    <strong>Nothing leaves your computer except the request for the pages themselves.</strong> The
+                    game and this policy, including their fonts, are served entirely by GitHub Pages, which receives
+                    standard request information such as your IP address when your browser loads them, like any
+                    website. The game contacts no other server, and GitHub never receives your answers, scores, or
+                    ID code.
+                </li>
+                <li>
+                    <strong>Links to real-world examples</strong> take you to other websites, which have their own
+                    privacy policies.
+                </li>
+            </ul>
+            <p>
+                None of the joke terms apply, you have given up no rights by playing, and there is no Gerald. You can
+                check all of this yourself: the game's source code is public at
+                <a href="https://github.com/JustinCappos/grade-my-brain" target="_blank" rel="noopener">github.com/JustinCappos/grade-my-brain</a>.
+            </p>
+        </section>
     </main>
 </body>
 </html>
