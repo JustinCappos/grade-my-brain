@@ -1415,11 +1415,12 @@ export const PAIRED_TESTS = {
                 title: "Tallest Tree Estimate",
                 scenarioText: "Is the tallest living redwood tree taller or shorter than 1,200 feet? Pick your best estimate of its actual height.",
                 options: [
-                    { text: "Under 250 feet", value: 1 },
-                    { text: "250 to 349 feet", value: 2 },
-                    { text: "350 to 449 feet", value: 3 },
-                    { text: "450 to 599 feet", value: 4 },
-                    { text: "600 feet or more", value: 5 }
+                    { text: "Under 180 feet", value: 1 },
+                    { text: "180 to 299 feet", value: 2 },
+                    { text: "300 to 449 feet", value: 3 },
+                    { text: "450 to 749 feet", value: 4 },
+                    { text: "750 to 1,199 feet", value: 5 },
+                    { text: "1,200 feet or more", value: 6 }
                 ]
             },
             {
@@ -1428,11 +1429,12 @@ export const PAIRED_TESTS = {
                 title: "Coast Redwood Height",
                 scenarioText: "A park ranger asks whether the world's tallest redwood is taller or shorter than 180 feet. What is your best estimate of its height?",
                 options: [
-                    { text: "Under 250 feet", value: 1 },
-                    { text: "250 to 349 feet", value: 2 },
-                    { text: "350 to 449 feet", value: 3 },
-                    { text: "450 to 599 feet", value: 4 },
-                    { text: "600 feet or more", value: 5 }
+                    { text: "Under 180 feet", value: 1 },
+                    { text: "180 to 299 feet", value: 2 },
+                    { text: "300 to 449 feet", value: 3 },
+                    { text: "450 to 749 feet", value: 4 },
+                    { text: "750 to 1,199 feet", value: 5 },
+                    { text: "1,200 feet or more", value: 6 }
                 ]
             }
         ]
@@ -1454,7 +1456,7 @@ export const PAIRED_TESTS = {
                     { text: "0 to 2", value: 1 },
                     { text: "3 to 5", value: 2 },
                     { text: "6 to 8", value: 3 },
-                    { text: "9 to 12", value: 4 }
+                    { text: "10 or more", value: 4 }
                 ]
             },
             {
@@ -1466,7 +1468,7 @@ export const PAIRED_TESTS = {
                     { text: "0 to 2", value: 1 },
                     { text: "3 to 5", value: 2 },
                     { text: "6 to 8", value: 3 },
-                    { text: "9 to 12", value: 4 }
+                    { text: "10 or more", value: 4 }
                 ]
             }
         ]
