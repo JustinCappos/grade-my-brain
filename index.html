@@ -44,17 +44,28 @@
     <!-- Main Game Layout -->
     <main class="main-container">
         <!-- ID Code & Consent -->
-        <section id="intro-view" class="intro-panel glass-panel" hidden>
-            <h2 class="brand-title" style="font-size: 1.8rem;">Before you begin</h2>
-            <p class="intro-text">
-                Enter the ID code you were given. Your progress is saved under this code, so you can
-                come back later and pick up where you left off.
-            </p>
+        <section id="intro-view" class="intro-panel glass-panel" aria-labelledby="intro-heading" hidden>
+            <div class="intro-head">
+                <p class="intro-eyebrow">Decision-making diagnostic</p>
+                <h2 id="intro-heading" class="intro-title">Before you begin</h2>
+                <p class="intro-text">
+                    Enter the ID code you were given. Your progress is saved under it, so you can stop
+                    any time and pick up where you left off.
+                </p>
+            </div>
+
+            <ul class="intro-points">
+                <li><span class="intro-point-icon" aria-hidden="true">🧩</span>Short scenarios about everyday choices, money and risk</li>
+                <li><span class="intro-point-icon" aria-hidden="true">🔍</span>A review every 10 questions explains what you missed</li>
+                <li><span class="intro-point-icon" aria-hidden="true">🔁</span>Topics you miss come back later as retests</li>
+            </ul>
 
             <form id="intro-form" class="intro-form" novalidate>
-                <label for="id-code-input" class="intro-label">ID code</label>
-                <input id="id-code-input" class="intro-input" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. NYU-4821">
-                <p id="id-code-error" class="form-error" hidden>Enter your ID code to continue.</p>
+                <div class="intro-field">
+                    <label for="id-code-input" class="intro-label">ID code</label>
+                    <input id="id-code-input" class="intro-input" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. NYU-4821" aria-describedby="id-code-error">
+                    <p id="id-code-error" class="form-error" hidden>Enter your ID code to continue.</p>
+                </div>
 
                 <label class="consent-row" for="privacy-consent">
                     <input type="checkbox" id="privacy-consent" checked>

@@ -181,6 +181,7 @@ class GradeMyBrainApp {
 
     showView(view, { scroll = true } = {}) {
         this.introViewEl.hidden = view !== 'intro';
+        document.body.classList.toggle('intro-mode', view === 'intro');
         this.scenarioStageEl.hidden = view !== 'question';
         this.checkpointEl.hidden = view !== 'checkpoint';
         this.viewAuditBtn.hidden = view === 'intro';
