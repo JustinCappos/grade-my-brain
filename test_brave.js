@@ -27,7 +27,8 @@ const PORT = 8088;
 const BRAVE_PATH = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser';
 const CHECKPOINT_EVERY = REVIEW_BLOCK;
 
-const MAIN_POOL = MASTER_SCENARIOS.filter(s => !s.practiceOnly);
+const MAIN_POOL = MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.filler);
+const isFiller = id => Boolean(ScenarioBank.getScenario(id).filler);
 const scenariosByTitle = new Map(MASTER_SCENARIOS.map(s => [s.title, s]));
 
 function memoryStorage() {
@@ -92,21 +93,28 @@ function checkQueue(queue, label) {
     }
 }
 
-// A first session covers every regular question; later sessions retest missed topics
+// A first session covers every regular question plus scattered straightforward
+// ones; later sessions retest missed topics; every session fills whole review blocks
 function checkSessionBuilder() {
+    const mainIds = MAIN_POOL.map(s => s.id).sort();
     for (let i = 0; i < 200; i++) {
-        const queue = ScenarioBank.buildSession();
-        assert.equal(queue.length, MAIN_POOL.length, 'A first session should cover every regular question');
+        const { queue, plannedLength } = ScenarioBank.buildSession();
+        assert.equal(queue.length % REVIEW_BLOCK, 0, 'A session should be a whole number of review blocks');
+        assert.deepEqual(queue.filter(e => !isFiller(e.id)).map(e => e.id).sort(), mainIds,
+            'A first session should ask every regular question once');
         assert.ok(queue.every(e => !e.retest), 'A first session should start with no retests');
+        const scattered = queue.slice(0, plannedLength).filter(e => isFiller(e.id)).length;
+        assert.ok(scattered >= Math.ceil(MAIN_POOL.length / 10), 'Straightforward questions should be scattered through the session');
         checkQueue(queue, 'first session');
     }
 
-    // A few questions unseen: those come first, then one retest per missed topic
+    // A few questions unseen: those come first, then one retest per missed topic, padded to a full block
     const unseen = new Set(['anchoring-1', 'ads-truncated-axis']);
     const seenIds = new Set(MAIN_POOL.map(s => s.id).filter(id => !unseen.has(id)));
     const retestTypes = ['BASE_RATE', 'SUNK_COST', 'HALO'];
-    const queue = ScenarioBank.buildSession({ seenIds, retestTypes, missedIds: new Set(['baserate-1']) });
-    assert.deepEqual(queue.filter(e => !e.retest).map(e => e.id).sort(), [...unseen].sort());
+    const { queue } = ScenarioBank.buildSession({ seenIds, retestTypes, missedIds: new Set(['baserate-1']) });
+    assert.equal(queue.length % REVIEW_BLOCK, 0, 'A retest session should be padded to a full block');
+    assert.deepEqual(queue.filter(e => !e.retest && !isFiller(e.id)).map(e => e.id).sort(), [...unseen].sort());
     const retests = queue.filter(e => e.retest).map(e => ScenarioBank.getScenario(e.id));
     assert.deepEqual(retests.map(s => s.biasType).sort(), [...retestTypes].sort(), 'One retest per missed topic');
     assert.ok(retests.every(s => !s.pair), 'Retests are standalone questions');
@@ -114,7 +122,17 @@ function checkSessionBuilder() {
     checkQueue(queue, 'retest session');
 
     // Everything seen and nothing missed: nothing left to play
-    assert.equal(ScenarioBank.buildSession({ seenIds: new Set(MAIN_POOL.map(s => s.id)) }).length, 0);
+    assert.equal(ScenarioBank.buildSession({ seenIds: new Set(MAIN_POOL.map(s => s.id)) }).queue.length, 0);
+
+    // Padding is removed before more is added when the tail grows
+    const fillerIds = STANDALONE_SCENARIOS.filter(s => s.filler).map(s => s.id);
+    const tail = [
+        ...['anchoring-1', 'anchoring-2', 'anchoring-3'].map(id => ({ id, retest: true, pad: false })),
+        ...fillerIds.slice(0, 10).map(id => ({ id, retest: false, pad: true }))
+    ];
+    ScenarioBank.padTail(tail, { tailStart: 0 });
+    assert.equal(tail.length, 10, 'Extra padding should be removed to reach a block boundary');
+    assert.equal(tail.filter(e => e.retest).length, 3, 'Retests should never be removed');
 
     // Retests and practice never reuse a question already in the session
     const anchoring = STANDALONE_SCENARIOS.filter(s => s.biasType === 'ANCHORING').map(s => s.id);
@@ -304,22 +322,28 @@ async function playSession(page, label) {
         assert.ok(opened > 0, `${label}: clicking a vulnerability should open its missed questions`);
     }
 
-    // Questions added after the start are retests of topics missed in this session
-    const finalQueue = (await sessionState()).queue;
-    assert.deepEqual(finalQueue.slice(0, startingQueue.length), startingQueue, `${label}: planned questions changed`);
-    const added = finalQueue.slice(startingQueue.length);
-    assert.ok(added.every(e => e.retest), `${label}: added questions should be retests`);
-    assert.ok(added.every(e => missedTypes.has(ScenarioBank.getScenario(e.id).biasType)),
+    // The planned part never changes; the tail holds retests of missed topics and padding
+    const finalState = await sessionState();
+    const finalQueue = finalState.queue;
+    const plannedLength = finalState.plannedLength;
+    assert.equal(finalQueue.length % REVIEW_BLOCK, 0, `${label}: session should end on a full review block`);
+    assert.deepEqual(finalQueue.slice(0, plannedLength), startingQueue.slice(0, plannedLength), `${label}: planned questions changed`);
+    const tailEntries = finalQueue.slice(plannedLength);
+    assert.ok(tailEntries.every(e => e.retest || (e.pad && isFiller(e.id))), `${label}: the tail should hold only retests and padding`);
+    const startingRetestTypes = new Set(startingQueue.filter(e => e.retest).map(e => ScenarioBank.getScenario(e.id).biasType));
+    const retestEntries = finalQueue.filter(e => e.retest);
+    assert.ok(retestEntries.every(e => missedTypes.has(ScenarioBank.getScenario(e.id).biasType) || startingRetestTypes.has(ScenarioBank.getScenario(e.id).biasType)),
         `${label}: a retest covers a topic that wasn't missed`);
-    assert.ok(added.every(e => !ScenarioBank.getScenario(e.id).pair), `${label}: retests should be standalone`);
+    assert.ok(retestEntries.every(e => !ScenarioBank.getScenario(e.id).pair), `${label}: retests should be standalone`);
+    const added = retestEntries.length - startingQueue.filter(e => e.retest).length;
     // Planned questions never repeat; a retest may re-ask an earlier question but never another retest
-    checkQueue(startingQueue, label);
+    checkQueue(finalQueue.slice(0, plannedLength), label);
     const retestIds = finalQueue.filter(e => e.retest).map(e => e.id);
     assert.equal(new Set(retestIds).size, retestIds.length, `${label}: the same retest was queued twice`);
     assert.deepEqual(played, finalQueue.map(e => e.id), `${label}: played order should match the queue`);
     const tokenQuestions = played.filter(id => ScenarioBank.getScenario(id).token).length;
     assert.equal(tokensSettled, tokenQuestions, `${label}: every Bonus Token question should settle at a review`);
-    return { queue: finalQueue, added: added.length, finalScore: expectedScore, practiceAnswered };
+    return { queue: finalQueue, added, finalScore: expectedScore, practiceAnswered };
 }
 
 async function runBrowserChecks(browser) {
@@ -349,8 +373,9 @@ async function runBrowserChecks(browser) {
     const first = await playSession(page, 'session 1');
     const debrief = await text(page, '#policy-debrief');
     assert.ok(debrief.includes('unchecked'), 'Debrief should reflect that the player unchecked the box');
-    const firstPlanned = first.queue.filter(e => !e.retest).map(e => e.id);
+    const firstPlanned = first.queue.filter(e => !e.retest && !isFiller(e.id)).map(e => e.id);
     assert.deepEqual([...firstPlanned].sort(), MAIN_POOL.map(s => s.id).sort(), 'Session 1 should ask every regular question once');
+    assert.ok(first.queue.some(e => isFiller(e.id)), 'Session 1 should include straightforward questions');
     assert.ok(first.added > 0, 'Missed topics should add retests to session 1');
 
     // Next session retests only the topics still answered wrong
@@ -358,8 +383,10 @@ async function runBrowserChecks(browser) {
     await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
     const secondStart = await page.evaluate(() => window.brainApp.session.queue);
     const stillWrong = await page.evaluate(() => window.brainApp.progress.retestTypes());
-    assert.ok(secondStart.length > 0 && secondStart.every(e => e.retest), 'Session 2 should be all retests');
-    assert.ok(secondStart.length <= stillWrong.length, 'Session 2 should retest each weak topic once');
+    assert.ok(secondStart.length > 0 && secondStart.every(e => e.retest || (e.pad && isFiller(e.id))),
+        'Session 2 should be retests plus padding');
+    assert.ok(secondStart.filter(e => e.retest).length <= stillWrong.length, 'Session 2 should retest each weak topic once');
+    assert.equal(secondStart.length % REVIEW_BLOCK, 0, 'Session 2 should be padded to a full block');
 
     // A reload resumes the same question
     const firstTitle = await text(page, '#scenario-title');
@@ -382,7 +409,8 @@ async function runBrowserChecks(browser) {
     await page.click('#switch-id-btn');
     assert.equal(await isHidden(page, '#intro-view'), false, 'Switch ID should show the ID screen');
     await enterId(page, 'second-player', { uncheckConsent: false });
-    assert.equal(await text(page, '#current-round'), `1 / ${MAIN_POOL.length}`);
+    const freshTotal = Number((await text(page, '#current-round')).match(/^1 \/ (\d+)$/)[1]);
+    assert.ok(freshTotal > MAIN_POOL.length && freshTotal % REVIEW_BLOCK === 0, 'A new player gets a full first session');
 
     // The privacy policy loads and mentions that the greyed-out button still works
     await page.goto(`http://localhost:${PORT}/privacy.html`, { waitUntil: 'networkidle0' });
@@ -395,6 +423,12 @@ async function runBrowserChecks(browser) {
     // The question review page renders every question
     await page.goto(`http://localhost:${PORT}/questions.html`, { waitUntil: 'networkidle0' });
     const reviewCards = await page.$$eval('.card', els => els.length);
+    // Every ad image loads
+    const adImages = await page.$$eval('img.ad-image', els => Promise.all(els.map(img => {
+        img.loading = 'eager';
+        return img.decode().then(() => img.naturalWidth > 0, () => false);
+    })));
+    assert.ok(adImages.length === MASTER_SCENARIOS.filter(s => s.image).length && adImages.every(Boolean), 'Every ad image should load');
     assert.equal(reviewCards, STANDALONE_SCENARIOS.length + Object.keys(PAIRED_TESTS).length, 'Review page card count');
 
     assert.deepEqual(pageErrors, [], 'Page threw errors');

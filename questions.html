@@ -177,6 +177,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .chip-bias { background: var(--accent-soft); color: var(--accent); }
 .card h2 { font-size: 1.3rem; }
 .prompt { max-width: 72ch; }
+.ad-link { display: block; max-width: 560px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+.ad-image { display: block; width: 100%; height: auto; }
 
 .options { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .options li {
@@ -319,6 +321,7 @@ details.topic summary { cursor: pointer; font-size: 0.88rem; color: var(--muted)
             <option value="standalone">Standalone</option>
             <option value="pair">Paired</option>
             <option value="practice">Practice only</option>
+            <option value="filler">Straightforward (obvious answer is right)</option>
         </select>
         <select id="f-source" aria-label="Source">
             <option value="">All sources</option>
@@ -360,7 +363,7 @@ const KIND_LABEL = { deceptive: 'Deceptive', good: 'Better practice', example: '
 const items = [
     ...STANDALONE_SCENARIOS.map(s => ({
         key: s.id,
-        kind: s.practiceOnly ? 'practice' : 'standalone',
+        kind: s.filler ? 'filler' : (s.practiceOnly ? 'practice' : 'standalone'),
         biasType: s.biasType,
         title: s.title,
         bookRef: s.bookRef,
@@ -502,7 +505,10 @@ function cardBodyHtml(item) {
             </div>`;
     }
     const s = item.scenario;
+    const image = s.image ? `
+        <a class="ad-link" href="${esc(s.image.src)}" target="_blank" rel="noopener"><img class="ad-image" src="${esc(s.image.src)}" alt="${esc(s.image.alt)}" width="640" height="400" loading="lazy"></a>` : '';
     return `
+        ${image}
         <p class="prompt">${esc(s.scenarioText)}</p>
         ${optionsHtml(s.options, { scored: true })}
         <div class="explain">
@@ -517,7 +523,7 @@ function cardBodyHtml(item) {
 function renderCards() {
     cardsEl.innerHTML = items.map(item => {
         const c = BIAS_CATEGORIES[item.biasType];
-        const kindChip = { standalone: 'Standalone', pair: 'Paired', practice: 'Practice only' }[item.kind];
+        const kindChip = { standalone: 'Standalone', pair: 'Paired', practice: 'Practice only', filler: 'Straightforward' }[item.kind];
         return `
             <article class="card" data-key="${esc(item.key)}">
                 <div class="card-meta">

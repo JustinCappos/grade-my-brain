@@ -157,6 +157,14 @@ export const BIAS_CATEGORIES = {
         tip: "Judge experiences by their total, not just the worst moment and the ending. More of something unpleasant is never better."
     },
 
+    STRAIGHTFORWARD: {
+        name: "Second-Guessing the Obvious",
+        shortName: "Overthinking",
+        description: "Rejecting a straightforward answer because you expect a trick, even when the facts plainly support it.",
+        bookReference: "Thinking, Fast and Slow - Chapter 22 (when intuition can be trusted)",
+        tip: "Not every question is a trap. Check the facts once; if the obvious answer still holds up, trust it. Kahneman's point is that intuition is reliable when the situation is regular and the evidence is clear."
+    },
+
     // --- Behavioral economics (not in the book) ---
     COMPROMISE: {
         name: "Compromise Effect",
@@ -229,6 +237,13 @@ export const BIAS_CATEGORIES = {
         description: "Signing up takes one click, but canceling takes a maze of screens, offers and warnings designed to make you give up.",
         bookReference: "Dark patterns research (Brignull; FTC v. Amazon 2023)",
         tip: "Before you sign up, find out how to cancel. Once you've decided to leave, treat every \"Are you sure?\" screen and retention offer as an obstacle, not new information."
+    },
+    FINE_PRINT: {
+        name: "Hidden Fine Print",
+        shortName: "Fine print",
+        description: "Judging a deal by the big headline number while the conditions that change it sit in the small print.",
+        bookReference: "Consumer protection guidance (FTC, clear and conspicuous disclosures)",
+        tip: "Read every asterisk. Before comparing deals, recompute each one with all the conditions in its fine print: how long the price lasts, what's due upfront, and what happens if you slip up."
     },
     MISLEADING_CHARTS: {
         name: "Misleading Charts",
@@ -391,9 +406,9 @@ export const STANDALONE_SCENARIOS = [
         id: "baserate-1",
         biasType: "BASE_RATE",
         title: "Hit-and-Run Witness Identification",
-        scenarioText: "In a city where 85% of cabs are Green and 15% are Blue, a witness identifies a hit-and-run cab as Blue. Tests confirm the witness is 80% accurate under night lighting conditions. What is the estimated probability that the cab was Blue?",
+        scenarioText: "In a city where 85% of cabs are Green and 15% are Blue, a witness identifies a hit-and-run cab as Blue. Tests under the same night lighting show the witness names a cab's color correctly 80% of the time, whether the cab is Blue or Green. What is the estimated probability that the cab was Blue?",
         bestAnswer: "Estimate 41% Probability",
-        reasoning: "Using Bayes' Theorem: P(Blue|Witness) = (0.80 × 0.15) / ((0.80 × 0.15) + (0.20 × 0.85)) = 0.12 / 0.29 = 41%. Estimating 80% ignores the strong 85% Green base rate.",
+        reasoning: "The witness's mistakes run both ways: 20% of Blue cabs get called Green, and 20% of Green cabs get called Blue. Picture 100 cabs: 85 Green and 15 Blue. Of the 15 Blue cabs, the witness correctly calls 12 Blue. But of the 85 Green cabs, the witness wrongly calls 17 Blue. So 29 cabs get called Blue, and only 12 of them really are: 12 out of 29 is about 41%. Because Green cabs are so common, the witness's mistakes about Green cabs outnumber their correct calls about Blue ones. Answering 80% uses the witness's accuracy and ignores how many cabs of each color there are.",
         biasName: "Base Rate Neglect",
         bookRef: "Thinking, Fast and Slow - Chapter 16",
         options: [
@@ -409,7 +424,7 @@ export const STANDALONE_SCENARIOS = [
         title: "Medical Diagnostic Test",
         scenarioText: "A rare medical condition affects 0.1% of the population (1 in 1,000). A screening test detects 95% of people who have the condition, and gives a false positive for 5% of people who do not. A patient tests positive. What is the estimated probability that the patient actually has the disease?",
         bestAnswer: "Estimate 2% Probability of Illness",
-        reasoning: "In 1,000 people, 1 has the disease (true positive = 0.95), while 999 do not (false positives = about 50). So P(Disease|Positive) = 0.95 / 50.95, which is approximately 1.9%. Claiming 95% ignores the 0.1% base rate.",
+        reasoning: "The test can be wrong in both directions: it misses 5% of people who have the condition, and it wrongly flags 5% of people who don't. Picture 1,000 people. One has the condition, and the test almost certainly catches them. Of the 999 who don't, about 50 (5%) test positive anyway. So about 51 people test positive, and only 1 of them is sick: about 2%. Because the condition is so rare, the false alarms among healthy people swamp the true positives. Answering 95% uses the test's accuracy and ignores how rare the condition is.",
         biasName: "Base Rate Neglect",
         bookRef: "Thinking, Fast and Slow - Chapter 16",
         options: [
@@ -973,6 +988,146 @@ export const STANDALONE_SCENARIOS = [
         ]
     },
 
+    // -------------------------------------------------------------
+    // ADVERTISEMENTS WITH FINE PRINT (mock ads for fictional brands,
+    // images generated by tools/make_ads.py)
+    // -------------------------------------------------------------
+    {
+        id: "ad-phone-plan",
+        biasType: "FINE_PRINT",
+        title: "Phone Plan Ad",
+        image: {
+            src: "images/ads/phone-plan.svg",
+            alt: "Ad for Telvio Mobile: Unlimited talk, text and data, $25 per month with an asterisk. No credit check. Fine print: Price for first 3 months with AutoPay; $65 per month thereafter. Requires 24-month service agreement. $35 activation fee. Taxes and fees extra. Data may be slowed after 30GB. Offer for new lines only."
+        },
+        scenarioText: "You see this ad while looking for a new phone plan. Ignoring taxes, about how much would this plan cost you for the first year?",
+        bestAnswer: "About $695",
+        reasoning: "The $25 price lasts only 3 months ($75). The next 9 months cost $65 each ($585), and there's a $35 activation fee: about $695 in the first year, or about $58 a month. The big number is a teaser rate; the real price is in the fine print, along with a 24-month commitment at $65.",
+        biasName: "Hidden Fine Print",
+        bookRef: "Consumer protection guidance (FTC, clear and conspicuous disclosures)",
+        options: [
+            { text: "About $300", biasValue: 1, isBest: false },
+            { text: "About $335", biasValue: 1, isBest: false },
+            { text: "About $695", biasValue: 0, isBest: true },
+            { text: "About $780", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "ad-streaming-trial",
+        biasType: "ZERO_PRICE",
+        title: "Streaming Free Trial Ad",
+        image: {
+            src: "images/ads/streaming-trial.svg",
+            alt: "Ad for StreamNook: Thousands of shows. Zero commitment. FREE with an asterisk, for 30 days. Fine print: Then $15.99 per month, billed annually as $191.88 on day 31. Cancel at least 24 hours before your trial ends to avoid being charged. Annual plans are non-refundable, including partial years. One trial per household. Payment method required."
+        },
+        scenarioText: "You sign up for this free trial and forget to cancel. What happens on day 31?",
+        bestAnswer: "You're charged $191.88 for a full year, with no refund",
+        reasoning: "The fine print says the \"$15.99/mo\" is billed as one annual charge of $191.88, and annual plans are non-refundable. \"Free\" and \"zero commitment\" in large type sit on top of a full-year commitment that starts automatically. Free trials that roll into paid plans rely on people forgetting to cancel.",
+        biasName: "Zero-Price Effect",
+        bookRef: "Behavioral Economics (Shampanier, Mazar & Ariely 2007)",
+        options: [
+            { text: "You're charged $15.99 for the first month", biasValue: 1, isBest: false },
+            { text: "You're charged $191.88 for a full year, with no refund", biasValue: 0, isBest: true },
+            { text: "Nothing until you confirm you want to keep it", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "ad-mattress-sale",
+        biasType: "ANCHORING",
+        title: "Mattress Sale Ad",
+        image: {
+            src: "images/ads/mattress-sale.svg",
+            alt: "Ad for Nimbusleep Cloud Hybrid Queen mattress: WAS $1,999, NOW $599, 70% OFF. Limited-time savings event. Fine print: Savings calculated from manufacturer's suggested retail price (MSRP) of $1,999. Average selling price of this model over the past 90 days: $649. While supplies last. Free shipping in the contiguous U.S."
+        },
+        scenarioText: "Compared with what this mattress has actually been selling for, how big is this discount?",
+        bestAnswer: "About 8%",
+        reasoning: "The fine print says the mattress has sold for $649 on average over the last 90 days, so $599 is about 8% off ($50). The \"$1,999\" is a suggested price it doesn't sell at, used as an anchor to make $599 look like a steal. Regulators in the U.S. and U.K. have acted against this kind of reference pricing.",
+        biasName: "Anchoring Effect (Reference Prices)",
+        bookRef: "Thinking, Fast and Slow - Chapter 11",
+        options: [
+            { text: "About 70%", biasValue: 1, isBest: false },
+            { text: "About 30%", biasValue: 0.5, isBest: false },
+            { text: "About 8%", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "ad-supplement-claim",
+        biasType: "SMALL_NUMBERS",
+        title: "Energy Supplement Ad",
+        image: {
+            src: "images/ads/supplement-claim.svg",
+            alt: "Ad for ZenoVita Focus+ supplement: Clinically proven, with an asterisk, to boost energy by 40%. Feel the difference in days. Fine print: Based on a 2-week study of 12 adults funded by ZenoVita, Inc. Individual results vary; results not typical. These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease."
+        },
+        scenarioText: "What does this ad's \"clinically proven\" claim actually tell you?",
+        bestAnswer: "Very little: a tiny, short, company-funded study",
+        reasoning: "Twelve people for two weeks, paid for by the seller, can produce a big-looking number by chance, especially when \"energy\" is self-reported. The fine print also says the results are not typical and the FDA hasn't evaluated the claim. \"Clinically proven\" is not a regulated phrase.",
+        biasName: "Law of Small Numbers",
+        bookRef: "Thinking, Fast and Slow - Chapter 10",
+        options: [
+            { text: "Strong evidence it boosts energy by about 40%", biasValue: 1, isBest: false },
+            { text: "Some evidence it probably works for most people", biasValue: 0.5, isBest: false },
+            { text: "Very little: a tiny, short, company-funded study", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "ad-car-lease",
+        biasType: "FINE_PRINT",
+        title: "Car Lease Ad",
+        image: {
+            src: "images/ads/car-lease.svg",
+            alt: "Ad for Arcline Motors 2027 Volt S: Lease for just $199 per month, with an asterisk. Visit your Arcline dealer today. Fine print: 36-month lease. $3,999 due at signing. 10,000 miles per year; $0.25 per mile over. Excludes taxes, title, registration, and dealer fees. Subject to credit approval. Lessee responsible for excess wear. Offer ends 11/30."
+        },
+        scenarioText: "Counting the amount due at signing, and assuming you stay under the mileage limit, what does this lease really cost per month on average (before taxes and fees)?",
+        bestAnswer: "About $310 a month",
+        reasoning: "The $3,999 due at signing spread over 36 months adds about $111 a month, so the real average is about $310 ($199 + $111), before taxes and dealer fees. Lease ads put the monthly payment in large type and the money due upfront in the fine print.",
+        biasName: "Hidden Fine Print",
+        bookRef: "Consumer protection guidance (FTC, clear and conspicuous disclosures)",
+        options: [
+            { text: "About $199 a month", biasValue: 1, isBest: false },
+            { text: "About $310 a month", biasValue: 0, isBest: true },
+            { text: "About $420 a month", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "ad-zero-interest",
+        biasType: "FINE_PRINT",
+        title: "Zero-Interest Card Ad",
+        image: {
+            src: "images/ads/zero-interest.svg",
+            alt: "Ad for the Larkspur Rewards Card: Big purchase? Pay no interest, with an asterisk. 0% for 12 months on purchases of $299 or more. Fine print: Deferred interest: interest is charged to your account from the purchase date if the promotional balance is not paid in full within 12 months. Standard purchase APR 29.99%. Minimum payments required. Subject to credit approval."
+        },
+        scenarioText: "You put a $2,400 TV on this card and pay $190 a month. After 12 months, $120 is still unpaid. What happens?",
+        bestAnswer: "Interest is charged on the full $2,400, back to the purchase date",
+        reasoning: "This is deferred interest, not 0% interest. Because the balance wasn't fully paid in 12 months, interest at 29.99% is charged on the whole original purchase from day one, which comes to hundreds of dollars over a $120 shortfall. A true 0% offer would charge interest only on the remaining balance from then on.",
+        biasName: "Hidden Fine Print",
+        bookRef: "Consumer protection guidance (CFPB, deferred interest promotions)",
+        options: [
+            { text: "Interest starts on the remaining $120 from now on", biasValue: 1, isBest: false },
+            { text: "Interest is charged on the full $2,400, back to the purchase date", biasValue: 0, isBest: true },
+            { text: "Nothing extra; the 0% offer covered the year", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "ad-airfare-from",
+        biasType: "DRIP_PRICING",
+        title: "Airfare Sale Ad",
+        image: {
+            src: "images/ads/airfare-from.svg",
+            alt: "Ad for Hopwing Air: New York to Miami, fares from $49, with an asterisk. Book by Sunday. Fine print: Fare is each way. Valid on select Tuesday and Wednesday departures; limited seats. Carry-on bag $45 each way. Checked bag $40 each way. Seat selection from $18. Taxes and government fees included in fare. Non-refundable."
+        },
+        scenarioText: "You want a round trip on the sale days with one carry-on bag, and you don't care where you sit. What's the least you'd pay?",
+        bestAnswer: "$188",
+        reasoning: "The $49 is each way ($98 round trip), and a carry-on costs $45 each way ($90), for $188 in total, almost four times the headline number. \"From\" prices are the cheapest seat on the least popular days, with the extras added later.",
+        biasName: "Drip Pricing",
+        bookRef: "Marketing research (Santana, Dallas & Morwitz 2020; FTC)",
+        options: [
+            { text: "$49", biasValue: 1, isBest: false },
+            { text: "$98", biasValue: 1, isBest: false },
+            { text: "$188", biasValue: 0, isBest: true },
+            { text: "$224", biasValue: 0.5, isBest: false }
+        ]
+    },
+
     // =============================================================
     // PRACTICE-ONLY QUESTIONS
     // Used for practice during reviews and to fill retests, never in the
@@ -1289,6 +1444,322 @@ export const STANDALONE_SCENARIOS = [
         options: [
             { text: "Join; you can deal with canceling later", biasValue: 1, isBest: false },
             { text: "Choose a gym that lets you cancel the same way you joined", biasValue: 0, isBest: true }
+        ]
+    },
+    // =============================================================
+    // STRAIGHTFORWARD QUESTIONS
+    // The obvious answer is the right one, so players don't learn that the
+    // counterintuitive answer always wins. Not part of the regular question
+    // pool: a few are scattered through each session, and more are used to
+    // round sessions out to full review blocks.
+    // =============================================================
+    {
+        id: "straight-cab-even",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Even-Split Taxi Witness",
+        scenarioText: "In a city where half the cabs are Blue and half are Green, a witness identifies a hit-and-run cab as Blue. Tests under the same lighting show the witness names a cab's color correctly 80% of the time, whether it is Blue or Green. What is the probability the cab was Blue?",
+        bestAnswer: "80%",
+        reasoning: "Here the witness's accuracy is the answer. The witness's mistakes still run both ways, but with equal numbers of each color they balance out. Picture 100 cabs: of the 50 Blue ones, 40 are called Blue; of the 50 Green ones, 10 are called Blue. 40 out of 50 is 80%. The base rate only pulls the answer away from 80% when one color is much more common, as in the 85% Green version.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 16 & 22",
+        options: [
+            { text: "80%", biasValue: 0, isBest: true },
+            { text: "50%", biasValue: 1, isBest: false },
+            { text: "41%", biasValue: 1, isBest: false },
+            { text: "20%", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-clinic-test",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Specialist Clinic Screening",
+        scenarioText: "At a specialist clinic, 30% of the patients referred there have a particular condition. A test detects 99% of people who have it and wrongly flags 1% of people who don't. A referred patient tests positive. About how likely is it that they have the condition?",
+        bestAnswer: "About 98%",
+        reasoning: "When the condition is common and the test is very accurate, a positive result really does mean the patient very likely has it. Picture 1,000 referred patients: 300 have the condition and about 297 test positive; of the 700 who don't, about 7 test positive. 297 out of 304 is about 98%. Base rates only overturn a positive test when the condition is rare compared with the false-positive rate.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 16 & 22",
+        options: [
+            { text: "About 98%", biasValue: 0, isBest: true },
+            { text: "About 50%", biasValue: 1, isBest: false },
+            { text: "About 30%", biasValue: 1, isBest: false },
+            { text: "About 3%", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-listing-price",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Used Car Listing",
+        scenarioText: "A used car is listed at $12,000. Three independent pricing guides value that model, mileage, and condition at $11,500 to $12,500, and your mechanic found nothing wrong with it. Is the listing price reasonable?",
+        bestAnswer: "Yes; it matches the independent valuations",
+        reasoning: "An anchor is a problem when it's arbitrary or inflated. This listing price is backed by three independent valuations and an inspection, so it's real information. Treating every asking price as a trick would have you lowball a fair deal.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 11 & 22",
+        options: [
+            { text: "Yes; it matches the independent valuations", biasValue: 0, isBest: true },
+            { text: "No; the listing price is an anchor, so offer about $8,000", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-finish-course",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Paid Training Course",
+        scenarioText: "You paid $2,000, nonrefundable, for a professional course. It's going well, the skills are already useful in your job, and the last four weeks cost nothing extra. Do you finish it?",
+        bestAnswer: "Finish the course",
+        reasoning: "The $2,000 is spent either way, so it shouldn't decide anything. But the future benefits clearly favor finishing: four more weeks of useful training at no extra cost. The sunk cost fallacy is continuing because of past spending; continuing because the future benefits are worth it is just a good decision.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 22 & 32",
+        options: [
+            { text: "Finish the course", biasValue: 0, isBest: true },
+            { text: "Quit; continuing would be the sunk cost fallacy", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-cars-sharks",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Road Versus Ocean Risk",
+        scenarioText: "Which kills more people in the United States in a typical year: car crashes or shark attacks?",
+        bestAnswer: "Car crashes, by a huge margin",
+        reasoning: "Car crashes kill around 40,000 Americans a year; shark attacks kill about one. Vivid news can make rare risks feel common, but that doesn't mean the common-sense answer is always wrong. Here it's right.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 13 & 22",
+        options: [
+            { text: "Car crashes, by a huge margin", biasValue: 0, isBest: true },
+            { text: "About the same", biasValue: 1, isBest: false },
+            { text: "Shark attacks", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-big-sample-reviews",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Blender Review Comparison",
+        scenarioText: "Two blenders cost the same. Blender A has a 4.8-star average from 5,200 reviews. Blender B has a 3.9-star average from 4,700 reviews. Which is more likely to satisfy you?",
+        bestAnswer: "Blender A",
+        reasoning: "Both ratings come from thousands of reviews, so both averages are reliable, and A's is clearly higher. Small-sample worries apply when one rating rests on a handful of reviews, not here.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 10 & 22",
+        options: [
+            { text: "Blender A", biasValue: 0, isBest: true },
+            { text: "Blender B", biasValue: 1, isBest: false },
+            { text: "Can't tell from ratings", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-shop-fitout",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Twenty-First Bakery Shop",
+        scenarioText: "A bakery chain has fitted out 20 identical shops with the same contractor, and every one took 6 to 7 weeks. The 21st shop is identical and uses the same contractor. How long should you plan for?",
+        bestAnswer: "About 7 weeks",
+        reasoning: "This is the outside view at work: 20 near-identical past projects all took 6 to 7 weeks, so that's the right plan. The planning fallacy is about ignoring track records like this, not about padding every estimate.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 22 & 23",
+        options: [
+            { text: "About 7 weeks", biasValue: 0, isBest: true },
+            { text: "About 14 weeks, to be safe", biasValue: 1, isBest: false },
+            { text: "About 4 weeks, since the team is experienced now", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-coffee-size",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Morning Coffee Order",
+        scenarioText: "A café sells a 12 oz coffee for $3.00 and a 24 oz coffee for $3.50. You want a lot of coffee and will drink all of it. Which is the better value for you?",
+        bestAnswer: "The 24 oz coffee",
+        reasoning: "Twice the coffee for 50 cents more, and you want it all. Upselling is only a trap when you're paying for more than you need; here the bigger size is simply the better deal.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapter 22",
+        options: [
+            { text: "The 24 oz coffee", biasValue: 0, isBest: true },
+            { text: "The 12 oz coffee; the large is an upsell", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-big-risk-cut",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Treatment Risk Reduction",
+        scenarioText: "A treatment's ad says it \"cuts the risk of complications in half.\" In the trial, complications fell from 40 in every 100 patients to 20 in every 100. Is that a large benefit?",
+        bestAnswer: "Yes; 20 fewer patients in every 100",
+        reasoning: "Relative-risk claims are misleading when the starting risk is tiny. Here it isn't: the risk fell by 20 percentage points, so about 1 in every 5 patients avoids a complication. That's a big absolute benefit.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Risk communication (Gigerenzer, Risk Savvy 2014)",
+        options: [
+            { text: "Yes; 20 fewer patients in every 100", biasValue: 0, isBest: true },
+            { text: "No; \"cuts in half\" is always relative-risk spin", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-real-scarcity",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Last-Minute Flight",
+        scenarioText: "You need to fly tomorrow. You've watched this route for two weeks and today's fare is the lowest you've seen. The airline's seat map shows only 2 seats left. Do you book now?",
+        bestAnswer: "Book now",
+        reasoning: "You've already compared prices for two weeks, the flight is tomorrow, and the seat map is the airline's own inventory, not a marketing banner. Real scarcity exists. Waiting here risks missing the flight or paying more.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapter 22",
+        options: [
+            { text: "Book now", biasValue: 0, isBest: true },
+            { text: "Wait and compare more; scarcity claims are a sales tactic", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-family-size",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Pasta Sauce Sizes",
+        scenarioText: "A 40 oz \"family size\" jar of pasta sauce costs $6.00. A 20 oz jar of the same sauce costs $4.00. Which is cheaper per ounce?",
+        bestAnswer: "The 40 oz family size",
+        reasoning: "The family size costs 15¢ per ounce and the small jar 20¢. Bigger packages aren't always cheaper per unit, but this one is. Checking the unit price is the habit; it doesn't mean the big size is always a trick.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Consumer protection research (unit pricing)",
+        options: [
+            { text: "The 40 oz family size", biasValue: 0, isBest: true },
+            { text: "The 20 oz jar", biasValue: 1, isBest: false },
+            { text: "They're the same", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-ruinous-bet",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Rent-Money Coin Flip",
+        scenarioText: "A friend offers you one coin flip. Heads, you win $500. Tails, you lose $5,000, which would mean missing your rent. Do you take the bet?",
+        bestAnswer: "Decline the bet",
+        reasoning: "This bet loses money on average ($2,250 per flip) and could ruin you. Loss aversion is a problem when it makes you refuse small, favorable bets you can afford; refusing an unfavorable, ruinous one is just sense.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 22 & 26",
+        options: [
+            { text: "Decline the bet", biasValue: 0, isBest: true },
+            { text: "Take it; refusing would be loss aversion", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-surgeon-record",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Choosing a Surgeon",
+        scenarioText: "Surgeon A has the lowest complication rate in the hospital over 10 years and more than 1,000 procedures, and is also warm and easy to talk to. Surgeon B's complication rate is above the hospital average. Which surgeon do you choose?",
+        bestAnswer: "Surgeon A",
+        reasoning: "The decision rests on the track record, which strongly favors Surgeon A. Being likable doesn't make A's record less real. The halo effect is when a pleasant trait stands in for evidence, not when the evidence and the pleasant trait happen to agree.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 7 & 22",
+        options: [
+            { text: "Surgeon A", biasValue: 0, isBest: true },
+            { text: "Surgeon B; A's friendliness could be a halo effect", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-reckless-driving",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "School Zone Crash",
+        scenarioText: "A driver was texting while speeding through a school zone and crashed into a parked car. Was driving that way a bad decision?",
+        bestAnswer: "Yes, a bad decision",
+        reasoning: "It was a bad decision because of what the driver knew at the time: texting while speeding past a school is dangerous whatever happens. Outcome bias is judging a decision by its result; here the decision was bad before the crash.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 19 & 22",
+        options: [
+            { text: "Yes, a bad decision", biasValue: 0, isBest: true },
+            { text: "Can't say; judging it by the crash would be outcome bias", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-honest-chart",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Battery Bar Chart",
+        scenarioText: "A bar chart's vertical axis starts at 0 hours. Phone A's battery bar is twice as tall as Phone B's. The labels say Phone A lasts 20 hours and Phone B lasts 10. Does Phone A last about twice as long?",
+        bestAnswer: "Yes",
+        reasoning: "With the axis starting at zero, bar heights are proportional to the values, and the labels confirm it: 20 hours is twice 10. Charts mislead when the axis is cut off; this one isn't.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Statistics literacy (Huff, How to Lie with Statistics 1954)",
+        options: [
+            { text: "Yes", biasValue: 0, isBest: true },
+            { text: "No; bar charts exaggerate differences", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-clear-urns",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Red Marble Draw",
+        scenarioText: "You win a prize if you draw a red marble. Urn A has 10 marbles, 5 of them red. Urn B has 100 marbles, 10 of them red. Which urn do you draw from?",
+        bestAnswer: "Urn A (5 red out of 10)",
+        reasoning: "Urn A gives a 50% chance and Urn B 10%. Here the urn with fewer red marbles in total is also the better one by a wide margin, so there's no trap to fall into.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 22 & 30",
+        options: [
+            { text: "Urn A (5 red out of 10)", biasValue: 0, isBest: true },
+            { text: "Urn B (10 red out of 100)", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-home-insurance",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Home Fire Insurance",
+        scenarioText: "Your home is most of your wealth. Standard fire insurance costs about 0.3% of its value per year, and losing the house uninsured would wipe you out financially. Do you buy the insurance?",
+        bestAnswer: "Buy the insurance",
+        reasoning: "Insurance loses money on average, which is why small warranties are usually a bad deal. But protecting against a loss you couldn't recover from is exactly what insurance is for. The certainty effect is overpaying to remove small, affordable risks; this one is neither small nor affordable.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 22 & 29",
+        options: [
+            { text: "Buy the insurance", biasValue: 0, isBest: true },
+            { text: "Skip it; insurance always loses money on average", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-license-conjunction",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Neighbor's Driving Record",
+        scenarioText: "Your neighbor Dana drives to work every day. Which is more probable?",
+        bestAnswer: "Dana has a driver's license",
+        reasoning: "Adding a detail can only make a statement less probable, and here the intuitive answer and the logical one agree: \"has a license\" is more probable than \"has a license and owns a red car.\" Not every probability question hides a twist.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 15 & 22",
+        options: [
+            { text: "Dana has a driver's license", biasValue: 0, isBest: true },
+            { text: "Dana has a driver's license and owns a red car", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-good-default",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Automatic Savings Enrollment",
+        scenarioText: "Your employer automatically enrolled you in its retirement plan at 5% of your salary, with a 50% match. You have an emergency fund and no high-interest debt. What do you do?",
+        bestAnswer: "Stay enrolled",
+        reasoning: "Defaults can be designed for the company's benefit or for yours. This one is in your interest: the match is free money and your finances can support saving. Questioning defaults is wise; rejecting a good one on principle isn't.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 22 & 34",
+        options: [
+            { text: "Stay enrolled", biasValue: 0, isBest: true },
+            { text: "Opt out; defaults are designed to manipulate you", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-chess-skill",
+        filler: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Chess Champion Forecast",
+        scenarioText: "A chess player has been ranked in the top 1% of players in the world for ten straight years, and this year won a major tournament. What is the best prediction for next year?",
+        bestAnswer: "Still among the very best players",
+        reasoning: "Regression to the mean pulls extreme results toward the player's own long-run level. Ten years in the top 1% shows that level is very high, so the best prediction is that they stay near the top, even if they don't win the tournament again.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapters 17 & 22",
+        options: [
+            { text: "Still among the very best players", biasValue: 0, isBest: true },
+            { text: "Close to an average player, because of regression to the mean", biasValue: 1, isBest: false },
+            { text: "Much worse than this year", biasValue: 1, isBest: false }
         ]
     }
 ];
@@ -1790,6 +2261,9 @@ export const REVIEW_BLOCK = 10;
 // A short final block holds no pairs.
 const PAIRS_PER_BLOCK = 2;
 export const MIN_PAIR_GAP = REVIEW_BLOCK - PAIRS_PER_BLOCK;
+// About one straightforward question (where the obvious answer is right) is
+// scattered into every this-many regular questions
+const QUESTIONS_PER_SCATTERED_FILLER = 9;
 
 function shuffle(arr) {
     const a = [...arr];
@@ -1852,26 +2326,75 @@ export class ScenarioBank {
     }
 
     /**
-     * Builds the start of a session: every regular question the player has
-     * not seen (pairs laid out inside review blocks), followed by one retest
-     * for each of `retestTypes` (bias types whose latest answer was wrong).
-     * The game appends more retests during the session as the player misses
-     * questions (see pickRetestScenario). Returns [{ id, retest }] in play order.
+     * Builds the start of a session. The planned part holds every regular
+     * question the player has not seen, with pairs laid out inside review
+     * blocks and about one straightforward question per block scattered in.
+     * The tail holds one retest for each of `retestTypes` (bias types whose
+     * latest answer was wrong) plus padding questions, so the session length
+     * is a multiple of REVIEW_BLOCK. The game adds retests to the tail as the
+     * player misses questions and re-pads it (see padTail).
+     * Returns { queue: [{ id, retest, pad }], plannedLength }.
      */
     static buildSession({ seenIds = new Set(), retestTypes = [], missedIds = new Set() } = {}) {
-        const fresh = layoutWithPairs(MASTER_SCENARIOS.filter(s => !s.practiceOnly && !seenIds.has(s.id)));
-        const used = new Set(fresh.map(s => s.id));
-        const retests = [];
+        const regular = MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.filler && !seenIds.has(s.id));
+        const scatterCount = Math.ceil(regular.length / QUESTIONS_PER_SCATTERED_FILLER);
+        const scattered = ScenarioBank.pickFillers(scatterCount, { seenIds });
+        const planned = layoutWithPairs([...regular, ...scattered]);
+
+        const used = new Set(planned.map(s => s.id));
+        const tail = [];
         for (const type of retestTypes) {
             const sc = ScenarioBank.pickRetestScenario(type, { excludeIds: used, missedIds, askedIds: seenIds });
             if (!sc) continue;
             used.add(sc.id);
-            retests.push(sc);
+            tail.push({ id: sc.id, retest: true, pad: false });
         }
-        return [
-            ...fresh.map(s => ({ id: s.id, retest: false })),
-            ...shuffle(retests).map(s => ({ id: s.id, retest: true }))
-        ];
+
+        const queue = [...planned.map(s => ({ id: s.id, retest: false, pad: false })), ...tail];
+        ScenarioBank.padTail(queue, { tailStart: planned.length, seenIds });
+        return { queue, plannedLength: planned.length };
+    }
+
+    /**
+     * Up to `count` straightforward questions not in `excludeIds`, preferring
+     * ones the player hasn't seen. If that's not enough, falls back to ones in
+     * `reusableIds` (already answered earlier in this session).
+     */
+    static pickFillers(count, { excludeIds = new Set(), seenIds = new Set(), reusableIds = new Set() } = {}) {
+        const fillers = shuffle(STANDALONE_SCENARIOS.filter(s => s.filler));
+        const available = fillers.filter(s => !excludeIds.has(s.id));
+        const unseen = available.filter(s => !seenIds.has(s.id));
+        const seen = available.filter(s => seenIds.has(s.id));
+        const reused = fillers.filter(s => excludeIds.has(s.id) && reusableIds.has(s.id));
+        return [...unseen, ...seen, ...reused].slice(0, Math.max(0, count));
+    }
+
+    /**
+     * Keeps a session a whole number of review blocks long by adding or
+     * removing padding questions in its tail (entries from `tailStart` on,
+     * which never include pairs), then shuffles the tail so padding and
+     * retests mix. `removable` padding entries are dropped first when the
+     * tail has grown. Changes `queue` in place.
+     */
+    static padTail(queue, { tailStart, seenIds = new Set() }) {
+        const surplus = queue.length % REVIEW_BLOCK;
+        if (surplus !== 0) {
+            // Drop unplayed padding if that reaches a block boundary, else add more
+            const pads = queue.map((e, i) => (e.pad && i >= tailStart ? i : -1)).filter(i => i !== -1);
+            if (pads.length >= surplus && queue.length - surplus > tailStart) {
+                pads.slice(-surplus).reverse().forEach(i => queue.splice(i, 1));
+            } else {
+                const inQueue = new Set(queue.map(e => e.id));
+                const upcoming = new Set(queue.slice(tailStart).map(e => e.id));
+                const played = new Set(queue.slice(0, tailStart).map(e => e.id).filter(id => !upcoming.has(id)));
+                const needed = REVIEW_BLOCK - surplus;
+                ScenarioBank.pickFillers(needed, { excludeIds: inQueue, seenIds, reusableIds: played })
+                    .forEach(s => queue.push({ id: s.id, retest: false, pad: true }));
+            }
+        }
+        const tail = shuffle(queue.slice(tailStart));
+        queue.splice(tailStart, tail.length, ...tail);
+        return queue;
     }
 
     /**

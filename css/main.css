@@ -1084,6 +1084,41 @@ body.intro-mode .main-container {
     background: rgba(148, 163, 184, 0.15);
 }
 
+/* Ad images */
+.ad-figure {
+    margin: 16px 0 0;
+    max-width: 640px;
+}
+
+.ad-figure a {
+    display: block;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+.ad-figure a:focus-visible {
+    outline: 2px solid var(--primary-cyan);
+    outline-offset: 3px;
+}
+
+.ad-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.ad-figure figcaption {
+    margin-top: 8px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.ad-figure-compact {
+    max-width: 440px;
+    margin-top: 4px;
+}
+
 /* Bonus Token results */
 .token-results {
     padding: 14px 16px;

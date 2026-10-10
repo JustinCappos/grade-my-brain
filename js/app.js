@@ -92,6 +92,7 @@ class GradeMyBrainApp {
         this.scenarioStageEl = document.getElementById('scenario-stage');
         this.scenarioTitleEl = document.getElementById('scenario-title');
         this.scenarioTextEl = document.getElementById('scenario-text');
+        this.scenarioMediaEl = document.getElementById('scenario-media');
         this.optionsContainerEl = document.getElementById('options-container');
 
         // Review Checkpoint
@@ -230,6 +231,8 @@ class GradeMyBrainApp {
     enterGame() {
         const session = this.session;
         const queueValid = session && session.queue.every(e => ScenarioBank.getScenario(e.id));
+        // Sessions saved before padding existed: treat their whole queue as planned
+        if (queueValid && session.plannedLength === undefined) session.plannedLength = session.queue.length;
         if (!queueValid) {
             this.startSession();
         } else if (session.phase === 'checkpoint') {
@@ -249,7 +252,7 @@ class GradeMyBrainApp {
         const previous = this.session;
         if (previous && previous.phase === 'complete') this.progress.archiveSession(previous);
 
-        const queue = ScenarioBank.buildSession({
+        const { queue, plannedLength } = ScenarioBank.buildSession({
             seenIds: this.progress.seenIds,
             retestTypes: this.progress.retestTypes(),
             missedIds: this.progress.missedIds()
@@ -257,6 +260,7 @@ class GradeMyBrainApp {
 
         this.progress.data.session = {
             queue,
+            plannedLength,
             startedAt: Date.now(),
             position: 0,
             phase: 'question',
@@ -329,6 +333,7 @@ class GradeMyBrainApp {
 
         this.scenarioTitleEl.textContent = sc.title;
         this.scenarioTextEl.textContent = sc.scenarioText;
+        this.scenarioMediaEl.innerHTML = this.imageHtml(sc);
         this.renderOptions(this.optionsContainerEl, sc, opt => this.handleAnswer(opt));
     }
 
@@ -511,6 +516,13 @@ class GradeMyBrainApp {
             session.retestCounts[biasType] = (session.retestCounts[biasType] || 0) + 1;
             addedRetests.push(biasType);
         }
+        // Keep the session a whole number of review blocks long
+        if (addedRetests.length > 0) {
+            ScenarioBank.padTail(session.queue, {
+                tailStart: Math.max(session.position, session.plannedLength || 0),
+                seenIds: this.progress.seenIds
+            });
+        }
 
         session.checkpoint = {
             from: session.lastReviewedPosition + 1,
@@ -661,6 +673,18 @@ class GradeMyBrainApp {
         }).join('');
     }
 
+    // An ad image for questions that have one; select it to see it full size
+    imageHtml(sc, { compact = false } = {}) {
+        if (!sc.image) return '';
+        return `
+            <figure class="ad-figure${compact ? ' ad-figure-compact' : ''}">
+                <a href="${esc(sc.image.src)}" target="_blank" rel="noopener">
+                    <img src="${esc(sc.image.src)}" alt="${esc(sc.image.alt)}" width="640" height="400" loading="lazy">
+                </a>
+                <figcaption>Mock advertisement for a fictional brand. Select the image to see it full size.</figcaption>
+            </figure>`;
+    }
+
     // False for a saved result whose question has since been removed from the bank
     isKnownItem(item) {
         return item.kind === 'pair' ? Boolean(PAIRED_TESTS[item.pairId]) : Boolean(ScenarioBank.getScenario(item.scenarioId));
@@ -691,6 +715,7 @@ class GradeMyBrainApp {
             const sc = ScenarioBank.getScenario(item.scenarioId);
             title = sc.title;
             body = `
+                ${this.imageHtml(sc, { compact: true })}
                 <p class="review-scenario">${esc(sc.scenarioText)}</p>
                 <p class="answer-row"><span class="answer-label">Your answer</span><span class="answer-yours">${esc(item.yourAnswer)}</span></p>`;
             ({ bestAnswer, reasoning, biasName, bookRef } = sc);
@@ -754,6 +779,7 @@ class GradeMyBrainApp {
             <article class="practice-card">
                 ${tipHtml}
                 <h4 class="review-title">${esc(sc.title)}</h4>
+                ${this.imageHtml(sc, { compact: true })}
                 <p class="review-scenario">${esc(sc.scenarioText)}</p>
                 ${feedback}
             </article>`;
