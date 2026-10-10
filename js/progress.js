@@ -8,8 +8,17 @@
 const KEY_PREFIX = 'gmb_progress_';
 const DATA_VERSION = 1;
 
+// Players who leave the ID blank share this one, so a returning guest on the
+// same browser picks up where they left off
+export const GUEST_ID = 'guest';
+
 export function normalizeId(raw) {
-    return String(raw || '').trim().toLowerCase();
+    return String(raw || '').trim().toLowerCase() || GUEST_ID;
+}
+
+// How an ID is shown to the player
+export function displayId(id) {
+    return id === GUEST_ID ? 'Guest' : id.toUpperCase();
 }
 
 // Falls back to an in-memory store when localStorage is blocked or absent

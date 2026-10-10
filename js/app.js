@@ -15,7 +15,7 @@ import { sound } from './audio.js';
 import { ScenarioBank, PAIRED_TESTS, BIAS_CATEGORIES, REVIEW_BLOCK, BONUS_TOKEN } from './scenarioBank.js';
 import { BiasAnalyzer } from './biasAnalyzer.js';
 import { BrainChart } from './chart.js';
-import { Progress, normalizeId } from './progress.js';
+import { Progress, normalizeId, displayId } from './progress.js';
 
 // Grades come from the share of reviewed answers that were right, so they
 // mean the same thing however long the session runs
@@ -83,7 +83,6 @@ class GradeMyBrainApp {
         this.introViewEl = document.getElementById('intro-view');
         this.introFormEl = document.getElementById('intro-form');
         this.idInputEl = document.getElementById('id-code-input');
-        this.idErrorEl = document.getElementById('id-code-error');
         this.consentEl = document.getElementById('privacy-consent');
         this.privacyLinkEl = document.getElementById('privacy-link');
         this.introContinueBtn = document.getElementById('intro-continue-btn');
@@ -202,20 +201,15 @@ class GradeMyBrainApp {
     showIntro() {
         this.showView('intro');
         this.idInputEl.value = '';
-        this.idErrorEl.hidden = true;
         this.consentEl.checked = true;
         this.introContinueBtn.classList.remove('looks-disabled');
         this.updateHeaderUI();
         this.chart.updateHistory([{ round: 0, score: STARTING_SCORE }]);
     }
 
+    // A blank ID plays as the guest (see GUEST_ID)
     handleIntroContinue() {
         const id = normalizeId(this.idInputEl.value);
-        if (!id) {
-            this.idErrorEl.hidden = false;
-            this.idInputEl.focus();
-            return;
-        }
         playSafely(() => sound.playClick());
         this.progress = new Progress(id);
         this.progress.data.consent = {
@@ -896,7 +890,7 @@ class GradeMyBrainApp {
         const seen = mainPool.filter(sc => seenIds.has(sc.id)).length;
         const retestNames = this.progress.retestTypes().map(t => BIAS_CATEGORIES[t].name);
         this.progressSummaryEl.innerHTML = `
-            <p><strong>${esc(this.progress.id.toUpperCase())}</strong> · ${seen} of ${total} questions seen · ${this.progress.data.sessionsCompleted} ${this.progress.data.sessionsCompleted === 1 ? 'session' : 'sessions'} completed</p>
+            <p><strong>${esc(displayId(this.progress.id))}</strong> · ${seen} of ${total} questions seen · ${this.progress.data.sessionsCompleted} ${this.progress.data.sessionsCompleted === 1 ? 'session' : 'sessions'} completed</p>
             <p>${retestNames.length > 0
                 ? `Topics to retest: ${esc(retestNames.join(', '))}`
                 : 'No topics need a retest right now.'}</p>`;

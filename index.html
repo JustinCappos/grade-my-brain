@@ -49,8 +49,8 @@
                 <p class="intro-eyebrow">Decision-making diagnostic</p>
                 <h2 id="intro-heading" class="intro-title">Before you begin</h2>
                 <p class="intro-text">
-                    Enter the ID code you were given. Your progress is saved under it, so you can stop
-                    any time and pick up where you left off.
+                    If you were given an ID code, enter it below. Your progress is saved in this browser,
+                    so you can stop any time and pick up where you left off.
                 </p>
             </div>
 
@@ -62,9 +62,9 @@
 
             <form id="intro-form" class="intro-form" novalidate>
                 <div class="intro-field">
-                    <label for="id-code-input" class="intro-label">ID code</label>
-                    <input id="id-code-input" class="intro-input" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. NYU-4821" aria-describedby="id-code-error">
-                    <p id="id-code-error" class="form-error" hidden>Enter your ID code to continue.</p>
+                    <label for="id-code-input" class="intro-label">ID code <span class="intro-optional">(optional)</span></label>
+                    <input id="id-code-input" class="intro-input" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. NYU-4821" aria-describedby="id-code-hint">
+                    <p id="id-code-hint" class="intro-hint">Leave blank to play as a guest.</p>
                 </div>
 
                 <label class="consent-row" for="privacy-consent">

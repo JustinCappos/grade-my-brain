@@ -21,7 +21,7 @@ import {
     MIN_PAIR_GAP, REVIEW_BLOCK, ScenarioBank
 } from './js/scenarioBank.js';
 import { BiasAnalyzer } from './js/biasAnalyzer.js';
-import { Progress } from './js/progress.js';
+import { Progress, normalizeId, displayId, GUEST_ID } from './js/progress.js';
 
 const PORT = 8088;
 const BRAVE_PATH = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser';
@@ -146,6 +146,9 @@ function checkSessionBuilder() {
 // Retest topics follow each topic's most recent scored answer; practice doesn't count
 function checkProgress() {
     const storage = memoryStorage();
+    assert.equal(normalizeId('   '), GUEST_ID, 'A blank ID should become the guest');
+    assert.equal(displayId(GUEST_ID), 'Guest');
+    assert.equal(displayId('nyu-4821'), 'NYU-4821');
     const p = new Progress('  Tester-1 ', storage);
     assert.equal(p.id, 'tester-1');
     p.recordResult({ scenarioId: 'a', biasType: 'ANCHORING', correct: false, kind: 'main' });
@@ -362,10 +365,6 @@ async function runBrowserChecks(browser) {
     await page.evaluate(() => document.fonts.ready);
     assert.deepEqual(await outsideHosts(), [], 'The game should not contact other servers');
 
-    // Empty ID is rejected
-    await page.click('#intro-continue-btn');
-    assert.equal(await isHidden(page, '#id-code-error'), false, 'Empty ID should show an error');
-
     await enterId(page, 'E2E-Player', { uncheckConsent: true });
     const consent = await page.evaluate(() => JSON.parse(localStorage.getItem('gmb_progress_e2e-player')).consent);
     assert.equal(consent.checked, false, 'Unchecked consent should be recorded');
@@ -408,7 +407,9 @@ async function runBrowserChecks(browser) {
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.click('#switch-id-btn');
     assert.equal(await isHidden(page, '#intro-view'), false, 'Switch ID should show the ID screen');
-    await enterId(page, 'second-player', { uncheckConsent: false });
+    // A blank ID plays as a guest with its own fresh progress
+    await enterId(page, '', { uncheckConsent: false });
+    assert.ok(await page.evaluate(() => localStorage.getItem('gmb_progress_guest') !== null), 'A blank ID should play as the guest');
     const freshTotal = Number((await text(page, '#current-round')).match(/^1 \/ (\d+)$/)[1]);
     assert.ok(freshTotal > MAIN_POOL.length && freshTotal % REVIEW_BLOCK === 0, 'A new player gets a full first session');
 
