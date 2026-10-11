@@ -87,6 +87,7 @@ class GradeMyBrainApp {
         this.introFormEl = document.getElementById('intro-form');
         this.idInputEl = document.getElementById('id-code-input');
         this.consentEl = document.getElementById('privacy-consent');
+        this.fullVersionEl = document.getElementById('full-version-toggle');
         this.privacyLinkEl = document.getElementById('privacy-link');
         this.introContinueBtn = document.getElementById('intro-continue-btn');
 
@@ -168,10 +169,11 @@ class GradeMyBrainApp {
             this.hideSummaryModal();
         };
 
+        // Continues to the full version after the short one, then retests weak topics
         this.playAgainBtn.onclick = () => {
             playSafely(() => sound.playClick());
             this.hideSummaryModal();
-            this.startSession();
+            this.startSession('full');
         };
 
         // The pre-checked consent box: unchecking it greys out Continue, but
@@ -204,6 +206,9 @@ class GradeMyBrainApp {
     showIntro() {
         this.showView('intro');
         this.idInputEl.value = '';
+        this.fullVersionEl.checked = false;
+        document.getElementById('short-version-count').textContent = ScenarioBank.sessionLengthEstimate('short');
+        document.getElementById('full-version-count').textContent = ScenarioBank.sessionLengthEstimate('full');
         this.consentEl.checked = true;
         this.introContinueBtn.classList.remove('looks-disabled');
         this.updateHeaderUI();
@@ -213,6 +218,7 @@ class GradeMyBrainApp {
     // A blank ID plays as the guest (see GUEST_ID)
     handleIntroContinue() {
         const id = normalizeId(this.idInputEl.value);
+        this.requestedVersion = this.fullVersionEl.checked ? 'full' : 'short';
         playSafely(() => sound.playClick());
         this.progress = new Progress(id);
         this.progress.data.consent = {
@@ -231,7 +237,7 @@ class GradeMyBrainApp {
         // Sessions saved before padding existed: treat their whole queue as planned
         if (queueValid && session.plannedLength === undefined) session.plannedLength = session.queue.length;
         if (!queueValid) {
-            this.startSession();
+            this.startSession(this.requestedVersion || 'short');
         } else if (session.phase === 'checkpoint') {
             this.renderCheckpoint();
         } else if (session.phase === 'complete') {
@@ -244,20 +250,28 @@ class GradeMyBrainApp {
 
     // --- Session Flow ---
 
-    startSession() {
+    // `version` is 'short' (the default first session: security, technology
+    // and dark patterns) or 'full' (everything not yet seen, plus retests)
+    startSession(version = 'full') {
         // A session finished before archiving existed is saved before it's replaced
         const previous = this.session;
         if (previous && previous.phase === 'complete') this.progress.archiveSession(previous);
 
+        // Once the short version's questions have all been seen, go on to the full version
+        const seenIds = this.progress.seenIds;
+        if (version === 'short' && ScenarioBank.mainQuestions('short').every(s => seenIds.has(s.id))) version = 'full';
+
         const { queue, plannedLength } = ScenarioBank.buildSession({
-            seenIds: this.progress.seenIds,
+            seenIds,
             retestTypes: this.progress.retestTypes(),
-            missedIds: this.progress.missedIds()
+            missedIds: this.progress.missedIds(),
+            version
         });
 
         this.progress.data.session = {
             queue,
             plannedLength,
+            version,
             startedAt: Date.now(),
             position: 0,
             phase: 'question',
@@ -540,7 +554,12 @@ class GradeMyBrainApp {
 
         // Questions still to come this session are never used for practice
         const upcoming = new Set(session.queue.slice(session.position).map(e => e.id));
-        const excluded = new Set([...upcoming, ...items.map(i => i.scenarioId)]);
+        // The short version leaves unseen full-version questions for the full version
+        const seenNow = this.progress.seenIds;
+        const reservedForFull = session.version === 'short'
+            ? ScenarioBank.mainQuestions('full').filter(sc => !sc.short && !seenNow.has(sc.id)).map(sc => sc.id)
+            : [];
+        const excluded = new Set([...upcoming, ...items.map(i => i.scenarioId), ...reservedForFull]);
         const missedTypes = [...new Set(items.filter(i => !i.correct).map(i => i.biasType))];
         const practice = missedTypes.slice(0, MAX_PRACTICE_PER_REVIEW).map(biasType => {
             const sc = ScenarioBank.pickPracticeScenario(biasType, { seenIds: this.progress.seenIds, excludeIds: excluded });
@@ -554,6 +573,7 @@ class GradeMyBrainApp {
         session.retestCounts ||= {};
         const unavailable = new Set([
             ...upcoming,
+            ...reservedForFull,
             ...session.queue.filter(e => e.retest).map(e => e.id),
             ...practice.map(p => p.scenarioId).filter(Boolean)
         ]);
@@ -874,7 +894,7 @@ class GradeMyBrainApp {
         this.checkpointEl.querySelector('#start-over-btn').onclick = () => {
             playSafely(() => sound.playClick());
             this.progress.reset();
-            this.startSession();
+            this.startSession('short');
         };
     }
 
@@ -952,7 +972,10 @@ class GradeMyBrainApp {
             <p><strong>${esc(displayId(this.progress.id))}</strong> · ${seen} of ${total} questions seen · ${this.progress.data.sessionsCompleted} ${this.progress.data.sessionsCompleted === 1 ? 'session' : 'sessions'} completed</p>
             <p>${retestNames.length > 0
                 ? `Topics to retest: ${esc(retestNames.join(', '))}`
-                : 'No topics need a retest right now.'}</p>`;
+                : 'No topics need a retest right now.'}</p>
+            ${this.session && this.session.phase === 'complete' && this.session.version === 'short'
+                ? '<p>You finished the short version. The full version covers decision-making beyond security and technology.</p>'
+                : ''}`;
 
         const emptyNote = text => `<p style="color: var(--text-muted); font-size: 0.9rem;">${text}</p>`;
         const missedCount = type => reviewed.filter(i => !i.correct && i.biasType === type).length;
@@ -988,7 +1011,10 @@ class GradeMyBrainApp {
         const sessionComplete = Boolean(session && session.phase === 'complete');
         this.renderPolicyDebrief(sessionComplete);
         this.playAgainBtn.hidden = !sessionComplete;
-        this.playAgainBtn.textContent = retestNames.length > 0 ? '▶ Retest Weak Topics' : '✓ Finish';
+        const unseenFull = ScenarioBank.mainQuestions('full').filter(sc => !seenIds.has(sc.id)).length;
+        this.playAgainBtn.textContent = unseenFull > 0
+            ? `▶ Continue to the Full Version (${unseenFull} more questions)`
+            : (retestNames.length > 0 ? '▶ Retest Weak Topics' : '✓ Finish');
         setTimeout(() => {
             // Only plot the biases this session has actually reviewed
             BrainChart.renderRadarChart('bias-radar-chart', audit.summary.filter(s => s.count > 0));

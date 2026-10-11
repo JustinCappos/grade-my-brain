@@ -108,6 +108,16 @@ function checkSessionBuilder() {
         checkQueue(queue, 'first session');
     }
 
+    // The short version covers exactly the short-version questions
+    for (let i = 0; i < 50; i++) {
+        const { queue } = ScenarioBank.buildSession({ version: 'short' });
+        assert.equal(queue.length % REVIEW_BLOCK, 0, 'A short session should be whole review blocks');
+        assert.deepEqual(queue.filter(e => !isFiller(e.id)).map(e => e.id).sort(),
+            ScenarioBank.mainQuestions('short').map(s => s.id).sort(), 'Short session should hold the short-version questions');
+        checkQueue(queue, 'short session');
+    }
+    assert.equal(ScenarioBank.sessionLengthEstimate('short'), ScenarioBank.buildSession({ version: 'short' }).queue.length);
+
     // A few questions unseen: those come first, then one retest per missed topic, padded to a full block
     const unseen = new Set(['anchoring-1', 'ads-truncated-axis']);
     const seenIds = new Set(MAIN_POOL.map(s => s.id).filter(id => !unseen.has(id)));
@@ -199,7 +209,7 @@ const settle = () => new Promise(r => setTimeout(r, 400));
 const text = (page, selector) => page.$eval(selector, el => el.textContent.trim());
 const isHidden = (page, selector) => page.$eval(selector, el => el.hidden);
 
-async function enterId(page, id, { uncheckConsent }) {
+async function enterId(page, id, { uncheckConsent, fullVersion = false }) {
     assert.equal(await isHidden(page, '#intro-view'), false, 'ID screen should show first');
     await page.type('#id-code-input', id);
     if (uncheckConsent) {
@@ -207,6 +217,7 @@ async function enterId(page, id, { uncheckConsent }) {
         const looksDisabled = await page.$eval('#intro-continue-btn', el => el.classList.contains('looks-disabled'));
         assert.ok(looksDisabled, 'Continue should look disabled once consent is unchecked');
     }
+    if (fullVersion) await page.click('#full-version-toggle');
     await page.click('#intro-continue-btn');
     await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
 }
@@ -379,22 +390,23 @@ async function runBrowserChecks(browser) {
     const consent = await page.evaluate(() => JSON.parse(localStorage.getItem('gmb_progress_e2e-player')).consent);
     assert.equal(consent.checked, false, 'Unchecked consent should be recorded');
 
-    const first = await playSession(page, 'session 1');
+    // Session 1 is the short version by default
+    const first = await playSession(page, 'session 1 (short)');
     const debrief = await text(page, '#policy-debrief');
     assert.ok(debrief.includes('unchecked'), 'Debrief should reflect that the player unchecked the box');
+    const shortIds = ScenarioBank.mainQuestions('short').map(s => s.id).sort();
     const firstPlanned = first.queue.filter(e => !e.retest && !isFiller(e.id)).map(e => e.id);
-    assert.deepEqual([...firstPlanned].sort(), MAIN_POOL.map(s => s.id).sort(), 'Session 1 should ask every regular question once');
+    assert.deepEqual([...firstPlanned].sort(), shortIds, 'The short version should ask every short-version question once');
     assert.ok(first.queue.some(e => isFiller(e.id)), 'Session 1 should include straightforward questions');
-    assert.ok(first.added > 0, 'Missed topics should add retests to session 1');
+    assert.match(await text(page, '#play-again-btn'), /Continue to the Full Version/, 'The short version should offer the full version');
 
-    // Next session retests only the topics still answered wrong
+    // Continuing goes through every regular question not yet seen
     await page.click('#play-again-btn');
     await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
     const secondStart = await page.evaluate(() => window.brainApp.session.queue);
-    const stillWrong = await page.evaluate(() => window.brainApp.progress.retestTypes());
-    assert.ok(secondStart.length > 0 && secondStart.every(e => e.retest || (e.pad && isFiller(e.id))),
-        'Session 2 should be retests plus padding');
-    assert.ok(secondStart.filter(e => e.retest).length <= stillWrong.length, 'Session 2 should retest each weak topic once');
+    const secondPlanned = secondStart.filter(e => !e.retest && !isFiller(e.id)).map(e => e.id).sort();
+    assert.deepEqual(secondPlanned, MAIN_POOL.map(s => s.id).filter(id => !shortIds.includes(id)).sort(),
+        'The full version should cover every question the short version skipped');
     assert.equal(secondStart.length % REVIEW_BLOCK, 0, 'Session 2 should be padded to a full block');
 
     // A reload resumes the same question
@@ -403,26 +415,39 @@ async function runBrowserChecks(browser) {
     assert.equal(await isHidden(page, '#scenario-stage'), false, 'Reload should resume the session');
     assert.equal(await text(page, '#scenario-title'), firstTitle, 'Reload changed the question');
 
-    const second = await playSession(page, 'session 2');
+    const second = await playSession(page, 'session 2 (full)');
 
     // The audit can switch back to the first session's results
     const sessionOptions = await page.$$eval('#audit-session-select option', els => els.map(el => el.value));
     assert.deepEqual(sessionOptions, ['past-1', 'past-0'], 'Audit should offer both finished sessions, newest first');
     await page.select('#audit-session-select', 'past-0');
+    await settle();
     assert.equal(Number(await text(page, '#final-score')), first.finalScore, 'Audit should show session 1 again');
 
+    // After everything has been seen, the next session retests weak topics only
+    await page.select('#audit-session-select', 'past-1');
+    await settle(); // the audit redraws for the selected session
+    await page.click('#play-again-btn');
+    await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
+    const thirdStart = await page.evaluate(() => window.brainApp.session.queue);
+    const stillWrong = await page.evaluate(() => window.brainApp.progress.retestTypes());
+    assert.ok(thirdStart.length > 0 && thirdStart.every(e => e.retest || (e.pad && isFiller(e.id))),
+        'Session 3 should be retests plus padding');
+    assert.ok(thirdStart.filter(e => e.retest).length <= stillWrong.length, 'Session 3 should retest each weak topic once');
+    assert.equal(thirdStart.length % REVIEW_BLOCK, 0, 'Session 3 should be padded to a full block');
+
     // Switch ID returns to the ID screen; a new ID starts fresh
-    await page.click('#close-audit-modal-btn');
-    await page.waitForFunction(() => getComputedStyle(document.getElementById('summary-modal')).visibility === 'hidden');
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.click('#switch-id-btn');
     assert.equal(await isHidden(page, '#intro-view'), false, 'Switch ID should show the ID screen');
-    // A blank ID plays as a guest with its own fresh progress
-    await enterId(page, '', { uncheckConsent: false });
+    // A blank ID plays as a guest with its own fresh progress; the checkbox picks the full version
+    await enterId(page, '', { uncheckConsent: false, fullVersion: true });
     assert.ok(await page.evaluate(() => localStorage.getItem('gmb_progress_guest') !== null), 'A blank ID should play as the guest');
     assert.equal(await text(page, '#current-round'), '1', 'A new player starts at round 1');
-    const freshTotal = await page.evaluate(() => window.brainApp.session.queue.length);
-    assert.ok(freshTotal > MAIN_POOL.length && freshTotal % REVIEW_BLOCK === 0, 'A new player gets a full first session');
+    const fullStart = await page.evaluate(() => window.brainApp.session.queue);
+    assert.deepEqual(fullStart.filter(e => !isFiller(e.id)).map(e => e.id).sort(), MAIN_POOL.map(s => s.id).sort(),
+        'Choosing the full version should cover every regular question');
+    assert.equal(fullStart.length % REVIEW_BLOCK, 0, 'The full version should be whole review blocks');
 
     // The privacy policy loads and mentions that the greyed-out button still works
     await page.goto(`http://localhost:${PORT}/privacy.html`, { waitUntil: 'networkidle0' });

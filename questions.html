@@ -323,6 +323,11 @@ details.topic summary { cursor: pointer; font-size: 0.88rem; color: var(--muted)
             <option value="practice">Practice only</option>
             <option value="filler">Straightforward (obvious answer is right)</option>
         </select>
+        <select id="f-version" aria-label="Version">
+            <option value="">Short and full versions</option>
+            <option value="short">In the short version</option>
+            <option value="full">Full version only</option>
+        </select>
         <select id="f-source" aria-label="Source">
             <option value="">All sources</option>
             <option value="book">Thinking, Fast and Slow</option>
@@ -384,6 +389,7 @@ const items = [
 ];
 items.forEach((item, idx) => {
     item.order = idx;
+    item.isShort = Boolean(item.kind === 'pair' ? item.pair.short : item.scenario.short);
     item.isBook = /Thinking, Fast and Slow/.test(item.bookRef);
     item.searchText = item.searchText.toLowerCase();
 });
@@ -531,6 +537,7 @@ function renderCards() {
                     <span class="chip chip-bias">${esc(c.name)}</span>
                     <span class="chip">${kindChip}</span>
                     <span class="chip">${item.isBook ? 'Book' : 'Other research'}</span>
+                    ${item.isShort ? '<span class="chip chip-bias">Short version</span>' : ''}
                 </div>
                 <h2>${esc(item.title)}</h2>
                 ${cardBodyHtml(item)}
@@ -658,6 +665,7 @@ function applyFilters() {
     const bias = document.getElementById('f-bias').value;
     const kind = document.getElementById('f-kind').value;
     const source = document.getElementById('f-source').value;
+    const version = document.getElementById('f-version').value;
     const sort = document.getElementById('f-sort').value;
     const unmarked = document.getElementById('f-unmarked').checked;
 
@@ -673,6 +681,7 @@ function applyFilters() {
             && (!bias || item.biasType === bias)
             && (!kind || item.kind === kind)
             && (!source || (source === 'book') === item.isBook)
+            && (!version || (version === 'short') === item.isShort)
             && (!unmarked || !(state.mine[item.key] && state.mine[item.key].verdict));
         card.hidden = !visible;
         cardsEl.appendChild(card);
@@ -706,7 +715,7 @@ biasSelect.innerHTML = '<option value="">All bias types</option>' +
         .filter(([key]) => items.some(i => i.biasType === key))
         .sort((a, b) => a[1].name.localeCompare(b[1].name))
         .map(([key, c]) => `<option value="${key}">${esc(c.name)}</option>`).join('');
-['f-search', 'f-bias', 'f-kind', 'f-source', 'f-sort', 'f-unmarked'].forEach(id => {
+['f-search', 'f-bias', 'f-kind', 'f-version', 'f-source', 'f-sort', 'f-unmarked'].forEach(id => {
     document.getElementById(id).addEventListener('input', applyFilters);
 });
 

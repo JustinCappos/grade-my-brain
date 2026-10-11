@@ -55,7 +55,7 @@
             </div>
 
             <ul class="intro-points">
-                <li><span class="intro-point-icon" aria-hidden="true">🧩</span>Short scenarios about everyday choices, money and risk</li>
+                <li><span class="intro-point-icon" aria-hidden="true">🧩</span>Short scenarios about security, technology, money and risk</li>
                 <li><span class="intro-point-icon" aria-hidden="true">🔍</span>A review every 10 questions explains what you missed</li>
                 <li><span class="intro-point-icon" aria-hidden="true">🔁</span>Topics you miss come back later as retests</li>
             </ul>
@@ -74,6 +74,16 @@
                     <input id="id-code-input" class="intro-input" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. NYU-4821" aria-describedby="id-code-hint">
                     <p id="id-code-hint" class="intro-hint">Leave blank to play as a guest.</p>
                 </div>
+
+                <label class="version-row" for="full-version-toggle">
+                    <input type="checkbox" id="full-version-toggle">
+                    <span>
+                        <span class="version-title">Take the full version instead</span>
+                        <span class="version-detail">About <span id="full-version-count">110</span> questions on decision-making in general. The default short version
+                            (about <span id="short-version-count">30</span> questions) focuses on security, technology and deceptive design,
+                            and you can continue to the full version afterwards.</span>
+                    </span>
+                </label>
 
                 <label class="consent-row" for="privacy-consent">
                     <input type="checkbox" id="privacy-consent" checked>

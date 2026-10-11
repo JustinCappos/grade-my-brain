@@ -157,6 +157,13 @@ export const BIAS_CATEGORIES = {
         tip: "Judge experiences by their total, not just the worst moment and the ending. More of something unpleasant is never better."
     },
 
+    ADAPTIVE_ADVERSARY: {
+        name: "Assuming the Past Predicts Attacks",
+        shortName: "Adaptive foes",
+        description: "Treating historical incident data as a forecast when attackers adapt to your defenses and change tactics.",
+        bookReference: "Thinking, Fast and Slow - Chapter 22 (statistics and intuition need a regular environment)",
+        tip: "Use your history as a starting point, then ask what has changed: what attackers are doing to others like you now, and what your defenses would never have seen. Past data predicts best when nobody is trying to beat it."
+    },
     STRAIGHTFORWARD: {
         name: "Second-Guessing the Obvious",
         shortName: "Overthinking",
@@ -263,13 +270,13 @@ export const STANDALONE_SCENARIOS = [
         biasType: "ANCHORING",
         title: "Venture Valuation Bid",
         scenarioText: "A tech founder mentions in casual conversation that their startup is worth $150 Million. Independent financial auditors evaluate the company's current assets at $40 Million. If the company succeeds, auditors estimate the assets could grow to $90 Million, but they assign only a 60% probability of success. The founder offers you an investment stake based on a $135 Million valuation.",
-        bestAnswer: "Reject Wager (Demand Fundamental Valuation)",
+        bestAnswer: "Decline to invest at $135M",
         reasoning: "The $150M figure was an arbitrary anchor with no fundamental backing. Even in the best case (60% chance of $90M success), the expected asset value is far below $135M. The anchor pulled the offer price far above any reasonable fundamental valuation.",
         biasName: "Anchoring Effect",
         bookRef: "Thinking, Fast and Slow - Chapter 11",
         options: [
-            { text: "Accept Wager ($135M Valuation)", biasValue: 1, isBest: false },
-            { text: "Reject Wager (Demand Fundamental Valuation)", biasValue: 0, isBest: true }
+            { text: "Invest at the $135M valuation", biasValue: 1, isBest: false },
+            { text: "Decline to invest at $135M", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -291,13 +298,13 @@ export const STANDALONE_SCENARIOS = [
         biasType: "ANCHORING",
         title: "Commercial Real Estate Purchase",
         scenarioText: "A commercial office building has been listed for an asking price of $4.5 Million. An independent professional appraisal values the building at $2.8 Million. The seller offers a discounted price of $3.1 Million.",
-        bestAnswer: "Reject Offer (Bid Near $2.8M Appraisal Value)",
+        bestAnswer: "Don't buy at $3.1M",
         reasoning: "The $4.5M asking price anchors buyer perception of value. The independent appraisal values the property at $2.8M, so the discounted $3.1M price is still $300,000 above fair market value.",
         biasName: "Anchoring Effect",
         bookRef: "Thinking, Fast and Slow - Chapter 11",
         options: [
-            { text: "Accept Offer ($3.1M Price)", biasValue: 1, isBest: false },
-            { text: "Reject Offer (Bid Near $2.8M Appraisal Value)", biasValue: 0, isBest: true }
+            { text: "Buy at $3.1M", biasValue: 1, isBest: false },
+            { text: "Don't buy at $3.1M", biasValue: 0, isBest: true }
         ]
     },
 
@@ -462,7 +469,7 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Availability Heuristic",
         bookRef: "Thinking, Fast and Slow - Chapters 12 & 13",
         options: [
-            { text: "Prioritize database server hardening (like the competitor breach)", biasValue: 1, isBest: false },
+            { text: "Prioritize hardening the database servers", biasValue: 1, isBest: false },
             { text: "Prioritize patching file storage servers", biasValue: 0, isBest: true }
         ]
     },
@@ -541,7 +548,7 @@ export const STANDALONE_SCENARIOS = [
         biasType: "SALIENCE_RARITY",
         title: "Bounty Reward Contract",
         scenarioText: "An adventure guild offers three contract bounty options. Which contract has the highest average payout?",
-        bestAnswer: "Option A (Common): 90% chance of 80 gold (Average = 72 gold)",
+        bestAnswer: "Option A [Common]: 90% chance of 80 gold",
         reasoning: "Option A yields an expected payoff of 72 gold (0.90 × 80). Option B yields 60 gold (0.50 × 120). Option C yields only 30 gold (0.10 × 300). Players who choose Option C are blinded by the 'Legendary' label and prestige cues over objective utility.",
         biasName: "Salience & Rarity Bias",
         bookRef: "Behavioral Economics (Salience & Heuristic Valuation)",
@@ -589,13 +596,13 @@ export const STANDALONE_SCENARIOS = [
         biasType: "PLANNING",
         title: "Renovation Budget Allocation",
         scenarioText: "Engineers estimate renovation costs at $500,000. Municipal records show an estimated 85% probability that comparable renovations experience a 40% cost overrun ($700,000 final cost).",
-        bestAnswer: "Budget $700,000 with buffer",
+        bestAnswer: "Budget $700,000",
         reasoning: "Ignoring historical overrun probabilities leads to mid-project budget failure. Budgeting $700,000 aligns with empirical reference class forecasting.",
         biasName: "Planning Fallacy",
         bookRef: "Thinking, Fast and Slow - Chapter 23",
         options: [
-            { text: "Budget exactly $500,000 without buffer", biasValue: 1, isBest: false },
-            { text: "Budget $700,000 with buffer", biasValue: 0, isBest: true }
+            { text: "Budget $500,000", biasValue: 1, isBest: false },
+            { text: "Budget $700,000", biasValue: 0, isBest: true }
         ]
     },
 
@@ -712,14 +719,14 @@ export const STANDALONE_SCENARIOS = [
         biasType: "WYSIATI",
         title: "Day-Trading Course Advertisement",
         scenarioText: "An ad for a $2,000 day-trading course features six graduates, each saying they made over $100,000 in their first year. The ad says thousands of people have taken the course. What can you conclude about a typical student's results?",
-        bestAnswer: "Almost nothing; the ad only shows the winners",
+        bestAnswer: "Very little",
         reasoning: "The ad shows six success stories out of thousands of students, and you have no information about the rest. Studies of retail day traders find that most lose money. System 1 builds a confident story from the evidence it is shown and does not ask what is missing: \"What You See Is All There Is.\"",
         biasName: "What You See Is All There Is (Survivorship)",
         bookRef: "Thinking, Fast and Slow - Chapter 7",
         options: [
             { text: "Most students earn substantial profits", biasValue: 1, isBest: false },
             { text: "At least a good fraction of students succeed", biasValue: 0.5, isBest: false },
-            { text: "Almost nothing; the ad only shows the winners", biasValue: 0, isBest: true }
+            { text: "Very little", biasValue: 0, isBest: true }
         ]
     },
 
@@ -731,13 +738,13 @@ export const STANDALONE_SCENARIOS = [
         biasType: "OUTCOME_BIAS",
         title: "Acquisition Post-Mortem",
         scenarioText: "Two years ago, your CEO approved an acquisition after thorough due diligence. Independent advisors estimated a 75% chance it would pay off. It failed after a regulatory change that no one, including the regulator, had announced or discussed at the time. How should the board judge the decision?",
-        bestAnswer: "A sound decision that had a bad outcome",
+        bestAnswer: "A sound decision",
         reasoning: "A good decision can turn out badly, and a reckless one can turn out well. Judging the decision by the outcome punishes decision makers for bad luck and rewards them for good luck. Kahneman calls this outcome bias and links it to hindsight bias: after the fact, the failure feels as if it should have been foreseen.",
         biasName: "Outcome Bias",
         bookRef: "Thinking, Fast and Slow - Chapter 19",
         options: [
-            { text: "A poor decision; the acquisition failed", biasValue: 1, isBest: false },
-            { text: "A sound decision that had a bad outcome", biasValue: 0, isBest: true }
+            { text: "A poor decision", biasValue: 1, isBest: false },
+            { text: "A sound decision", biasValue: 0, isBest: true }
         ]
     },
 
@@ -749,13 +756,13 @@ export const STANDALONE_SCENARIOS = [
         biasType: "INTUITION_VS_FORMULA",
         title: "Final-Round Hiring Decision",
         scenarioText: "Your company scores candidates on six job-relevant traits using a structured interview, and those scores have predicted job performance well in the past. Candidate A scores higher than Candidate B. But after an informal lunch, your gut strongly prefers Candidate B. Which should you hire?",
-        bestAnswer: "Candidate A (higher structured score)",
+        bestAnswer: "Candidate A",
         reasoning: "Paul Meehl's research, summarized in Chapter 21, found that simple consistent scoring rules beat expert intuition in most fields. A lunch impression is a small, noisy sample that is easily swayed by charm and similarity. Kahneman's advice is to trust the structured score.",
         biasName: "Intuition vs. Formulas",
         bookRef: "Thinking, Fast and Slow - Chapter 21",
         options: [
-            { text: "Candidate A (higher structured score)", biasValue: 0, isBest: true },
-            { text: "Candidate B (strong gut feeling)", biasValue: 1, isBest: false }
+            { text: "Candidate A", biasValue: 0, isBest: true },
+            { text: "Candidate B", biasValue: 1, isBest: false }
         ]
     },
 
@@ -781,13 +788,13 @@ export const STANDALONE_SCENARIOS = [
         biasType: "NARROW_FRAMING",
         title: "Division Project Portfolio",
         scenarioText: "You are CEO of a company with 20 divisions. Each division manager has an independent project with a 50% chance of earning $2 Million and a 50% chance of losing $1 Million. Each manager, worried about a loss on their record, plans to decline their project. What policy should you set?",
-        bestAnswer: "Approve all 20 projects as a portfolio",
+        bestAnswer: "Approve all 20 projects",
         reasoning: "Each project alone looks risky to the manager who owns it, but together the 20 projects are very likely to make money: the company loses overall only if 6 or fewer of the 20 succeed, about a 6% chance. Kahneman tells this story about Richard Thaler and a CEO to illustrate narrow framing. The cure is to judge risks as a portfolio.",
         biasName: "Narrow Framing",
         bookRef: "Thinking, Fast and Slow - Chapter 31",
         options: [
-            { text: "Approve all 20 projects as a portfolio", biasValue: 0, isBest: true },
-            { text: "Approve 5 projects to limit the risk", biasValue: 0.5, isBest: false },
+            { text: "Approve all 20 projects", biasValue: 0, isBest: true },
+            { text: "Approve 5 of the projects", biasValue: 0.5, isBest: false },
             { text: "Let each manager decide individually", biasValue: 1, isBest: false }
         ]
     },
@@ -885,6 +892,7 @@ export const STANDALONE_SCENARIOS = [
     // -------------------------------------------------------------
     {
         id: "ads-drip-pricing",
+        short: true,
         biasType: "DRIP_PRICING",
         title: "Hotel Checkout Fees",
         scenarioText: "You searched for a hotel and picked Hotel A at $129 per night. After entering your details and payment information, the final screen adds a $35 per night resort fee and an $18 per night service fee. Hotel B, of similar quality and location, advertised $169 per night with all fees included. What do you do?",
@@ -915,6 +923,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "ads-fake-urgency",
+        short: true,
         biasType: "FAKE_URGENCY",
         title: "Travel Booking Countdown",
         scenarioText: "You are planning a trip three weeks from now. A booking site shows a hotel you like with the banners \"Only 2 rooms left at this price!\" and \"14 people are looking at this hotel right now,\" plus a timer: \"Deal expires in 09:59.\" You haven't checked any other sites yet. What do you do?",
@@ -959,6 +968,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "ads-truncated-axis",
+        short: true,
         biasType: "MISLEADING_CHARTS",
         title: "Battery Life Chart",
         scenarioText: "A phone ad shows a bar chart where its battery-life bar is more than twice as tall as the competitor's. In small print, the vertical axis runs from 9.5 to 10.5 hours. The ad's phone lasts 10.2 hours and the competitor's lasts 9.8. How much longer does the ad's phone last?",
@@ -974,6 +984,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "ads-cancel-maze",
+        short: true,
         biasType: "ROACH_MOTEL",
         title: "Streaming Cancellation Flow",
         scenarioText: "You signed up for a streaming service's free trial with one click and no longer use it. To cancel, you click through four screens: \"Are you sure? You'll lose your watch history,\" then a survey, then an offer of 50% off for three months, then a final \"Pause instead?\" button in large type with \"Continue to cancel\" in small grey text. What do you do?",
@@ -994,6 +1005,7 @@ export const STANDALONE_SCENARIOS = [
     // -------------------------------------------------------------
     {
         id: "ad-phone-plan",
+        short: true,
         biasType: "FINE_PRINT",
         title: "Phone Plan Ad",
         image: {
@@ -1014,6 +1026,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "ad-streaming-trial",
+        short: true,
         biasType: "ZERO_PRICE",
         title: "Streaming Free Trial Ad",
         image: {
@@ -1021,14 +1034,14 @@ export const STANDALONE_SCENARIOS = [
             alt: "Ad for StreamNook: Thousands of shows. Zero commitment. FREE with an asterisk, for 30 days. Fine print: Then $15.99 per month, billed annually as $191.88 on day 31. Cancel at least 24 hours before your trial ends to avoid being charged. Annual plans are non-refundable, including partial years. One trial per household. Payment method required."
         },
         scenarioText: "You sign up for this free trial and forget to cancel. What happens on day 31?",
-        bestAnswer: "You're charged $191.88 for a full year, with no refund",
+        bestAnswer: "You're charged $191.88",
         reasoning: "The fine print says the \"$15.99/mo\" is billed as one annual charge of $191.88, and annual plans are non-refundable. \"Free\" and \"zero commitment\" in large type sit on top of a full-year commitment that starts automatically. Free trials that roll into paid plans rely on people forgetting to cancel.",
         biasName: "Zero-Price Effect",
         bookRef: "Behavioral Economics (Shampanier, Mazar & Ariely 2007)",
         options: [
             { text: "You're charged $15.99 for the first month", biasValue: 1, isBest: false },
-            { text: "You're charged $191.88 for a full year, with no refund", biasValue: 0, isBest: true },
-            { text: "Nothing until you confirm you want to keep it", biasValue: 1, isBest: false }
+            { text: "You're charged $191.88", biasValue: 0, isBest: true },
+            { text: "Nothing until you confirm", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1059,14 +1072,14 @@ export const STANDALONE_SCENARIOS = [
             alt: "Ad for ZenoVita Focus+ supplement: Clinically proven, with an asterisk, to boost energy by 40%. Feel the difference in days. Fine print: Based on a 2-week study of 12 adults funded by ZenoVita, Inc. Individual results vary; results not typical. These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease."
         },
         scenarioText: "What does this ad's \"clinically proven\" claim actually tell you?",
-        bestAnswer: "Very little: a tiny, short, company-funded study",
+        bestAnswer: "Very little",
         reasoning: "Twelve people for two weeks, paid for by the seller, can produce a big-looking number by chance, especially when \"energy\" is self-reported. The fine print also says the results are not typical and the FDA hasn't evaluated the claim. \"Clinically proven\" is not a regulated phrase.",
         biasName: "Law of Small Numbers",
         bookRef: "Thinking, Fast and Slow - Chapter 10",
         options: [
             { text: "Strong evidence it boosts energy by about 40%", biasValue: 1, isBest: false },
             { text: "Some evidence it probably works for most people", biasValue: 0.5, isBest: false },
-            { text: "Very little: a tiny, short, company-funded study", biasValue: 0, isBest: true }
+            { text: "Very little", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -1104,11 +1117,12 @@ export const STANDALONE_SCENARIOS = [
         options: [
             { text: "Interest starts on the remaining $120 from now on", biasValue: 1, isBest: false },
             { text: "Interest is charged on the full $2,400, back to the purchase date", biasValue: 0, isBest: true },
-            { text: "Nothing extra; the 0% offer covered the year", biasValue: 1, isBest: false }
+            { text: "Nothing extra is owed", biasValue: 1, isBest: false }
         ]
     },
     {
         id: "ad-airfare-from",
+        short: true,
         biasType: "DRIP_PRICING",
         title: "Airfare Sale Ad",
         image: {
@@ -1128,6 +1142,274 @@ export const STANDALONE_SCENARIOS = [
         ]
     },
 
+    // -------------------------------------------------------------
+    // COMPUTER SECURITY (all in the short version)
+    // -------------------------------------------------------------
+    {
+        id: "sec-ids-alert",
+        short: true,
+        biasType: "BASE_RATE",
+        title: "Intrusion Detection Alert",
+        scenarioText: "Your intrusion detection system watches about 1,000,000 network connections a day. Roughly 1 in every 10,000 connections is actually malicious. The system flags 99% of malicious connections, and it wrongly flags 1% of harmless ones. An alert fires on a connection. About how likely is it that this connection is actually malicious?",
+        bestAnswer: "About 1%",
+        reasoning: "The detector's errors run both ways: it misses 1% of attacks and wrongly flags 1% of harmless traffic. Picture 1,000,000 connections: 100 are malicious and about 99 of those get flagged. Of the 999,900 harmless ones, about 10,000 get flagged too. So about 10,100 alerts, and only 99 are real: about 1%. Because attacks are rare, false alarms swamp the true ones. Stefan Axelsson called this the base-rate fallacy of intrusion detection (2000), and it's why security teams drown in alerts. The 1-in-10,000 figure comes from history and attackers can change it, but even a several-fold rise would leave most alerts false.",
+        biasName: "Base Rate Neglect",
+        bookRef: "Thinking, Fast and Slow - Chapter 16; Axelsson (2000)",
+        options: [
+            { text: "About 99%", biasValue: 1, isBest: false },
+            { text: "About 50%", biasValue: 0.5, isBest: false },
+            { text: "About 10%", biasValue: 0.5, isBest: false },
+            { text: "About 1%", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "sec-headline-zero-day",
+        short: true,
+        biasType: "AVAILABILITY",
+        title: "Headline Zero-Day",
+        scenarioText: "A zero-day vulnerability in a rival company's VPN appliance is all over the tech news. You don't use that product. Your own incident records for the past two years show that most of your incidents started with phishing emails and reused passwords, and those attacks are still arriving every week. Where should next quarter's security effort go first?",
+        bestAnswer: "Phishing-resistant sign-in and password protections",
+        reasoning: "The headline is vivid, but it's about a product you don't run. Your records show what is actually getting through, and those attacks are still happening, so that's where effort pays off. History isn't a perfect forecast, because attackers move to whatever works next, so revisit the plan as threats shift. But news coverage is a worse guide than your own current data.",
+        biasName: "Availability Heuristic",
+        bookRef: "Thinking, Fast and Slow - Chapters 12 & 13",
+        options: [
+            { text: "An emergency review of VPN-style zero-days", biasValue: 1, isBest: false },
+            { text: "Phishing-resistant sign-in and password protections", biasValue: 0, isBest: true },
+            { text: "Split effort evenly across every threat in the news", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "sec-never-had-ransomware",
+        short: true,
+        biasType: "ADAPTIVE_ADVERSARY",
+        title: "Ransomware Budget Debate",
+        scenarioText: "Your company's incident records for the last five years show no ransomware attacks. Over the same period, ransomware attacks on companies of your size and industry have risen sharply. A colleague argues that ransomware defenses aren't worth funding because \"it's never happened to us.\" What's the best response?",
+        bestAnswer: "Fund some ransomware defenses",
+        reasoning: "Your own history is useful, but it only shows attacks that were tried against you in the past. Attackers pick new targets and methods, especially when a tactic is paying off elsewhere. Rising attacks on companies like yours are the better guide to next year. Throwing the whole budget at ransomware would overcorrect; adding it to the plan in proportion to the current threat is the balanced move.",
+        biasName: "Assuming the Past Predicts Attacks",
+        bookRef: "Thinking, Fast and Slow - Chapter 22",
+        options: [
+            { text: "Agree and skip ransomware defenses", biasValue: 1, isBest: false },
+            { text: "Fund some ransomware defenses", biasValue: 0, isBest: true },
+            { text: "Move the entire security budget to ransomware", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "sec-firewall-record",
+        short: true,
+        biasType: "ADAPTIVE_ADVERSARY",
+        title: "Firewall's Perfect Year",
+        scenarioText: "Last year, your web application firewall's rules blocked every attack recorded in your logs. This month, attackers have started probing your site with payloads designed to slip past rules like yours. How much should last year's perfect record reassure you about next year?",
+        bestAnswer: "Not much",
+        reasoning: "The record covers the attacks the rules were built to catch, and your logs only show the attacks that were detected. Attackers who keep failing change their approach, and new probing payloads suggest they already are. In an adversarial setting, past success measures yesterday's attacks, not tomorrow's. That doesn't make the firewall useless; it means the rules need updating and testing against new techniques.",
+        biasName: "Assuming the Past Predicts Attacks",
+        bookRef: "Thinking, Fast and Slow - Chapter 22",
+        options: [
+            { text: "A lot", biasValue: 1, isBest: false },
+            { text: "Not much", biasValue: 0, isBest: true },
+            { text: "Not at all", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "sec-cve-counts",
+        short: true,
+        biasType: "WYSIATI",
+        title: "Comparing Library CVE Counts",
+        scenarioText: "Library A had 120 published vulnerabilities (CVEs) last year. Library B, which does the same job, had 3. Library A is very widely used, has a dedicated security team, and pays bug bounties. Library B is maintained by one volunteer and has never had a security audit. What do the CVE counts tell you about which is safer to use?",
+        bestAnswer: "Not much on their own",
+        reasoning: "A CVE count measures how many flaws were found and reported, which depends heavily on how hard people are looking. A heavily used, audited, bug-bounty-backed library gets intense scrutiny; an unaudited one-person project may have many flaws no one has found yet. Past vulnerability counts also don't predict where attackers will strike next. The number in front of you feels like the whole story, but the missing information, how much each library has been examined, matters more.",
+        biasName: "What You See Is All There Is",
+        bookRef: "Thinking, Fast and Slow - Chapter 7",
+        options: [
+            { text: "Library B is safer", biasValue: 1, isBest: false },
+            { text: "Library A is safer", biasValue: 0.5, isBest: false },
+            { text: "Not much on their own", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "sec-dashboard-blocked",
+        short: true,
+        biasType: "WYSIATI",
+        title: "Security Dashboard Report",
+        scenarioText: "Your security dashboard reports: \"100% of detected attacks last month were blocked.\" What does this show?",
+        bestAnswer: "Only that the attacks you detected were blocked",
+        reasoning: "The dashboard can only count attacks it noticed. An attack that slipped past detection doesn't appear anywhere, so it can't lower the percentage. A perfect score is consistent with excellent defenses and with an undetected breach. Treating the visible number as the whole picture is exactly what Kahneman means by \"What You See Is All There Is.\"",
+        biasName: "What You See Is All There Is",
+        bookRef: "Thinking, Fast and Slow - Chapter 7",
+        options: [
+            { text: "Your defenses stopped every attack last month", biasValue: 1, isBest: false },
+            { text: "Only that the attacks you detected were blocked", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "sec-cvss-priority",
+        short: true,
+        biasType: "ANCHORING",
+        title: "Vulnerability Patch Order",
+        scenarioText: "Your scanner lists two vulnerabilities. The first has a CVSS severity score of 9.8 but is in a tool on an isolated build server that no outside system can reach. The second scores 6.5, is on your internet-facing login page, and appears on CISA's list of vulnerabilities known to be actively exploited. Which do you fix first?",
+        bestAnswer: "The 6.5 on the login page",
+        reasoning: "A CVSS score rates how bad a flaw could be in general, not how much risk it poses to you. The 6.5 is reachable from the internet and attackers are already using it; the 9.8 is on a machine attackers can't reach. A big number is a powerful anchor, but exposure and real-world exploitation matter more for deciding what to fix first.",
+        biasName: "Anchoring Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 11",
+        options: [
+            { text: "The 9.8 on the build server", biasValue: 1, isBest: false },
+            { text: "The 6.5 on the login page", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "sec-patch-rollout-plan",
+        short: true,
+        biasType: "PLANNING",
+        title: "Fleet Patch Rollout",
+        scenarioText: "Your team estimates a critical patch can be rolled out to all 5,000 company laptops in 2 weeks. Your last four fleet-wide patches took 6, 7, 8, and 6 weeks. What should you tell leadership?",
+        bestAnswer: "About 6 to 8 weeks",
+        reasoning: "Four similar rollouts are your reference class, and they all took three to four times the estimate. The inside view, \"this one will go smoothly,\" is the planning fallacy. Planning on the realistic timeline also tells you how long you need extra protections, such as blocking the vulnerable feature, while the rollout finishes.",
+        biasName: "Planning Fallacy",
+        bookRef: "Thinking, Fast and Slow - Chapter 23",
+        options: [
+            { text: "About 2 weeks", biasValue: 1, isBest: false },
+            { text: "About 3 weeks", biasValue: 0.5, isBest: false },
+            { text: "About 6 to 8 weeks", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "sec-homegrown-crypto",
+        short: true,
+        biasType: "SUNK_COST",
+        title: "Homegrown Encryption Library",
+        scenarioText: "Your team has spent 18 months building its own encryption library. An outside audit found serious design flaws, and fixing them would take about another year. A widely used, independently audited open-source library already does everything you need. What do you do?",
+        bestAnswer: "Switch to the audited library",
+        reasoning: "The 18 months are spent whichever way you choose. Looking only forward, another year to fix a flawed design loses to an audited library you can adopt now. \"Don't roll your own crypto\" is standard security advice for exactly this reason, and the effort already spent is the sunk cost talking.",
+        biasName: "Sunk Cost Fallacy",
+        bookRef: "Thinking, Fast and Slow - Chapter 32",
+        options: [
+            { text: "Keep building your own library", biasValue: 1, isBest: false },
+            { text: "Switch to the audited library", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "sec-default-passwords",
+        short: true,
+        biasType: "DEFAULTS",
+        title: "Camera Password Design",
+        scenarioText: "You're designing a home security camera. Option A ships every camera with the same default password and a note telling customers to change it. Option B gives each camera its own unique password and asks customers to set their own during setup. Which do you choose?",
+        bestAnswer: "Option B",
+        reasoning: "Most people keep whatever the default is, so a shared default password stays in place on huge numbers of devices. In 2016 the Mirai botnet took over hundreds of thousands of cameras and routers simply by trying factory default passwords. California (since 2020) and the U.K. (since 2024) now require connected devices to avoid universal default passwords. Good security design makes the safe choice the default.",
+        biasName: "Default Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 34",
+        options: [
+            { text: "Option A", biasValue: 1, isBest: false },
+            { text: "Option B", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "sec-phishing-deadline",
+        short: true,
+        biasType: "FAKE_URGENCY",
+        title: "Password Expiry Email",
+        scenarioText: "An email that appears to come from your IT department says: \"Your password expires in 1 hour. Click here to keep your account active.\" The link opens a page that looks exactly like your company's sign-in screen. What do you do?",
+        bestAnswer: "Go to the IT portal yourself and report the email",
+        reasoning: "A short deadline is a classic phishing tactic: it pushes you to act before you check. A real expiring password can be handled by going to the sign-in page or IT portal you already know, never through the email's link. Reporting it helps protect colleagues who got the same message.",
+        biasName: "Manufactured Urgency",
+        bookRef: "Dark patterns research (Mathur et al. 2019)",
+        options: [
+            { text: "Sign in through the link", biasValue: 1, isBest: false },
+            { text: "Go to the IT portal yourself and report the email", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "sec-vendor-halo",
+        short: true,
+        biasType: "HALO",
+        title: "Security Vendor Pitch",
+        scenarioText: "A security vendor gives a polished demo, lists famous customers, and its founders recently spoke at a major conference. An independent penetration test of their product, which you paid for, found two critical flaws that the vendor hasn't fixed. What should your decision rest on?",
+        bestAnswer: "Mostly on the penetration test",
+        reasoning: "The demo, customer list, and conference talk say a lot about marketing and reputation and little about this product's security. The penetration test is direct evidence about exactly what you're buying. The halo effect lets impressive surface traits color judgments of unrelated qualities.",
+        biasName: "Halo Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 7",
+        options: [
+            { text: "Mostly on the vendor's reputation", biasValue: 1, isBest: false },
+            { text: "Equally", biasValue: 0.5, isBest: false },
+            { text: "Mostly on the penetration test", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "sec-phishing-sim-sample",
+        short: true,
+        biasType: "SMALL_NUMBERS",
+        title: "Phishing Simulation Results",
+        scenarioText: "In a phishing simulation, 0 of the 8 people on the legal team clicked the test link. In engineering, 12 of 200 people clicked (6%). What can you conclude about the legal team?",
+        bestAnswer: "There isn't enough data to tell",
+        reasoning: "Even if the legal team were exactly as likely to click as engineering (6% each), all 8 would avoid the link about 61% of the time (0.94 multiplied by itself 8 times). A perfect score from 8 people is what you'd expect by chance. Small groups produce extreme results, good and bad.",
+        biasName: "Law of Small Numbers",
+        bookRef: "Thinking, Fast and Slow - Chapter 10",
+        options: [
+            { text: "Legal is better at spotting phishing than engineering", biasValue: 1, isBest: false },
+            { text: "There isn't enough data to tell", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "sec-training-regression",
+        short: true,
+        biasType: "REGRESSION",
+        title: "Phishing Training Results",
+        scenarioText: "The five teams with the worst phishing-simulation click rates last quarter were sent to mandatory training. This quarter, all five teams' click rates improved. What can you conclude about the training?",
+        bestAnswer: "There isn't enough evidence yet",
+        reasoning: "Teams picked because they did worst in one quarter partly had a bad quarter by chance, so they tend to look better the next quarter whatever you do. That's regression to the mean. To know whether training worked, compare against similar teams that weren't trained, or measure over several quarters.",
+        biasName: "Regression to the Mean",
+        bookRef: "Thinking, Fast and Slow - Chapter 17",
+        options: [
+            { text: "The training worked", biasValue: 1, isBest: false },
+            { text: "There isn't enough evidence yet", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "sec-patch-outcome",
+        short: true,
+        biasType: "OUTCOME_BIAS",
+        title: "Two Patching Decisions",
+        scenarioText: "Admin A delayed a critical security patch on an internet-facing server for six months, and nothing happened. Admin B installed the patch within a day, as policy requires, but the server was later breached through a vulnerability nobody knew about yet. Who made the better decision?",
+        bestAnswer: "Admin B",
+        reasoning: "Admin A took a serious, known risk and got lucky; Admin B did the right thing and was hit by something no one could have patched. Judging them by what happened would reward luck and punish good practice. Outcome bias is especially dangerous in security, where most risky decisions don't immediately go wrong.",
+        biasName: "Outcome Bias",
+        bookRef: "Thinking, Fast and Slow - Chapter 19",
+        options: [
+            { text: "Admin A", biasValue: 1, isBest: false },
+            { text: "Admin B", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "sec-exploit-prediction",
+        short: true,
+        biasType: "INTUITION_VS_FORMULA",
+        title: "Prioritizing 400 Vulnerabilities",
+        scenarioText: "You have 400 open vulnerabilities to work through. You can order them using a published scoring model that estimates each one's chance of being exploited soon, built from current exploit activity, updated daily, and checked against real attacks. Or you can use a senior engineer's gut ranking. Which should set the order?",
+        bestAnswer: "The scoring model",
+        reasoning: "Consistent models built on current data, like FIRST's Exploit Prediction Scoring System (EPSS), tend to beat unaided judgment across hundreds of items, where intuition gets tired and inconsistent. Because it's updated daily from current exploit activity, it tracks attackers as they change rather than relying only on history. Expert review is still valuable on top, as Kahneman suggests in Chapter 21: score first, then use judgment.",
+        biasName: "Intuition vs. Formulas",
+        bookRef: "Thinking, Fast and Slow - Chapter 21",
+        options: [
+            { text: "The scoring model", biasValue: 0, isBest: true },
+            { text: "The engineer's ranking", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "sec-takeover-rates",
+        short: true,
+        biasType: "DENOMINATOR",
+        title: "Account Takeover Rates",
+        scenarioText: "Last year, Service A had 30 account-takeover incidents among its 3,000,000 users. Service B had 3 incidents among its 10,000 users. Which service had the higher rate of account takeovers?",
+        bestAnswer: "Service B",
+        reasoning: "Service A's rate is 1 in 100,000 users; Service B's is 3 in 10,000, which is 30 times higher. Thirty incidents sounds worse than three, but the count means little without the number of users behind it.",
+        biasName: "Denominator Neglect",
+        bookRef: "Thinking, Fast and Slow - Chapter 30",
+        options: [
+            { text: "Service A", biasValue: 1, isBest: false },
+            { text: "Service B", biasValue: 0, isBest: true },
+            { text: "About the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+
     // =============================================================
     // PRACTICE-ONLY QUESTIONS
     // Used for practice during reviews and to fill retests, never in the
@@ -1140,14 +1422,14 @@ export const STANDALONE_SCENARIOS = [
         biasType: "HALO",
         title: "Charismatic Candidate",
         scenarioText: "A candidate for an analyst role is warm, confident, and impressively well spoken in the interview. Their take-home analysis, scored blind by two reviewers, came out average. How should you rate their likely analytical work?",
-        bestAnswer: "Average, based on the blind-scored work sample",
+        bestAnswer: "Average",
         reasoning: "Charm and confidence are real strengths, but they say little about analytical quality. The halo effect lets one impressive trait raise your rating of unrelated ones. The blind-scored work sample is the direct evidence about the skill you are hiring for.",
         biasName: "Halo Effect",
         bookRef: "Thinking, Fast and Slow - Chapter 7",
         options: [
-            { text: "Excellent, given how impressive they were in person", biasValue: 1, isBest: false },
-            { text: "Above average; the interview should lift the score", biasValue: 0.5, isBest: false },
-            { text: "Average, based on the blind-scored work sample", biasValue: 0, isBest: true }
+            { text: "Excellent", biasValue: 1, isBest: false },
+            { text: "Above average", biasValue: 0.5, isBest: false },
+            { text: "Average", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -1359,13 +1641,13 @@ export const STANDALONE_SCENARIOS = [
         biasType: "FAKE_URGENCY",
         title: "Resetting Countdown",
         scenarioText: "An online course page says \"Price goes up in 15:00!\" with a ticking timer. You reload the page and the timer starts again at 15:00. What does this most likely tell you?",
-        bestAnswer: "The timer is fake and the price probably won't change",
+        bestAnswer: "The timer probably isn't real",
         reasoning: "A real deadline does not reset when you reload. Timers that restart for each visitor exist only to create pressure. Researchers have found many like this on shopping sites.",
         biasName: "Manufactured Urgency",
         bookRef: "Dark patterns research (Mathur et al. 2019)",
         options: [
-            { text: "The deal is real; buy within 15 minutes", biasValue: 1, isBest: false },
-            { text: "The timer is fake and the price probably won't change", biasValue: 0, isBest: true }
+            { text: "The price really will go up soon", biasValue: 1, isBest: false },
+            { text: "The timer probably isn't real", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -1437,15 +1719,155 @@ export const STANDALONE_SCENARIOS = [
         biasType: "ROACH_MOTEL",
         title: "Gym Contract Fine Print",
         scenarioText: "A gym offers a $10 first month and lets you join online in two minutes. The contract says canceling requires a certified letter or an in-person visit during weekday business hours. You expect to stop going within a few months. What's the best move?",
-        bestAnswer: "Choose a gym that lets you cancel the same way you joined",
+        bestAnswer: "Look for a gym you can cancel online",
         reasoning: "The cheap first month is the bait; the hard cancellation is where the gym makes its money, because many people keep paying rather than deal with it. California now requires businesses to let customers cancel online if they signed up online, and the FTC has pursued companies over hard-to-cancel subscriptions.",
         biasName: "Hard-to-Cancel Subscriptions",
         bookRef: "Dark patterns research (Brignull; FTC v. Amazon 2023)",
         options: [
-            { text: "Join; you can deal with canceling later", biasValue: 1, isBest: false },
-            { text: "Choose a gym that lets you cancel the same way you joined", biasValue: 0, isBest: true }
+            { text: "Join this gym", biasValue: 1, isBest: false },
+            { text: "Look for a gym you can cancel online", biasValue: 0, isBest: true }
         ]
     },
+    {
+        id: "practice-anchor-pentest-quote",
+        practiceOnly: true,
+        biasType: "ANCHORING",
+        title: "Penetration Test Quote",
+        scenarioText: "A penetration-testing firm's first quote is $90,000. Three other reputable firms quote $28,000 to $35,000 for exactly the same scope. After you push back, the first firm offers $70,000, \"a huge discount.\" Is $70,000 a good deal?",
+        bestAnswer: "No",
+        reasoning: "The $90,000 opening quote is an anchor that makes $70,000 feel like a bargain. The independent quotes are the real benchmark, and $70,000 is about double them. Compare against the market, not against the first number you heard.",
+        biasName: "Anchoring Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 11",
+        options: [
+            { text: "Yes", biasValue: 1, isBest: false },
+            { text: "No", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-base-malware-flag",
+        practiceOnly: true,
+        biasType: "BASE_RATE",
+        title: "Malware Scanner Flag",
+        scenarioText: "On your network, about 1 in every 1,000 files is malware. Your scanner catches 99% of malware, and it wrongly flags 2% of clean files. A file gets flagged. About how likely is it that it's actually malware?",
+        bestAnswer: "About 5%",
+        reasoning: "Errors run both ways: the scanner misses 1% of malware and wrongly flags 2% of clean files. Picture 1,000 files: 1 is malware and gets flagged. Of the 999 clean files, about 20 get flagged too. So about 21 flags, and only 1 is real: about 5%. With rare malware, false alarms outnumber true detections.",
+        biasName: "Base Rate Neglect",
+        bookRef: "Thinking, Fast and Slow - Chapter 16",
+        options: [
+            { text: "About 99%", biasValue: 1, isBest: false },
+            { text: "About 50%", biasValue: 0.5, isBest: false },
+            { text: "About 5%", biasValue: 0, isBest: true },
+            { text: "About 0.1%", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "practice-avail-stolen-laptop",
+        practiceOnly: true,
+        biasType: "AVAILABILITY",
+        title: "Stolen Laptop Scare",
+        scenarioText: "Last week a colleague's laptop was stolen from their car, and everyone is talking about it. Your records show 1 stolen laptop in the past three years, but 40 incidents that started with phishing, and phishing attempts are still rising. Where should most of this year's extra security budget go?",
+        bestAnswer: "Phishing defenses",
+        reasoning: "A recent, vivid theft feels like the big risk, but your records show phishing causes far more incidents and is still growing. Laptops should still be encrypted, but the budget should follow where harm actually comes from.",
+        biasName: "Availability Heuristic",
+        bookRef: "Thinking, Fast and Slow - Chapters 12 & 13",
+        options: [
+            { text: "Laptop locks and theft prevention", biasValue: 1, isBest: false },
+            { text: "Phishing defenses", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-plan-auth-migration",
+        practiceOnly: true,
+        biasType: "PLANNING",
+        title: "Sign-In System Migration",
+        scenarioText: "Your team estimates that moving 30 internal services to a new sign-in system will take 3 months. Your last three migrations of similar size took 7, 9, and 8 months. What timeline should you plan for?",
+        bestAnswer: "About 8 months",
+        reasoning: "Three comparable migrations averaged about 8 months, so that's the outside view. The 3-month estimate assumes nothing goes wrong, which past projects show is unlikely.",
+        biasName: "Planning Fallacy",
+        bookRef: "Thinking, Fast and Slow - Chapter 23",
+        options: [
+            { text: "About 3 months", biasValue: 1, isBest: false },
+            { text: "About 4 months", biasValue: 0.5, isBest: false },
+            { text: "About 8 months", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-sunk-security-tool",
+        practiceOnly: true,
+        biasType: "SUNK_COST",
+        title: "Unused Monitoring License",
+        scenarioText: "Your company paid $250,000, nonrefundable, for a three-year license to a security monitoring tool. A year in, the team finds it so hard to use that most alerts are ignored. A different tool costs $60,000 a year, catches more threats in your trial, and the team prefers it. What do you do?",
+        bestAnswer: "Switch to the better tool",
+        reasoning: "The $250,000 is gone either way. Going forward, the choice is between a tool that mostly goes unused and one that catches more threats for $60,000 a year. Sticking with the first to \"get your money's worth\" is the sunk cost fallacy.",
+        biasName: "Sunk Cost Fallacy",
+        bookRef: "Thinking, Fast and Slow - Chapter 32",
+        options: [
+            { text: "Keep using the tool you paid for", biasValue: 1, isBest: false },
+            { text: "Switch to the better tool", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-small-tester-record",
+        practiceOnly: true,
+        biasType: "SMALL_NUMBERS",
+        title: "Choosing a Penetration Tester",
+        scenarioText: "Tester A found a critical vulnerability in their only engagement so far: a 100% success rate. Tester B found critical vulnerabilities in 40 of their 60 engagements: 67%. Who has the stronger track record?",
+        bestAnswer: "Tester B",
+        reasoning: "One engagement tells you very little; Tester A could easily have been lucky. Tester B's 67% comes from 60 engagements, which is solid evidence. A perfect record from a tiny sample is exactly the kind of extreme result small numbers produce.",
+        biasName: "Law of Small Numbers",
+        bookRef: "Thinking, Fast and Slow - Chapter 10",
+        options: [
+            { text: "Tester A", biasValue: 1, isBest: false },
+            { text: "Tester B", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-regress-incident-month",
+        practiceOnly: true,
+        biasType: "REGRESSION",
+        title: "After the Worst Month",
+        scenarioText: "After the month with the most production incidents in two years, your team added a new code-review rule. The next month, incidents dropped back to their usual level. Does this show the rule worked?",
+        bestAnswer: "Not yet",
+        reasoning: "An unusually bad month is often partly bad luck, so the next month tends to look more ordinary no matter what you change. That's regression to the mean. Judge the rule over several months, ideally against teams or periods without it.",
+        biasName: "Regression to the Mean",
+        bookRef: "Thinking, Fast and Slow - Chapter 17",
+        options: [
+            { text: "Yes", biasValue: 1, isBest: false },
+            { text: "Not yet", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-fineprint-cloud-storage",
+        practiceOnly: true,
+        biasType: "FINE_PRINT",
+        title: "Cloud Storage Offer",
+        scenarioText: "An ad says: \"1 TB of cloud storage for $1/month*.\" The fine print says: \"*First year only. Then $9.99/month, billed annually.\" About how much will two years cost?",
+        bestAnswer: "About $132",
+        reasoning: "The first year costs $12. The second year costs $119.88, charged all at once. Two years come to about $132, more than five times what \"$1/month\" suggests.",
+        biasName: "Hidden Fine Print",
+        bookRef: "Consumer protection guidance (FTC, clear and conspicuous disclosures)",
+        options: [
+            { text: "About $24", biasValue: 1, isBest: false },
+            { text: "About $132", biasValue: 0, isBest: true },
+            { text: "About $240", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "practice-adaptive-phishing-filter",
+        practiceOnly: true,
+        biasType: "ADAPTIVE_ADVERSARY",
+        title: "Email Filter Forecast",
+        scenarioText: "Last year your email filter caught 99.5% of phishing messages. Phishers have now started using AI-written emails that avoid the patterns your filter learned from. Should you expect the filter to catch 99.5% again next year?",
+        bestAnswer: "No, expect it to catch less",
+        reasoning: "The 99.5% describes how the filter did against last year's attacks. Attackers have changed their methods specifically to get past filters like yours, so the old success rate no longer applies. Plan for more phishing getting through, and retrain or update the filter.",
+        biasName: "Assuming the Past Predicts Attacks",
+        bookRef: "Thinking, Fast and Slow - Chapter 22",
+        options: [
+            { text: "Yes", biasValue: 1, isBest: false },
+            { text: "No, expect it to catch less", biasValue: 0, isBest: true }
+        ]
+    },
+
     // =============================================================
     // STRAIGHTFORWARD QUESTIONS
     // The obvious answer is the right one, so players don't learn that the
@@ -1493,13 +1915,13 @@ export const STANDALONE_SCENARIOS = [
         biasType: "STRAIGHTFORWARD",
         title: "Used Car Listing",
         scenarioText: "A used car is listed at $12,000. Three independent pricing guides value that model, mileage, and condition at $11,500 to $12,500, and your mechanic found nothing wrong with it. Is the listing price reasonable?",
-        bestAnswer: "Yes; it matches the independent valuations",
+        bestAnswer: "Yes",
         reasoning: "An anchor is a problem when it's arbitrary or inflated. This listing price is backed by three independent valuations and an inspection, so it's real information. Treating every asking price as a trick would have you lowball a fair deal.",
         biasName: "Second-Guessing the Obvious",
         bookRef: "Thinking, Fast and Slow - Chapters 11 & 22",
         options: [
-            { text: "Yes; it matches the independent valuations", biasValue: 0, isBest: true },
-            { text: "No; the listing price is an anchor, so offer about $8,000", biasValue: 1, isBest: false }
+            { text: "Yes", biasValue: 0, isBest: true },
+            { text: "No; offer about $8,000", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1514,7 +1936,7 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Thinking, Fast and Slow - Chapters 22 & 32",
         options: [
             { text: "Finish the course", biasValue: 0, isBest: true },
-            { text: "Quit; continuing would be the sunk cost fallacy", biasValue: 1, isBest: false }
+            { text: "Quit the course", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1523,12 +1945,12 @@ export const STANDALONE_SCENARIOS = [
         biasType: "STRAIGHTFORWARD",
         title: "Road Versus Ocean Risk",
         scenarioText: "Which kills more people in the United States in a typical year: car crashes or shark attacks?",
-        bestAnswer: "Car crashes, by a huge margin",
+        bestAnswer: "Car crashes",
         reasoning: "Car crashes kill around 40,000 Americans a year; shark attacks kill about one. Vivid news can make rare risks feel common, but that doesn't mean the common-sense answer is always wrong. Here it's right.",
         biasName: "Second-Guessing the Obvious",
         bookRef: "Thinking, Fast and Slow - Chapters 13 & 22",
         options: [
-            { text: "Car crashes, by a huge margin", biasValue: 0, isBest: true },
+            { text: "Car crashes", biasValue: 0, isBest: true },
             { text: "About the same", biasValue: 1, isBest: false },
             { text: "Shark attacks", biasValue: 1, isBest: false }
         ]
@@ -1561,8 +1983,8 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Thinking, Fast and Slow - Chapters 22 & 23",
         options: [
             { text: "About 7 weeks", biasValue: 0, isBest: true },
-            { text: "About 14 weeks, to be safe", biasValue: 1, isBest: false },
-            { text: "About 4 weeks, since the team is experienced now", biasValue: 1, isBest: false }
+            { text: "About 14 weeks", biasValue: 1, isBest: false },
+            { text: "About 4 weeks", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1577,7 +1999,7 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Thinking, Fast and Slow - Chapter 22",
         options: [
             { text: "The 24 oz (710 mL) coffee", biasValue: 0, isBest: true },
-            { text: "The 12 oz (355 mL) coffee; the large is an upsell", biasValue: 1, isBest: false }
+            { text: "The 12 oz (355 mL) coffee", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1586,13 +2008,13 @@ export const STANDALONE_SCENARIOS = [
         biasType: "STRAIGHTFORWARD",
         title: "Treatment Risk Reduction",
         scenarioText: "A treatment's ad says it \"cuts the risk of complications in half.\" In the trial, complications fell from 40 in every 100 patients to 20 in every 100. Is that a large benefit?",
-        bestAnswer: "Yes; 20 fewer patients in every 100",
+        bestAnswer: "Yes",
         reasoning: "Relative-risk claims are misleading when the starting risk is tiny. Here it isn't: the risk fell by 20 percentage points, so about 1 in every 5 patients avoids a complication. That's a big absolute benefit.",
         biasName: "Second-Guessing the Obvious",
         bookRef: "Risk communication (Gigerenzer, Risk Savvy 2014)",
         options: [
-            { text: "Yes; 20 fewer patients in every 100", biasValue: 0, isBest: true },
-            { text: "No; \"cuts in half\" is always relative-risk spin", biasValue: 1, isBest: false }
+            { text: "Yes", biasValue: 0, isBest: true },
+            { text: "No", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1607,7 +2029,7 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Thinking, Fast and Slow - Chapter 22",
         options: [
             { text: "Book now", biasValue: 0, isBest: true },
-            { text: "Wait and compare more; scarcity claims are a sales tactic", biasValue: 1, isBest: false }
+            { text: "Wait and compare more", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1638,7 +2060,7 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Thinking, Fast and Slow - Chapters 22 & 26",
         options: [
             { text: "Decline the bet", biasValue: 0, isBest: true },
-            { text: "Take it; refusing would be loss aversion", biasValue: 1, isBest: false }
+            { text: "Take the bet", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1653,7 +2075,7 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Thinking, Fast and Slow - Chapters 7 & 22",
         options: [
             { text: "Surgeon A", biasValue: 0, isBest: true },
-            { text: "Surgeon B; A's friendliness could be a halo effect", biasValue: 1, isBest: false }
+            { text: "Surgeon B", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1668,7 +2090,7 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Thinking, Fast and Slow - Chapters 19 & 22",
         options: [
             { text: "Yes, a bad decision", biasValue: 0, isBest: true },
-            { text: "Can't say; judging it by the crash would be outcome bias", biasValue: 1, isBest: false }
+            { text: "Can't say", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1683,7 +2105,7 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Statistics literacy (Huff, How to Lie with Statistics 1954)",
         options: [
             { text: "Yes", biasValue: 0, isBest: true },
-            { text: "No; bar charts exaggerate differences", biasValue: 1, isBest: false }
+            { text: "No", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1713,7 +2135,7 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Thinking, Fast and Slow - Chapters 22 & 29",
         options: [
             { text: "Buy the insurance", biasValue: 0, isBest: true },
-            { text: "Skip it; insurance always loses money on average", biasValue: 1, isBest: false }
+            { text: "Skip the insurance", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1743,7 +2165,7 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Thinking, Fast and Slow - Chapters 22 & 34",
         options: [
             { text: "Stay enrolled", biasValue: 0, isBest: true },
-            { text: "Opt out; defaults are designed to manipulate you", biasValue: 1, isBest: false }
+            { text: "Opt out", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1758,8 +2180,41 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Thinking, Fast and Slow - Chapters 17 & 22",
         options: [
             { text: "Still among the very best players", biasValue: 0, isBest: true },
-            { text: "Close to an average player, because of regression to the mean", biasValue: 1, isBest: false },
+            { text: "Close to an average player", biasValue: 1, isBest: false },
             { text: "Much worse than this year", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-drive-failures",
+        filler: true,
+        short: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Data Center Drive Spares",
+        scenarioText: "For six years, about 1.5% of the hard drives in your data center have failed each year, with little change from year to year. You run 4,000 drives. Roughly how many replacement drives should you plan for next year?",
+        bestAnswer: "About 60",
+        reasoning: "Here history is a good forecast: 1.5% of 4,000 is 60. Drive failures come from wear and manufacturing variation, not from an opponent changing tactics to beat your plan. That's the difference from attack data, where adversaries adapt. Past rates predict best in stable environments like this one.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapter 22",
+        options: [
+            { text: "About 60", biasValue: 0, isBest: true },
+            { text: "About 400", biasValue: 1, isBest: false },
+            { text: "None until drives actually start failing", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-exploited-patch",
+        filler: true,
+        short: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Actively Exploited Flaw",
+        scenarioText: "Your vendor has released a patch for a vulnerability that attackers are actively exploiting. Your systems are affected, and the patch installed cleanly on your test machines. Should you apply it promptly?",
+        bestAnswer: "Yes, apply it promptly",
+        reasoning: "Every signal points the same way: the threat is real and current, you're exposed, and the fix has tested cleanly. Not every security decision is a trap; when the evidence is this clear, the obvious answer is right.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapter 22",
+        options: [
+            { text: "Yes, apply it promptly", biasValue: 0, isBest: true },
+            { text: "Wait a few months to see if problems turn up", biasValue: 1, isBest: false }
         ]
     }
 ];
@@ -1844,6 +2299,37 @@ export const PAIRED_TESTS = {
                 options: [
                     { text: "Accept Shipment", value: "accept" },
                     { text: "Reject Shipment", value: "reject" }
+                ]
+            }
+        ]
+    },
+    patchFraming: {
+        short: true,
+        biasType: "FRAMING",
+        bestAnswer: "The same decision in both versions",
+        reasoning: "\"98% of machines restarted normally\" and \"2% failed to restart\" describe exactly the same test results. If you deployed in one version and waited in the other, the wording made the decision. Failure framing makes the same risk feel larger, which matters when you're weighing an urgent fix against breaking machines.",
+        biasName: "Framing Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 34",
+        isConsistent: sameAnswer,
+        versions: [
+            {
+                id: "framing-patch-success",
+                label: "98% success version",
+                title: "Emergency Patch Rollout",
+                scenarioText: "An emergency patch fixes an actively exploited vulnerability. In testing, 98% of machines installed it and restarted normally. Do you deploy it to every machine tonight?",
+                options: [
+                    { text: "Deploy tonight", value: "deploy" },
+                    { text: "Wait for more testing", value: "wait" }
+                ]
+            },
+            {
+                id: "framing-patch-failure",
+                label: "2% failure version",
+                title: "Overnight Fix Deployment",
+                scenarioText: "An urgent security update closes a vulnerability that attackers are using right now. In testing, 2% of machines failed to restart after installing it. Do you push it to every machine tonight?",
+                options: [
+                    { text: "Deploy tonight", value: "deploy" },
+                    { text: "Wait for more testing", value: "wait" }
                 ]
             }
         ]
@@ -2248,7 +2734,7 @@ export const PAIRED_TESTS = {
 export const MASTER_SCENARIOS = [
     ...STANDALONE_SCENARIOS,
     ...Object.entries(PAIRED_TESTS).flatMap(([pairId, pair]) =>
-        pair.versions.map(v => ({ ...v, biasType: pair.biasType, pair: pairId }))
+        pair.versions.map(v => ({ ...v, biasType: pair.biasType, pair: pairId, short: Boolean(pair.short) }))
     )
 ];
 
@@ -2333,12 +2819,15 @@ export class ScenarioBank {
      * latest answer was wrong) plus padding questions, so the session length
      * is a multiple of REVIEW_BLOCK. The game adds retests to the tail as the
      * player misses questions and re-pads it (see padTail).
+     * `version` 'short' limits the planned part to the short version's
+     * questions (tech, security, and dark patterns); 'full' uses them all.
      * Returns { queue: [{ id, retest, pad }], plannedLength }.
      */
-    static buildSession({ seenIds = new Set(), retestTypes = [], missedIds = new Set() } = {}) {
-        const regular = MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.filler && !seenIds.has(s.id));
+    static buildSession({ seenIds = new Set(), retestTypes = [], missedIds = new Set(), version = 'full' } = {}) {
+        const short = version === 'short';
+        const regular = ScenarioBank.mainQuestions(version).filter(s => !seenIds.has(s.id));
         const scatterCount = Math.ceil(regular.length / QUESTIONS_PER_SCATTERED_FILLER);
-        const scattered = ScenarioBank.pickFillers(scatterCount, { seenIds });
+        const scattered = ScenarioBank.pickFillers(scatterCount, { seenIds, preferShort: short });
         const planned = layoutWithPairs([...regular, ...scattered]);
 
         const used = new Set(planned.map(s => s.id));
@@ -2351,8 +2840,20 @@ export class ScenarioBank {
         }
 
         const queue = [...planned.map(s => ({ id: s.id, retest: false, pad: false })), ...tail];
-        ScenarioBank.padTail(queue, { tailStart: planned.length, seenIds });
+        ScenarioBank.padTail(queue, { tailStart: planned.length, seenIds, preferShort: short });
         return { queue, plannedLength: planned.length };
+    }
+
+    // The regular (scored, non-filler) questions in a version
+    static mainQuestions(version = 'full') {
+        return MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.filler && (version !== 'short' || s.short));
+    }
+
+    // About how many questions a fresh session of this version has
+    static sessionLengthEstimate(version = 'full') {
+        const regular = ScenarioBank.mainQuestions(version).length;
+        const withFillers = regular + Math.ceil(regular / QUESTIONS_PER_SCATTERED_FILLER);
+        return Math.ceil(withFillers / REVIEW_BLOCK) * REVIEW_BLOCK;
     }
 
     /**
@@ -2360,8 +2861,10 @@ export class ScenarioBank {
      * ones the player hasn't seen. If that's not enough, falls back to ones in
      * `reusableIds` (already answered earlier in this session).
      */
-    static pickFillers(count, { excludeIds = new Set(), seenIds = new Set(), reusableIds = new Set() } = {}) {
-        const fillers = shuffle(STANDALONE_SCENARIOS.filter(s => s.filler));
+    static pickFillers(count, { excludeIds = new Set(), seenIds = new Set(), reusableIds = new Set(), preferShort = false } = {}) {
+        // In the short version, the tech and security contrast questions come first
+        let fillers = shuffle(STANDALONE_SCENARIOS.filter(s => s.filler));
+        if (preferShort) fillers = [...fillers.filter(s => s.short), ...fillers.filter(s => !s.short)];
         const available = fillers.filter(s => !excludeIds.has(s.id));
         const unseen = available.filter(s => !seenIds.has(s.id));
         const seen = available.filter(s => seenIds.has(s.id));
@@ -2376,7 +2879,7 @@ export class ScenarioBank {
      * retests mix. `removable` padding entries are dropped first when the
      * tail has grown. Changes `queue` in place.
      */
-    static padTail(queue, { tailStart, seenIds = new Set() }) {
+    static padTail(queue, { tailStart, seenIds = new Set(), preferShort = false }) {
         const surplus = queue.length % REVIEW_BLOCK;
         if (surplus !== 0) {
             // Drop unplayed padding if that reaches a block boundary, else add more
@@ -2388,7 +2891,7 @@ export class ScenarioBank {
                 const upcoming = new Set(queue.slice(tailStart).map(e => e.id));
                 const played = new Set(queue.slice(0, tailStart).map(e => e.id).filter(id => !upcoming.has(id)));
                 const needed = REVIEW_BLOCK - surplus;
-                ScenarioBank.pickFillers(needed, { excludeIds: inQueue, seenIds, reusableIds: played })
+                ScenarioBank.pickFillers(needed, { excludeIds: inQueue, seenIds, reusableIds: played, preferShort })
                     .forEach(s => queue.push({ id: s.id, retest: false, pad: true }));
             }
         }
@@ -2418,8 +2921,9 @@ export class ScenarioBank {
 
     /**
      * A standalone scenario of `biasType` to practice on during a review,
-     * preferring an unseen practice-only question, then any unseen question,
-     * then one the player has already seen. Never returns one in
+     * preferring an unseen practice-only question, then one the player has
+     * already seen, and only as a last resort an unseen regular question
+     * (practice uses it up, so it would never be asked for points). Never returns one in
      * `excludeIds` (e.g. questions still coming up this session). Null if
      * the bias type has no standalone scenarios left to use.
      */
@@ -2428,7 +2932,7 @@ export class ScenarioBank {
             s.biasType === biasType && !excludeIds.has(s.id)
         ));
         return candidates.find(s => s.practiceOnly && !seenIds.has(s.id))
-            || candidates.find(s => !seenIds.has(s.id))
+            || candidates.find(s => seenIds.has(s.id))
             || candidates[0]
             || null;
     }

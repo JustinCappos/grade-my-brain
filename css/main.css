@@ -363,6 +363,12 @@ body {
     visibility: visible;
 }
 
+/* A closed modal must never catch clicks: opened <details> content inside it
+   can stay hit-testable even while the modal itself is hidden */
+.modal-backdrop:not(.active) {
+    pointer-events: none;
+}
+
 .modal-content {
     width: 90%;
     max-width: 500px;
@@ -869,6 +875,44 @@ body.intro-mode .main-container {
     margin: -6px 0 14px;
     font-size: 0.82rem;
     color: var(--text-muted);
+}
+
+.version-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+}
+
+.version-row input {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin: 2px 0 0;
+    accent-color: var(--primary-cyan);
+    cursor: pointer;
+}
+
+.version-row > span {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.version-title {
+    font-weight: 600;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+}
+
+.version-detail {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
 }
 
 /* Looks disabled but still works when clicked */
