@@ -237,10 +237,18 @@ async function playSession(page, label) {
     let practiceAnswered = 0;
     let lastReviewed = 0;
     let tokensSettled = 0;
+    let lastMainPercent = 0;
 
     for (let round = 1; ; round++) {
-        const total = (await sessionState()).queue.length;
-        assert.equal(await text(page, '#current-round'), `${round} / ${total}`, `${label}: round counter`);
+        // Header shows the round of 10 and a dot per question answered in it
+        const roundNumber = Math.floor((round - 1) / CHECKPOINT_EVERY) + 1;
+        assert.equal(await text(page, '#current-round'), String(roundNumber), `${label}: round number`);
+        const doneDots = await page.$$eval('#round-dots .round-dot.done', els => els.length);
+        assert.equal(doneDots, (round - 1) % CHECKPOINT_EVERY, `${label}: round dots`);
+        // Progress through the main questions never moves backwards, even as retests are added
+        const mainPercent = Number(await page.$eval('#progress-track', el => el.getAttribute('aria-valuenow')));
+        assert.ok(mainPercent >= lastMainPercent, `${label}: main progress went backwards`);
+        lastMainPercent = mainPercent;
         assert.equal(Number(await text(page, '#current-score')), shownScore,
             `${label}: score must stay hidden until the review`);
 
@@ -268,15 +276,17 @@ async function playSession(page, label) {
         assert.equal(cards.length, scenario.options.length, `${label}: wrong option count for ${scenario.id}`);
         await cards[0].click();
 
+        const total = (await sessionState()).queue.length;
         const atReview = round % CHECKPOINT_EVERY === 0 || round === total;
         if (!atReview) {
-            await page.waitForFunction(r => document.getElementById('current-round').textContent.startsWith(`${r} /`), {}, round + 1);
+            await page.waitForFunction(p => window.brainApp.session.position === p && !document.getElementById('scenario-stage').hidden, {}, round);
             continue;
         }
 
         await page.waitForFunction(() => !document.getElementById('checkpoint-view').hidden);
         const eyebrow = await text(page, '.checkpoint-eyebrow');
-        assert.ok(eyebrow.includes(`${lastReviewed + 1}–${round}`), `${label}: review should cover questions ${lastReviewed + 1}–${round}`);
+        assert.ok(eyebrow.includes(`Round ${Math.ceil(round / CHECKPOINT_EVERY)} review`), `${label}: review title should name the round`);
+        assert.equal(round - lastReviewed, Math.min(CHECKPOINT_EVERY, round - lastReviewed), `${label}: a review should cover at most one round`);
         lastReviewed = round;
         const summary = await text(page, '.checkpoint-summary');
         assert.ok(!summary.includes('scored later'), `${label}: a pair was left unscored at the review`);
@@ -410,7 +420,8 @@ async function runBrowserChecks(browser) {
     // A blank ID plays as a guest with its own fresh progress
     await enterId(page, '', { uncheckConsent: false });
     assert.ok(await page.evaluate(() => localStorage.getItem('gmb_progress_guest') !== null), 'A blank ID should play as the guest');
-    const freshTotal = Number((await text(page, '#current-round')).match(/^1 \/ (\d+)$/)[1]);
+    assert.equal(await text(page, '#current-round'), '1', 'A new player starts at round 1');
+    const freshTotal = await page.evaluate(() => window.brainApp.session.queue.length);
     assert.ok(freshTotal > MAIN_POOL.length && freshTotal % REVIEW_BLOCK === 0, 'A new player gets a full first session');
 
     // The privacy policy loads and mentions that the greyed-out button still works

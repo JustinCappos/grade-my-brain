@@ -74,7 +74,10 @@ class GradeMyBrainApp {
         this.gradeBadgeEl = document.getElementById('grade-badge');
         this.gradeTitleEl = document.getElementById('grade-title');
         this.roundEl = document.getElementById('current-round');
-        this.nextReviewEl = document.getElementById('next-review');
+        this.roundDotsEl = document.getElementById('round-dots');
+        this.progressLabelEl = document.getElementById('progress-label');
+        this.progressDetailEl = document.getElementById('progress-detail');
+        this.progressTrackEl = document.getElementById('progress-track');
         this.soundToggleBtn = document.getElementById('sound-toggle-btn');
         this.switchIdBtn = document.getElementById('switch-id-btn');
         this.viewAuditBtn = document.getElementById('view-audit-btn');
@@ -307,15 +310,71 @@ class GradeMyBrainApp {
 
         if (!session || session.queue.length === 0) {
             this.roundEl.textContent = '–';
-            this.nextReviewEl.textContent = '–';
+            this.roundDotsEl.innerHTML = '';
             return;
         }
+        // Rounds instead of "question 34 of 90": the total grows with retests,
+        // and a round of 10 always ends in a review
+        const { round, answeredInRound, roundSize } = this.roundInfo();
+        this.roundEl.textContent = round;
+        this.roundDotsEl.innerHTML = Array.from({ length: roundSize }, (_, i) => {
+            const state = i < answeredInRound ? 'done' : (i === answeredInRound && session.phase === 'question' ? 'current' : '');
+            return `<span class="round-dot ${state}"></span>`;
+        }).join('');
+        this.roundDotsEl.setAttribute('aria-label', `${answeredInRound} of ${roundSize} questions answered this round`);
+        this.renderProgress();
+    }
+
+    // The current round of CHECKPOINT_EVERY questions and how far into it the player is
+    roundInfo() {
+        const session = this.session;
+        const p = session.position;
+        const inReview = session.phase !== 'question';
+        const roundIndex = inReview ? Math.max(0, Math.ceil(p / CHECKPOINT_EVERY) - 1) : Math.floor(p / CHECKPOINT_EVERY);
+        const roundStart = roundIndex * CHECKPOINT_EVERY;
+        const roundSize = Math.min(CHECKPOINT_EVERY, session.queue.length - roundStart);
+        return { round: roundIndex + 1, roundStart, roundSize, answeredInRound: Math.min(roundSize, p - roundStart) };
+    }
+
+    // One segment per round. Main rounds come first; rounds added for retests
+    // follow in a different color, so main progress never moves backwards.
+    renderProgress() {
+        const session = this.session;
         const total = session.queue.length;
-        const questionNumber = Math.min(session.position + 1, total);
-        this.roundEl.textContent = `${session.phase === 'question' ? questionNumber : session.position} / ${total}`;
-        const untilCheckpoint = CHECKPOINT_EVERY - (session.position % CHECKPOINT_EVERY);
-        const untilReview = Math.min(untilCheckpoint, total - session.position);
-        this.nextReviewEl.textContent = session.phase === 'question' ? `in ${untilReview}` : 'now';
+        const planned = Math.min(session.plannedLength ?? total, total);
+        const p = session.position;
+        const rounds = Math.ceil(total / CHECKPOINT_EVERY);
+        const segments = Array.from({ length: rounds }, (_, i) => {
+            const start = i * CHECKPOINT_EVERY;
+            const size = Math.min(CHECKPOINT_EVERY, total - start);
+            const fill = Math.max(0, Math.min(1, (p - start) / size));
+            const isRetest = planned > 0 && start >= planned;
+            return `<span class="progress-segment${isRetest ? ' retest' : ''}"><span class="progress-fill" style="width:${Math.round(fill * 100)}%"></span></span>`;
+        });
+        this.progressTrackEl.innerHTML = segments.join('');
+
+        const mainDone = planned > 0 ? Math.min(1, p / planned) : 1;
+        const percent = Math.round(mainDone * 100);
+        this.progressTrackEl.setAttribute('aria-valuenow', String(percent));
+        const retestRounds = rounds - Math.ceil(planned / CHECKPOINT_EVERY);
+
+        let label;
+        if (planned === 0 || p >= planned) {
+            const retestRound = Math.floor((p - planned) / CHECKPOINT_EVERY) + 1;
+            label = retestRounds > 0 ? `Retest round ${Math.min(retestRound, retestRounds)} of ${retestRounds}` : 'Final stretch';
+        } else if (mainDone < 0.1) {
+            label = 'Getting started';
+        } else if (mainDone < 0.5) {
+            label = 'Building momentum';
+        } else if (mainDone < 0.75) {
+            label = 'Past halfway';
+        } else {
+            label = 'Home stretch';
+        }
+        this.progressLabelEl.textContent = label;
+        this.progressDetailEl.textContent = planned === 0
+            ? 'Locking in what you learned'
+            : `${percent}% of the main questions${retestRounds > 0 ? ` · ${retestRounds} retest ${retestRounds === 1 ? 'round' : 'rounds'} added` : ''}`;
     }
 
     renderQuestion() {
@@ -594,7 +653,7 @@ class GradeMyBrainApp {
         this.checkpointEl.innerHTML = `
             <div class="checkpoint-head">
                 <div>
-                    <p class="checkpoint-eyebrow">Review · questions ${cp.from}–${cp.to}</p>
+                    <p class="checkpoint-eyebrow">Round ${Math.ceil(cp.to / CHECKPOINT_EVERY)} review</p>
                     <h2 class="checkpoint-title">${missed.length === 0 ? 'Nothing tripped you up' : 'What tripped you up'}</h2>
                 </div>
                 <span class="breakdown-delta-badge ${cp.delta >= 0 ? 'delta-up' : 'delta-down'}">${deltaText}</span>

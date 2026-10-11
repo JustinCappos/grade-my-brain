@@ -25,12 +25,12 @@
                 <span id="current-score" class="stat-val">100</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Question</span>
+                <span class="stat-label">Round</span>
                 <span id="current-round" class="stat-val">–</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Next Review</span>
-                <span id="next-review" class="stat-val">10</span>
+                <span class="stat-label">Until Review</span>
+                <span id="round-dots" class="round-dots" role="img" aria-label="Questions answered this round"></span>
             </div>
         </div>
 
@@ -86,6 +86,15 @@
 
         <!-- Active Scenario Stage -->
         <section id="scenario-stage" class="wagers-section" hidden>
+            <!-- Session progress: one segment per round of 10 -->
+            <div class="session-progress">
+                <div class="session-progress-head">
+                    <span id="progress-label" class="progress-label"></span>
+                    <span id="progress-detail" class="progress-detail"></span>
+                </div>
+                <div id="progress-track" class="progress-track" role="progressbar" aria-label="Progress through the main questions" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+
             <!-- Scenario Prompt Card -->
             <div class="scenario-banner glass-panel">
                 <h2 id="scenario-title" class="section-title">Loading Scenario...</h2>
