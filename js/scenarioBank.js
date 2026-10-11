@@ -987,15 +987,23 @@ export const STANDALONE_SCENARIOS = [
         short: true,
         biasType: "ROACH_MOTEL",
         title: "Streaming Cancellation Flow",
-        scenarioText: "You signed up for a streaming service's free trial with one click and no longer use it. To cancel, you click through four screens: \"Are you sure? You'll lose your watch history,\" then a survey, then an offer of 50% off for three months, then a final \"Pause instead?\" button in large type with \"Continue to cancel\" in small grey text. What do you do?",
-        bestAnswer: "Click \"Continue to cancel\" and finish canceling",
-        reasoning: "Nothing on those screens changed the fact that you don't use the service. Each step is there to make leaving feel like a loss or to wear you down. In 2025 Amazon paid $2.5 billion to settle FTC charges that included a cancellation flow like this, which the FTC said Amazon internally called \"Iliad.\"",
+        scenarioText: "You signed up for StreamNook's free trial with one click, and you've decided to cancel because you don't use it. After two \"Are you sure?\" screens and a survey, you reach the screen below. What do you click?",
+        // Rendered as an interactive mock screen; each option's `ui` says where it appears
+        mockScreen: {
+            brand: "StreamNook",
+            step: "Step 4 of 4",
+            heading: "Wait! Are you sure you want to lose everything?",
+            body: "If you cancel, you'll lose your watch history, all 3 of your profiles, and the recommendations we've built just for you.",
+            offer: { label: "Special offer, just for you", text: "Stay for 50% off your next 3 months" }
+        },
+        bestAnswer: "Continue to cancel",
+        reasoning: "You came to cancel, and nothing on this screen changes the fact that you don't use the service. The screen is built to stop you anyway. The option you came for is the smallest, palest thing on it, and it's worded to make you feel careless, a dark pattern called confirmshaming. The loss-framed warning, the bright \"Pause\" button, and the \"special offer\" pull your attention elsewhere. In 2025 Amazon paid $2.5 billion to settle FTC charges that included a cancellation flow like this, which the FTC said Amazon internally called \"Iliad.\"",
         biasName: "Hard-to-Cancel Subscriptions",
         bookRef: "Dark patterns research (Brignull; FTC v. Amazon 2023)",
         options: [
-            { text: "Take the 50% off offer", biasValue: 1, isBest: false },
-            { text: "Choose \"Pause instead\"", biasValue: 0.5, isBest: false },
-            { text: "Click \"Continue to cancel\" and finish canceling", biasValue: 0, isBest: true }
+            { text: "Claim my 50% off", ui: "offer", label: "Claim my 50% off", biasValue: 1, isBest: false },
+            { text: "Pause instead", ui: "primary", label: "Pause instead (keep my stuff)", biasValue: 0.5, isBest: false },
+            { text: "Continue to cancel", ui: "link", label: "No thanks, I don't care about my watch history. Continue to cancel", biasValue: 0, isBest: true }
         ]
     },
 

@@ -1274,6 +1274,142 @@ body.intro-mode .main-container {
     margin-top: 4px;
 }
 
+/* Mock app screens (interactive dark-pattern questions) */
+.mock-screen-wrap {
+    grid-column: 1 / -1;
+    margin: 0;
+    max-width: 420px;
+}
+
+.mock-screen {
+    background: #ffffff;
+    color: #111827;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.mock-screen-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    background: #1e1b4b;
+}
+
+.mock-brand {
+    color: #facc15;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.mock-step {
+    color: #c7d2fe;
+    font-size: 0.78rem;
+}
+
+.mock-screen-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 22px 20px 18px;
+}
+
+.mock-heading {
+    font-size: 1.2rem;
+    font-weight: 800;
+    line-height: 1.25;
+    color: #111827;
+}
+
+.mock-text {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: #4b5563;
+}
+
+.mock-offer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    border-radius: 12px;
+    border: 2px dashed #f59e0b;
+    background: #fffbeb;
+}
+
+.mock-offer-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #b45309;
+}
+
+.mock-offer-text {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #78350f;
+}
+
+.mock-btn {
+    display: block;
+    font-family: inherit;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+}
+
+.mock-btn:focus-visible {
+    outline: 3px solid #06b6d4;
+    outline-offset: 2px;
+}
+
+.mock-btn-offer {
+    padding: 12px;
+    border-radius: 10px;
+    background: #f59e0b;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.95rem;
+}
+
+.mock-btn-primary {
+    padding: 16px;
+    border-radius: 12px;
+    background: #4f46e5;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 1.05rem;
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+}
+
+.mock-btn-link {
+    align-self: center;
+    padding: 4px;
+    background: none;
+    color: #b8bec9;
+    font-size: 0.7rem;
+    text-decoration: underline;
+}
+
+.mock-screen-wrap figcaption {
+    margin-top: 8px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.mock-screen-static {
+    max-width: 340px;
+}
+
+.mock-screen-static .mock-btn {
+    cursor: default;
+}
+
 /* Bonus Token results */
 .token-results {
     padding: 14px 16px;

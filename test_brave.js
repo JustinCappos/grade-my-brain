@@ -226,7 +226,7 @@ async function enterId(page, id, { uncheckConsent, fullVersion = false }) {
 async function doPractice(page) {
     let answered = 0;
     for (;;) {
-        const card = await page.$('.practice-options .clean-choice-card');
+        const card = await page.$('.practice-options [data-option-index]');
         if (!card) break;
         await card.click();
         answered++;
@@ -283,9 +283,10 @@ async function playSession(page, label) {
             if (!correct) missedTypes.add(scenario.biasType);
         }
 
-        const cards = await page.$$('#options-container .clean-choice-card');
+        // Choices are option cards, or the buttons of a mock screen; pick the first option
+        const cards = await page.$$('#options-container [data-option-index]');
         assert.equal(cards.length, scenario.options.length, `${label}: wrong option count for ${scenario.id}`);
-        await cards[0].click();
+        await page.click('#options-container [data-option-index="0"]');
 
         const total = (await sessionState()).queue.length;
         const atReview = round % CHECKPOINT_EVERY === 0 || round === total;

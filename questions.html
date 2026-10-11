@@ -511,11 +511,14 @@ function cardBodyHtml(item) {
             </div>`;
     }
     const s = item.scenario;
+    const mock = s.mockScreen ? `
+        <p class="rule">Players see this as an interactive mock screen for ${esc(s.mockScreen.brand)}: "${esc(s.mockScreen.heading)}" ${esc(s.mockScreen.body)} The choices below are its buttons and links, labeled as they appear: ${s.options.map(o => `${esc(o.ui)} "${esc(o.label)}"`).join('; ')}.</p>` : '';
     const image = s.image ? `
         <a class="ad-link" href="${esc(s.image.src)}" target="_blank" rel="noopener"><img class="ad-image" src="${esc(s.image.src)}" alt="${esc(s.image.alt)}" width="640" height="400" loading="lazy"></a>` : '';
     return `
         ${image}
         <p class="prompt">${esc(s.scenarioText)}</p>
+        ${mock}
         ${optionsHtml(s.options, { scored: true })}
         <div class="explain">
             <span class="label">Best answer</span>

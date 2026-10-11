@@ -406,6 +406,19 @@ class GradeMyBrainApp {
 
     renderOptions(container, sc, onSelect) {
         container.innerHTML = '';
+        if (sc.mockScreen) {
+            // The choices are the mock screen's own buttons and links
+            container.innerHTML = this.mockScreenHtml(sc, { interactive: true });
+            container.querySelectorAll('[data-option-index]').forEach(el => {
+                el.onclick = (e) => {
+                    e.preventDefault();
+                    if (this.isProcessing) return;
+                    playSafely(() => sound.playWagerSelect());
+                    onSelect(sc.options[Number(el.dataset.optionIndex)]);
+                };
+            });
+            return;
+        }
         sc.options.forEach((opt, idx) => {
             const card = document.createElement('button');
             card.type = 'button';
@@ -413,6 +426,7 @@ class GradeMyBrainApp {
             const rarityBadgeHtml = opt.rarity ? `<span class="rarity-badge">${esc(opt.rarity.toUpperCase())}</span>` : '';
 
             card.className = `wager-card glass-panel clean-choice-card${rarityClass}`;
+            card.dataset.optionIndex = String(idx);
             card.style.animationDelay = `${idx * 0.1}s`;
             card.innerHTML = `
                 <div class="choice-text-box">
@@ -746,6 +760,38 @@ class GradeMyBrainApp {
         }).join('');
     }
 
+    // A realistic app screen whose buttons are the answer choices. In reviews it
+    // is shown again, not clickable, so the player can see what they faced.
+    mockScreenHtml(sc, { interactive }) {
+        const m = sc.mockScreen;
+        const button = (opt, cls) => {
+            const idx = sc.options.indexOf(opt);
+            return interactive
+                ? `<button type="button" class="${cls}" data-option-index="${idx}">${esc(opt.label)}</button>`
+                : `<span class="${cls}" aria-hidden="true">${esc(opt.label)}</span>`;
+        };
+        const byRole = role => sc.options.filter(o => o.ui === role);
+        return `
+            <figure class="mock-screen-wrap${interactive ? '' : ' mock-screen-static'}">
+                <div class="mock-screen" role="group" aria-label="${esc(m.brand)} cancellation screen">
+                    <div class="mock-screen-bar"><span class="mock-brand">${esc(m.brand)}</span><span class="mock-step">${esc(m.step)}</span></div>
+                    <div class="mock-screen-body">
+                        <p class="mock-heading">${esc(m.heading)}</p>
+                        <p class="mock-text">${esc(m.body)}</p>
+                        ${m.offer ? `
+                            <div class="mock-offer">
+                                <p class="mock-offer-label">${esc(m.offer.label)}</p>
+                                <p class="mock-offer-text">${esc(m.offer.text)}</p>
+                                ${byRole('offer').map(o => button(o, 'mock-btn mock-btn-offer')).join('')}
+                            </div>` : ''}
+                        ${byRole('primary').map(o => button(o, 'mock-btn mock-btn-primary')).join('')}
+                        ${byRole('link').map(o => button(o, 'mock-btn mock-btn-link')).join('')}
+                    </div>
+                </div>
+                <figcaption>Mock screen from a fictional service.</figcaption>
+            </figure>`;
+    }
+
     // An ad image for questions that have one; select it to see it full size
     imageHtml(sc, { compact = false } = {}) {
         if (!sc.image) return '';
@@ -789,6 +835,7 @@ class GradeMyBrainApp {
             title = sc.title;
             body = `
                 ${this.imageHtml(sc, { compact: true })}
+                ${sc.mockScreen ? this.mockScreenHtml(sc, { interactive: false }) : ''}
                 <p class="review-scenario">${esc(sc.scenarioText)}</p>
                 <p class="answer-row"><span class="answer-label">Your answer</span><span class="answer-yours">${esc(item.yourAnswer)}</span></p>`;
             ({ bestAnswer, reasoning, biasName, bookRef } = sc);
