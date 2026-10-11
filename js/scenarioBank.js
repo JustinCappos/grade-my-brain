@@ -849,14 +849,14 @@ export const STANDALONE_SCENARIOS = [
         id: "framing-mpg",
         biasType: "FRAMING",
         title: "Fleet Vehicle Replacement",
-        scenarioText: "Your company can afford to replace one vehicle this year, and each vehicle is driven 10,000 miles a year. Option 1 replaces a pickup truck that gets 12 miles per gallon with one that gets 14. Option 2 replaces a sedan that gets 30 miles per gallon with one that gets 40. Which saves more fuel?",
-        bestAnswer: "Replacing the truck (12 to 14 mpg)",
-        reasoning: "Over 10,000 miles, the truck goes from about 833 gallons to 714, saving 119 gallons. The sedan goes from 333 gallons to 250, saving 83. Miles per gallon hides this; gallons per mile shows it. Kahneman uses this \"MPG illusion\" (Larrick & Soll) to show how the choice of frame distorts judgment.",
+        scenarioText: "Your company can afford to replace one vehicle this year, and each vehicle is driven 10,000 miles (16,000 km) a year. Option 1 replaces a pickup truck that gets 12 miles per gallon (5.1 km per litre) with one that gets 14 (6.0 km/L). Option 2 replaces a sedan that gets 30 miles per gallon (12.8 km/L) with one that gets 40 (17.0 km/L). Which saves more fuel?",
+        bestAnswer: "Replacing the truck (12 to 14 mpg; 5.1 to 6.0 km/L)",
+        reasoning: "Over 10,000 miles, the truck goes from about 833 gallons to 714, saving 119 gallons (450 litres). The sedan goes from 333 gallons to 250, saving 83 (315 litres). Miles per gallon and km per litre hide this; fuel per distance shows it. In litres per 100 km, the truck improves from 19.6 to 16.8 (2.8 less) and the sedan from 7.8 to 5.9 (1.9 less). Kahneman uses this \"MPG illusion\" (Larrick & Soll) to show how the choice of frame distorts judgment.",
         biasName: "Framing Effect (MPG Illusion)",
         bookRef: "Thinking, Fast and Slow - Chapter 34",
         options: [
-            { text: "Replacing the truck (12 to 14 mpg)", biasValue: 0, isBest: true },
-            { text: "Replacing the sedan (30 to 40 mpg)", biasValue: 1, isBest: false },
+            { text: "Replacing the truck (12 to 14 mpg; 5.1 to 6.0 km/L)", biasValue: 0, isBest: true },
+            { text: "Replacing the sedan (30 to 40 mpg; 12.8 to 17.0 km/L)", biasValue: 1, isBest: false },
             { text: "They save about the same", biasValue: 0.5, isBest: false }
         ]
     },
@@ -931,14 +931,14 @@ export const STANDALONE_SCENARIOS = [
         id: "ads-value-size",
         biasType: "UNIT_PRICE",
         title: "Grocery Value Size",
-        scenarioText: "Your usual cereal costs $4.49 for an 18 oz box. Next to it is a new box of the same cereal labeled \"NEW Bigger Value Size!\" at $5.29 for 20.5 oz. Which is the better price per ounce?",
-        bestAnswer: "Your usual 18 oz box",
-        reasoning: "The usual box costs about 24.9¢ per ounce; the \"Value Size\" costs about 25.8¢. Bigger packages are often but not always cheaper per unit, and labels like \"value\" lean on that expectation. The shelf tag's unit price is the honest comparison.",
+        scenarioText: "Your usual cereal costs $4.49 for an 18 oz (510 g) box. Next to it is a new box of the same cereal labeled \"NEW Bigger Value Size!\" at $5.29 for 20.5 oz (581 g). Which is the better price per ounce (or per gram)?",
+        bestAnswer: "Your usual 18 oz (510 g) box",
+        reasoning: "The usual box costs about 24.9¢ per ounce (88¢ per 100 g); the \"Value Size\" costs about 25.8¢ per ounce (91¢ per 100 g). Bigger packages are often but not always cheaper per unit, and labels like \"value\" lean on that expectation. The shelf tag's unit price is the honest comparison.",
         biasName: "Size & Unit Price Illusions",
         bookRef: "Consumer protection research (unit pricing & shrinkflation)",
         options: [
             { text: "The new Value Size", biasValue: 1, isBest: false },
-            { text: "Your usual 18 oz box", biasValue: 0, isBest: true },
+            { text: "Your usual 18 oz (510 g) box", biasValue: 0, isBest: true },
             { text: "They're the same", biasValue: 0.5, isBest: false }
         ]
     },
@@ -1389,14 +1389,14 @@ export const STANDALONE_SCENARIOS = [
         practiceOnly: true,
         biasType: "UNIT_PRICE",
         title: "Family Size Detergent",
-        scenarioText: "A \"Family Size\" 32 oz bottle of dish soap costs $6.40. Next to it, a 16 oz bottle of the same soap costs $2.99. Which is cheaper per ounce?",
-        bestAnswer: "The 16 oz bottle",
-        reasoning: "The 16 oz bottle costs about 18.7¢ per ounce; the Family Size costs 20¢. Two small bottles ($5.98) beat one big one ($6.40) for the same amount of soap.",
+        scenarioText: "A \"Family Size\" 32 fl oz (946 mL) bottle of dish soap costs $6.40. Next to it, a 16 fl oz (473 mL) bottle of the same soap costs $2.99. Which is cheaper per ounce (or per millilitre)?",
+        bestAnswer: "The 16 fl oz (473 mL) bottle",
+        reasoning: "The small bottle costs about 18.7¢ per ounce (63¢ per 100 mL); the Family Size costs 20¢ per ounce (68¢ per 100 mL). Two small bottles ($5.98) beat one big one ($6.40) for the same amount of soap.",
         biasName: "Size & Unit Price Illusions",
         bookRef: "Consumer protection research (unit pricing & shrinkflation)",
         options: [
-            { text: "The 32 oz Family Size", biasValue: 1, isBest: false },
-            { text: "The 16 oz bottle", biasValue: 0, isBest: true },
+            { text: "The 32 fl oz (946 mL) Family Size", biasValue: 1, isBest: false },
+            { text: "The 16 fl oz (473 mL) bottle", biasValue: 0, isBest: true },
             { text: "They're the same", biasValue: 0.5, isBest: false }
         ]
     },
@@ -1570,14 +1570,14 @@ export const STANDALONE_SCENARIOS = [
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Morning Coffee Order",
-        scenarioText: "A café sells a 12 oz coffee for $3.00 and a 24 oz coffee for $3.50. You want a lot of coffee and will drink all of it. Which is the better value for you?",
-        bestAnswer: "The 24 oz coffee",
+        scenarioText: "A café sells a 12 oz (355 mL) coffee for $3.00 and a 24 oz (710 mL) coffee for $3.50. You want a lot of coffee and will drink all of it. Which is the better value for you?",
+        bestAnswer: "The 24 oz (710 mL) coffee",
         reasoning: "Twice the coffee for 50 cents more, and you want it all. Upselling is only a trap when you're paying for more than you need; here the bigger size is simply the better deal.",
         biasName: "Second-Guessing the Obvious",
         bookRef: "Thinking, Fast and Slow - Chapter 22",
         options: [
-            { text: "The 24 oz coffee", biasValue: 0, isBest: true },
-            { text: "The 12 oz coffee; the large is an upsell", biasValue: 1, isBest: false }
+            { text: "The 24 oz (710 mL) coffee", biasValue: 0, isBest: true },
+            { text: "The 12 oz (355 mL) coffee; the large is an upsell", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1615,14 +1615,14 @@ export const STANDALONE_SCENARIOS = [
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Pasta Sauce Sizes",
-        scenarioText: "A 40 oz \"family size\" jar of pasta sauce costs $6.00. A 20 oz jar of the same sauce costs $4.00. Which is cheaper per ounce?",
-        bestAnswer: "The 40 oz family size",
-        reasoning: "The family size costs 15¢ per ounce and the small jar 20¢. Bigger packages aren't always cheaper per unit, but this one is. Checking the unit price is the habit; it doesn't mean the big size is always a trick.",
+        scenarioText: "A 40 oz (1.13 kg) \"family size\" jar of pasta sauce costs $6.00. A 20 oz (567 g) jar of the same sauce costs $4.00. Which is cheaper per ounce (or per gram)?",
+        bestAnswer: "The 40 oz (1.13 kg) family size",
+        reasoning: "The family size costs 15¢ per ounce (53¢ per 100 g) and the small jar 20¢ per ounce (71¢ per 100 g). Bigger packages aren't always cheaper per unit, but this one is. Checking the unit price is the habit; it doesn't mean the big size is always a trick.",
         biasName: "Second-Guessing the Obvious",
         bookRef: "Consumer protection research (unit pricing)",
         options: [
-            { text: "The 40 oz family size", biasValue: 0, isBest: true },
-            { text: "The 20 oz jar", biasValue: 1, isBest: false },
+            { text: "The 40 oz (1.13 kg) family size", biasValue: 0, isBest: true },
+            { text: "The 20 oz (567 g) jar", biasValue: 1, isBest: false },
             { text: "They're the same", biasValue: 1, isBest: false }
         ]
     },
@@ -1880,38 +1880,38 @@ export const PAIRED_TESTS = {
     },
     redwood: {
         biasType: "ANCHORING",
-        bestAnswer: "The same estimate in both versions (and the tallest is about 380 feet)",
-        reasoning: "The 1,200-foot and 180-foot figures in the questions were arbitrary, yet in the study Kahneman describes, people given the high number estimated 844 feet on average and people given the low number estimated 282. If your two estimates differed, the anchor moved you. The tallest known redwood, Hyperion, is about 380 feet.",
+        bestAnswer: "The same estimate in both versions (and the tallest is about 380 feet, or 116 metres)",
+        reasoning: "The 1,200-foot and 180-foot figures in the questions were arbitrary, yet in the study Kahneman describes, people given the high number estimated 844 feet (257 m) on average and people given the low number estimated 282 feet (86 m). If your two estimates differed, the anchor moved you. The tallest known redwood, Hyperion, is about 380 feet (116 m).",
         biasName: "Anchoring Effect",
         bookRef: "Thinking, Fast and Slow - Chapter 11",
         isConsistent: sameAnswer,
         versions: [
             {
                 id: "anchor-redwood-high",
-                label: "1,200-foot version",
+                label: "1,200-foot (366 m) version",
                 title: "Tallest Tree Estimate",
-                scenarioText: "Is the tallest living redwood tree taller or shorter than 1,200 feet? Pick your best estimate of its actual height.",
+                scenarioText: "Is the tallest living redwood tree taller or shorter than 1,200 feet (366 metres)? Pick your best estimate of its actual height.",
                 options: [
-                    { text: "Under 180 feet", value: 1 },
-                    { text: "180 to 299 feet", value: 2 },
-                    { text: "300 to 449 feet", value: 3 },
-                    { text: "450 to 749 feet", value: 4 },
-                    { text: "750 to 1,199 feet", value: 5 },
-                    { text: "1,200 feet or more", value: 6 }
+                    { text: "Under 180 feet (under 55 m)", value: 1 },
+                    { text: "180 to 299 feet (55 to 91 m)", value: 2 },
+                    { text: "300 to 449 feet (91 to 137 m)", value: 3 },
+                    { text: "450 to 749 feet (137 to 228 m)", value: 4 },
+                    { text: "750 to 1,199 feet (228 to 366 m)", value: 5 },
+                    { text: "1,200 feet or more (366 m or more)", value: 6 }
                 ]
             },
             {
                 id: "anchor-redwood-low",
-                label: "180-foot version",
+                label: "180-foot (55 m) version",
                 title: "Coast Redwood Height",
-                scenarioText: "A park ranger asks whether the world's tallest redwood is taller or shorter than 180 feet. What is your best estimate of its height?",
+                scenarioText: "A park ranger asks whether the world's tallest redwood is taller or shorter than 180 feet (55 metres). What is your best estimate of its height?",
                 options: [
-                    { text: "Under 180 feet", value: 1 },
-                    { text: "180 to 299 feet", value: 2 },
-                    { text: "300 to 449 feet", value: 3 },
-                    { text: "450 to 749 feet", value: 4 },
-                    { text: "750 to 1,199 feet", value: 5 },
-                    { text: "1,200 feet or more", value: 6 }
+                    { text: "Under 180 feet (under 55 m)", value: 1 },
+                    { text: "180 to 299 feet (55 to 91 m)", value: 2 },
+                    { text: "300 to 449 feet (91 to 137 m)", value: 3 },
+                    { text: "450 to 749 feet (137 to 228 m)", value: 4 },
+                    { text: "750 to 1,199 feet (228 to 366 m)", value: 5 },
+                    { text: "1,200 feet or more (366 m or more)", value: 6 }
                 ]
             }
         ]

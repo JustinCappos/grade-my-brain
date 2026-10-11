@@ -765,6 +765,30 @@ body.intro-mode .main-container {
     letter-spacing: 0.01em;
 }
 
+.intro-rules {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #cbd5e1;
+    font-size: 0.93rem;
+    line-height: 1.55;
+}
+
+.intro-rules-title {
+    font-weight: 700;
+    color: #7dd3fc;
+}
+
+.answer-on-your-own {
+    margin: -6px 0 14px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
 /* Looks disabled but still works when clicked */
 .glow-btn.looks-disabled {
     background: #334155;
