@@ -1618,6 +1618,61 @@ body.intro-mode .main-container {
     line-height: 1;
 }
 
+/* Email message */
+.mock-email {
+    width: 100%;
+    max-width: 480px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+    color: #111827;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.mock-email-head {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 18px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.mock-email-subject {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.mock-email-meta {
+    font-size: 0.82rem;
+    color: #4b5563;
+    overflow-wrap: anywhere;
+}
+
+.mock-email-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: #1f2937;
+}
+
+.mock-email-button {
+    align-self: flex-start;
+}
+
+.mock-email-status {
+    padding: 4px 10px;
+    background: #f3f4f6;
+    border-top: 1px solid #e5e7eb;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    font-size: 0.72rem;
+    color: #4b5563;
+    overflow-wrap: anywhere;
+}
+
 /* Installer window */
 .mock-installer {
     width: 100%;

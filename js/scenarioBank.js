@@ -1347,14 +1347,29 @@ export const STANDALONE_SCENARIOS = [
         short: true,
         biasType: "FAKE_URGENCY",
         title: "Password Expiry Email",
-        scenarioText: "An email that appears to come from your IT department says: \"Your password expires in 1 hour. Click here to keep your account active.\" The link opens a page that looks exactly like your company's sign-in screen. What do you do?",
-        bestAnswer: "Go to the IT portal yourself and report the email",
-        reasoning: "A short deadline is a classic phishing tactic: it pushes you to act before you check. A real expiring password can be handled by going to the sign-in page or IT portal you already know, never through the email's link. Reporting it helps protect colleagues who got the same message.",
+        scenarioText: "Larkwood makes everyone change their password every 90 days, and yours is due this week. This email arrives. What do you do?",
+        mockScreen: {
+            kind: "email",
+            from: "Larkwood IT",
+            address: "it-notifications@larkwood.com",
+            to: "you@larkwood.com",
+            subject: "Your password expires in 24 hours",
+            body: [
+                "Hello,",
+                "Your Larkwood password will expire in 24 hours. To avoid losing access to email and shared drives, confirm your current password or choose a new one.",
+                "Thank you,\nLarkwood IT Service Desk"
+            ],
+            button: "Keep my current password",
+            linkPreview: "https://larkwood.com.sso-verify.net/password/keep?u=you"
+        },
+        bestAnswer: "Open the IT portal from your bookmarks and change it there",
+        reasoning: "The email is plausible: you really are due, and the sender's name and address look right (addresses are easy to fake). The tell is where the button goes: larkwood.com.sso-verify.net belongs to sso-verify.net, not Larkwood. Urgency (\"24 hours\", \"losing access\") pushes you to click before you check. Going to the portal you already know is safe whether the email is real or not. Replying doesn't help, since a reply can reach the attacker.",
         biasName: "Manufactured Urgency",
         bookRef: "Dark patterns research (Mathur et al. 2019)",
         options: [
-            { text: "Sign in through the link", biasValue: 1, isBest: false },
-            { text: "Go to the IT portal yourself and report the email", biasValue: 0, isBest: true }
+            { text: "Click \"Keep my current password\" and sign in", biasValue: 1, isBest: false },
+            { text: "Reply to the email to ask whether it's real", biasValue: 0.5, isBest: false },
+            { text: "Open the IT portal from your bookmarks and change it there", biasValue: 0, isBest: true }
         ]
     },
     {

@@ -892,6 +892,20 @@ class GradeMyBrainApp {
                         </div>
                     </div>
                 </div>`;
+        } else if (kind === 'email') {
+            screen = `
+                <div class="mock-email">
+                    <div class="mock-email-head">
+                        <p class="mock-email-subject">${esc(m.subject)}</p>
+                        <p class="mock-email-meta"><strong>${esc(m.from)}</strong> &lt;${esc(m.address)}&gt;</p>
+                        <p class="mock-email-meta">To: ${esc(m.to)}</p>
+                    </div>
+                    <div class="mock-email-body">
+                        ${m.body.map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('')}
+                        <span class="mock-btn mock-btn-primary mock-email-button" aria-hidden="true">${esc(m.button)}</span>
+                    </div>
+                    ${m.linkPreview ? `<p class="mock-email-status" title="Where the button's link goes">${esc(m.linkPreview)}</p>` : ''}
+                </div>`;
         } else if (kind === 'installer') {
             screen = `
                 <div class="mock-installer">
