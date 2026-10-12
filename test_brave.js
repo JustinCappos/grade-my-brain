@@ -21,7 +21,7 @@ import {
     MIN_PAIR_GAP, REVIEW_BLOCK, ScenarioBank
 } from './js/scenarioBank.js';
 import { BiasAnalyzer } from './js/biasAnalyzer.js';
-import { Progress, normalizeId, displayId, GUEST_ID } from './js/progress.js';
+import { Progress, normalizeId, displayId, newGuestId, isGuestId } from './js/progress.js';
 
 const PORT = 8088;
 const BRAVE_PATH = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser';
@@ -156,8 +156,11 @@ function checkSessionBuilder() {
 // Retest topics follow each topic's most recent scored answer; practice doesn't count
 function checkProgress() {
     const storage = memoryStorage();
-    assert.equal(normalizeId('   '), GUEST_ID, 'A blank ID should become the guest');
-    assert.equal(displayId(GUEST_ID), 'Guest');
+    assert.equal(normalizeId('   '), '', 'A blank ID should stay blank');
+    assert.equal(normalizeId('~guest-abc'), 'guest-abc', 'Typed IDs can never look like guest IDs');
+    const guestA = newGuestId();
+    assert.ok(isGuestId(guestA) && guestA !== newGuestId(), 'Each guest gets its own ID');
+    assert.equal(displayId(guestA), 'Guest');
     assert.equal(displayId('nyu-4821'), 'NYU-4821');
     const p = new Progress('  Tester-1 ', storage);
     assert.equal(p.id, 'tester-1');
@@ -465,12 +468,28 @@ async function runBrowserChecks(browser) {
     assert.equal(await isHidden(page, '#intro-view'), false, 'Switch ID should show the ID screen');
     // A blank ID plays as a guest with its own fresh progress; the checkbox picks the full version
     await enterId(page, '', { uncheckConsent: false, fullVersion: true });
-    assert.ok(await page.evaluate(() => localStorage.getItem('gmb_progress_guest') !== null), 'A blank ID should play as the guest');
+    const guestKeys = () => page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('gmb_progress_~guest-')));
+    const firstGuest = await guestKeys();
+    assert.equal(firstGuest.length, 1, 'A blank ID should play as a new guest');
     assert.equal(await text(page, '#current-round'), '1', 'A new player starts at round 1');
     const fullStart = await page.evaluate(() => window.brainApp.session.queue);
     assert.deepEqual(fullStart.filter(e => !isFiller(e.id)).map(e => e.id).sort(), MAIN_POOL.map(s => s.id).sort(),
         'Choosing the full version should cover every regular question');
     assert.equal(fullStart.length % REVIEW_BLOCK, 0, 'The full version should be whole review blocks');
+
+    // Switching to another blank ID starts over instead of resuming the last guest
+    await page.click('#options-container [data-option-index="0"]');
+    await page.waitForFunction(() => window.brainApp.session.position === 1);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.click('#switch-id-btn');
+    await enterId(page, '', { uncheckConsent: false });
+    assert.equal(await page.evaluate(() => window.brainApp.session.position), 0, 'A new guest should start at the first question');
+    const secondGuest = await guestKeys();
+    assert.equal(secondGuest.length, 1, 'The earlier guest progress should be cleared');
+    assert.notEqual(secondGuest[0], firstGuest[0], 'Each blank ID should be a different guest');
+    // Reloading the tab resumes the current guest
+    await page.reload({ waitUntil: 'networkidle0' });
+    assert.equal(await isHidden(page, '#scenario-stage'), false, 'Reloading should resume the current guest');
 
     // The privacy policy loads and mentions that the greyed-out button still works
     await page.goto(`http://localhost:${PORT}/privacy.html`, { waitUntil: 'networkidle0' });

@@ -15,7 +15,7 @@ import { sound } from './audio.js';
 import { ScenarioBank, PAIRED_TESTS, BIAS_CATEGORIES, REVIEW_BLOCK, BONUS_TOKEN } from './scenarioBank.js';
 import { BiasAnalyzer } from './biasAnalyzer.js';
 import { BrainChart } from './chart.js';
-import { Progress, normalizeId, displayId } from './progress.js';
+import { Progress, normalizeId, displayId, newGuestId } from './progress.js';
 
 // Grades come from the share of reviewed answers that were right, so they
 // mean the same thing however long the session runs
@@ -223,9 +223,13 @@ class GradeMyBrainApp {
         this.chart.updateHistory([{ round: 0, score: STARTING_SCORE }]);
     }
 
-    // A blank ID plays as the guest (see GUEST_ID)
+    // A blank ID starts a fresh guest (see newGuestId)
     handleIntroContinue() {
-        const id = normalizeId(this.idInputEl.value);
+        let id = normalizeId(this.idInputEl.value);
+        if (!id) {
+            Progress.clearGuests();
+            id = newGuestId();
+        }
         this.requestedVersion = this.fullVersionEl.checked ? 'full' : 'short';
         playSafely(() => sound.playClick());
         this.progress = new Progress(id);

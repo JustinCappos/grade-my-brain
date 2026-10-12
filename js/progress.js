@@ -8,17 +8,28 @@
 const KEY_PREFIX = 'gmb_progress_';
 const DATA_VERSION = 1;
 
-// Players who leave the ID blank share this one, so a returning guest on the
-// same browser picks up where they left off
-export const GUEST_ID = 'guest';
+// A blank ID starts a fresh guest each time, so switching to a guest never
+// resumes someone else's game. Reloading the same tab still resumes, because
+// the active ID is remembered for the tab. Typed IDs can't start with "~".
+const GUEST_PREFIX = '~guest-';
+const LEGACY_GUEST_ID = 'guest';
 
+// The typed ID, cleaned up; '' when the field was left blank
 export function normalizeId(raw) {
-    return String(raw || '').trim().toLowerCase() || GUEST_ID;
+    return String(raw || '').trim().toLowerCase().replace(/^~+/, '');
+}
+
+export function newGuestId() {
+    return GUEST_PREFIX + Math.random().toString(36).slice(2, 10);
+}
+
+export function isGuestId(id) {
+    return id.startsWith(GUEST_PREFIX) || id === LEGACY_GUEST_ID;
 }
 
 // How an ID is shown to the player
 export function displayId(id) {
-    return id === GUEST_ID ? 'Guest' : id.toUpperCase();
+    return isGuestId(id) ? 'Guest' : id.toUpperCase();
 }
 
 // Falls back to an in-memory store when localStorage is blocked or absent
@@ -50,13 +61,24 @@ function freshData() {
 
 export class Progress {
     constructor(id, storage = defaultStorage()) {
-        this.id = normalizeId(id);
+        // Guest IDs are generated, so only typed IDs get cleaned up
+        this.id = isGuestId(String(id)) ? String(id) : normalizeId(id);
         this.storage = storage;
         this.data = this.load() || freshData();
     }
 
     get key() {
         return KEY_PREFIX + this.id;
+    }
+
+    // Deletes saved guest progress; guests have no ID to come back to it with
+    static clearGuests(storage = defaultStorage()) {
+        try {
+            const keys = [];
+            for (let i = 0; i < (storage.length || 0); i++) keys.push(storage.key(i));
+            keys.filter(k => k && k.startsWith(KEY_PREFIX) && isGuestId(k.slice(KEY_PREFIX.length)))
+                .forEach(k => storage.removeItem(k));
+        } catch (err) { /* storage blocked */ }
     }
 
     static exists(id, storage = defaultStorage()) {
