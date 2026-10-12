@@ -366,7 +366,7 @@ const KIND_LABEL = { deceptive: 'Deceptive', good: 'Better practice', example: '
 // ---------- Question items ----------
 
 const items = [
-    ...STANDALONE_SCENARIOS.map(s => ({
+    ...STANDALONE_SCENARIOS.filter(s => !s.retired).map(s => ({
         key: s.id,
         kind: s.filler ? 'filler' : (s.practiceOnly ? 'practice' : 'standalone'),
         biasType: s.biasType,

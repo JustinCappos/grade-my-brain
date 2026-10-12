@@ -736,7 +736,7 @@ class GradeMyBrainApp {
         const isLast = session.position >= session.queue.length;
         const deltaText = `${cp.delta >= 0 ? '+' : ''}${cp.delta} PTS`;
         const scoredText = cp.items.length === 0
-            ? 'None of these questions could be scored yet.'
+            ? "You'll see how you did on these questions in your next review."
             : `You got ${right.length} of ${cp.items.length} scored ${cp.items.length === 1 ? 'question' : 'questions'} right.`;
         const pendingText = cp.pendingCount > 0
             ? ` ${cp.pendingCount} ${cp.pendingCount === 1 ? 'question is' : 'questions are'} paired with one still to come and will be scored later.`
@@ -760,7 +760,7 @@ class GradeMyBrainApp {
             ${missed.length > 0 ? `
                 <section class="missed-section" aria-labelledby="missed-heading">
                     <h3 id="missed-heading" class="missed-heading">Read these first <span class="missed-count">${missed.length} missed</span></h3>
-                    <p class="checkpoint-summary">Each one explains the better answer. Where there's a practice question, try it before moving on; practice doesn't affect your score.</p>
+                    <p class="checkpoint-summary">Each one explains the better answer. Try the practice questions before moving on; they don't affect your score.</p>
                     <div class="review-list">${this.missedWithPracticeHtml(missed, cp.practice)}</div>
                 </section>` : ''}
 
@@ -1075,14 +1075,13 @@ class GradeMyBrainApp {
     practiceCardHtml(practice, idx) {
         const category = BIAS_CATEGORIES[practice.biasType];
         const tipHtml = `
-            <p class="practice-eyebrow">Practice · ${esc(category.name)}</p>
+            <p class="practice-eyebrow">${practice.scenarioId ? 'Practice' : 'Tip'} · ${esc(category.name)}</p>
             <p class="practice-tip"><span class="answer-label">How to think differently</span>${esc(category.tip)}</p>`;
 
         if (!practice.scenarioId) {
             return `
                 <article class="practice-card">
                     ${tipHtml}
-                    <p class="checkpoint-summary">There's no separate practice question for this one yet.</p>
                 </article>`;
         }
 

@@ -382,6 +382,9 @@ export const STANDALONE_SCENARIOS = [
     // -------------------------------------------------------------
     {
         id: "fourfold-epidemic",
+        // Retired: preferring the sure 200 lives is a defensible moral choice, so it
+        // shouldn't be scored. The "lives saved" vs "deaths" framing pair covers the idea.
+        retired: true,
         biasType: "FOURFOLD",
         title: "Epidemic Treatment Intervention",
         scenarioText: "A disease outbreak threatens 600 patients. Program A guarantees saving exactly 200 lives. Program B has a 40% probability of saving all 600 lives, and a 60% probability of saving none.",
@@ -548,7 +551,7 @@ export const STANDALONE_SCENARIOS = [
         id: "decoy-1",
         biasType: "DECOY",
         title: "Team Cloud Storage Subscription",
-        scenarioText: "Your small team needs 15 GB of cloud storage per month for document backups. The provider offers: Plan A (15 GB for $15/mo), Plan B (40 GB for $45/mo), and Plan C (50 GB for $48/mo). Which plan do you purchase?",
+        scenarioText: "Your small team needs 15 GB of cloud storage per month for document backups, and that amount has been steady for years. The provider offers: Plan A (15 GB for $15/mo), Plan B (40 GB for $45/mo), and Plan C (50 GB for $48/mo). Which plan do you purchase?",
         bestAnswer: "Select Plan A: 15 GB ($15/mo)",
         reasoning: "Plan A ($15/mo) perfectly covers your team's 15 GB requirement at minimal expenditure. Plan B ($45) is an asymmetric decoy designed to make Plan C ($48) feel like an irresistible bargain, tricking teams into overpaying $33/month for 35 GB of excess capacity they will never use.",
         biasName: "Decoy Effect / Asymmetric Dominance",
@@ -686,9 +689,9 @@ export const STANDALONE_SCENARIOS = [
         id: "smalln-kidney-cancer",
         biasType: "SMALL_NUMBERS",
         title: "County Health Statistics",
-        scenarioText: "A study of kidney cancer rates across all 3,141 U.S. counties finds that the counties with the lowest rates are mostly small farming counties with few residents. What is the most likely explanation?",
+        scenarioText: "A study of kidney cancer rates across all 3,141 U.S. counties finds that the counties with the lowest rates are mostly small farming counties with few residents. The counties with the highest rates are also mostly small farming counties with few residents. What is the most likely explanation?",
         bestAnswer: "Small populations produce extreme rates by chance",
-        reasoning: "This is Kahneman's own example. The counties with the highest kidney cancer rates are also mostly rural and sparsely populated. Small counties have few residents, so a handful of cases swings their rate a long way up or down. Both extremes are produced by small samples, not by lifestyle.",
+        reasoning: "This is Kahneman's own example. A cause like clean air or less pollution can't explain why the same kind of county has both the lowest and the highest rates. Small counties have few residents, so a handful of cases swings their rate a long way up or down. Both extremes are produced by small samples, not by lifestyle.",
         biasName: "Law of Small Numbers",
         bookRef: "Thinking, Fast and Slow - Chapter 10",
         options: [
@@ -701,14 +704,14 @@ export const STANDALONE_SCENARIOS = [
         id: "smalln-reviews",
         biasType: "SMALL_NUMBERS",
         title: "Online Product Reviews",
-        scenarioText: "You are choosing between two similar wireless headsets at the same price. Headset A has a 4.9-star average from 12 reviews. Headset B has a 4.5-star average from 3,400 reviews. Which is more likely to satisfy you?",
-        bestAnswer: "Headset B (4.5 stars, 3,400 reviews)",
-        reasoning: "Twelve reviews is a tiny sample. A few enthusiastic early buyers (or the seller's friends) can produce a near-perfect average by chance. With 3,400 reviews, Headset B's 4.5 is a reliable estimate. Headset A's true rating is likely to fall a long way once more people review it.",
+        scenarioText: "You are choosing between two similar wireless headsets at the same price. Headset A has a 5.0-star average from 6 reviews. Headset B has a 4.6-star average from 3,400 reviews. Which is the safer bet to satisfy you?",
+        bestAnswer: "Headset B (4.6 stars, 3,400 reviews)",
+        reasoning: "Six reviews is a tiny sample. A few enthusiastic early buyers (or the seller's friends) can produce a perfect average by chance. With 3,400 reviews, Headset B's 4.6 is a reliable estimate. Headset A's true rating is likely to fall a long way once more people review it.",
         biasName: "Law of Small Numbers",
         bookRef: "Thinking, Fast and Slow - Chapter 10",
         options: [
-            { text: "Headset A (4.9 stars, 12 reviews)", biasValue: 1, isBest: false },
-            { text: "Headset B (4.5 stars, 3,400 reviews)", biasValue: 0, isBest: true }
+            { text: "Headset A (5.0 stars, 6 reviews)", biasValue: 1, isBest: false },
+            { text: "Headset B (4.6 stars, 3,400 reviews)", biasValue: 0, isBest: true }
         ]
     },
 
@@ -1426,9 +1429,9 @@ export const STANDALONE_SCENARIOS = [
         short: true,
         biasType: "INTUITION_VS_FORMULA",
         title: "Prioritizing 400 Vulnerabilities",
-        scenarioText: "You have 400 open vulnerabilities to work through. You can order them using a published scoring model that estimates each one's chance of being exploited soon, built from current exploit activity, updated daily, and checked against real attacks. Or you can use a senior engineer's gut ranking. Which should set the order?",
+        scenarioText: "You have 400 open vulnerabilities to work through. You can order them using a scoring model that combines each one's chance of being exploited soon (from current exploit activity, updated daily and checked against real attacks) with how exposed and important the affected system is in your network. Or you can use a senior engineer's gut ranking. Which should set the order?",
         bestAnswer: "The scoring model",
-        reasoning: "Consistent models built on current data, like FIRST's Exploit Prediction Scoring System (EPSS), tend to beat unaided judgment across hundreds of items, where intuition gets tired and inconsistent. Because it's updated daily from current exploit activity, it tracks attackers as they change rather than relying only on history. Expert review is still valuable on top, as Kahneman suggests in Chapter 21: score first, then use judgment.",
+        reasoning: "Consistent models that combine current exploit data, like FIRST's Exploit Prediction Scoring System (EPSS), with your own systems' exposure tend to beat unaided judgment across hundreds of items, where intuition gets tired and inconsistent. Because it's updated daily from current exploit activity, it tracks attackers as they change rather than relying only on history. Expert review is still valuable on top, as Kahneman suggests in Chapter 21: score first, then use judgment.",
         biasName: "Intuition vs. Formulas",
         bookRef: "Thinking, Fast and Slow - Chapter 21",
         options: [
@@ -1612,7 +1615,7 @@ export const STANDALONE_SCENARIOS = [
         short: true,
         biasType: "LOOKALIKES",
         title: "Parking Meter QR Code",
-        scenarioText: "A city parking meter has a sticker with a QR code: \"Pay faster by phone: scan here.\" What do you do?",
+        scenarioText: "A city parking meter has a card reader and printed instructions for the city's parking app. Someone has stuck a sticker over part of the instructions with a QR code: \"Pay faster by phone: scan here.\" What do you do?",
         bestAnswer: "Pay with the city's official app or the payment method built into the meter",
         reasoning: "A QR code hides its destination until you've already opened it, and anyone can put a sticker on a meter. Fake parking QR codes leading to payment-stealing sites have been reported in many cities. Using the official app or the meter itself avoids the question of where the code goes.",
         biasName: "Lookalikes & Hidden Links",
@@ -1680,14 +1683,14 @@ export const STANDALONE_SCENARIOS = [
             checkbox: "Install SpeedyBar and make SpeedySearch my homepage and default search engine (recommended)",
             buttons: ["Back", "Next"]
         },
-        bestAnswer: "Uncheck the SpeedyBar box, then click Next",
-        reasoning: "The extra software is pre-selected and labeled \"recommended\" so that clicking Next, which most people do, installs it. Bundled toolbars and search hijackers spread largely through boxes like this one. Unchecking it gets you what you came for without the add-on; cancelling the whole install isn't necessary.",
+        bestAnswer: "Don't install SpeedyBar: uncheck the box, or cancel the installation",
+        reasoning: "The extra software is pre-selected and labeled \"recommended\" so that clicking Next, which most people do, installs it. Bundled toolbars and search hijackers spread largely through boxes like this one. Unchecking it gets you what you came for without the add-on. Cancelling is just as reasonable: an installer that tries to sneak in extras is a reason to distrust it, and you can look for the program from a source that doesn't bundle anything.",
         biasName: "Default Effect",
         bookRef: "Thinking, Fast and Slow - Chapter 34",
         options: [
             { text: "Click Next", biasValue: 1, isBest: false },
             { text: "Uncheck the SpeedyBar box, then click Next", biasValue: 0, isBest: true },
-            { text: "Cancel the whole installation", biasValue: 0.5, isBest: false }
+            { text: "Cancel the whole installation", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -2055,7 +2058,7 @@ export const STANDALONE_SCENARIOS = [
         practiceOnly: true,
         biasType: "ROACH_MOTEL",
         title: "Gym Contract Fine Print",
-        scenarioText: "A gym offers a $10 first month and lets you join online in two minutes. The contract says canceling requires a certified letter or an in-person visit during weekday business hours. You expect to stop going within a few months. What's the best move?",
+        scenarioText: "A gym offers a $10 first month and lets you join online in two minutes. The contract says canceling requires a certified letter or an in-person visit during weekday business hours, when you're at work. Other nearby gyms with similar prices let you cancel online. You expect to stop going within a few months. What's the best move?",
         bestAnswer: "Look for a gym you can cancel online",
         reasoning: "The cheap first month is the bait; the hard cancellation is where the gym makes its money, because many people keep paying rather than deal with it. California now requires businesses to let customers cancel online if they signed up online, and the FTC has pursued companies over hard-to-cancel subscriptions.",
         biasName: "Hard-to-Cancel Subscriptions",
@@ -2896,7 +2899,7 @@ export const PAIRED_TESTS = {
     allais: {
         biasType: "FOURFOLD",
         bestAnswer: "The same type of option (safer or riskier) in both versions",
-        reasoning: "The second version is the first with every probability divided by four. Under consistent preferences, if you prefer the sure $3,000 to an 80% chance of $4,000, you should also prefer 25% of $3,000 to 20% of $4,000. Most people take the sure thing in the first version and the bigger prize in the second: certainty gets extra weight. Kahneman discusses this pattern, first described by Maurice Allais, in Chapter 29.",
+        reasoning: "The second version is the first with every probability divided by four. Under consistent preferences, if you prefer the sure $3,000 to an 80% chance of $4,000, you should also prefer 25% of $3,000 to 20% of $4,000. Most people take the sure thing in the first version and the bigger prize in the second: certainty gets extra weight. Kahneman discusses this pattern, first described by Maurice Allais, in Chapter 29. Some economists argue that valuing certainty this way is a reasonable preference rather than a mistake; what this pair shows is whether a sure thing pulled your choice in one version but not in the other.",
         biasName: "Certainty Effect (Allais Paradox)",
         bookRef: "Thinking, Fast and Slow - Chapter 29",
         isConsistent: sameAnswer,
@@ -3199,7 +3202,7 @@ export class ScenarioBank {
 
     // The regular (scored, non-filler) questions in a version
     static mainQuestions(version = 'full') {
-        return MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.filler && (version !== 'short' || s.short));
+        return MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.filler && !s.retired && (version !== 'short' || s.short));
     }
 
     // About how many questions a fresh session of this version has
@@ -3263,7 +3266,7 @@ export class ScenarioBank {
      */
     static pickRetestScenario(biasType, { excludeIds = new Set(), missedIds = new Set(), askedIds = new Set() } = {}) {
         const candidates = shuffle(STANDALONE_SCENARIOS.filter(s =>
-            s.biasType === biasType && !excludeIds.has(s.id)
+            s.biasType === biasType && !s.retired && !excludeIds.has(s.id)
         ));
         return candidates.find(s => !askedIds.has(s.id) && !missedIds.has(s.id))
             || candidates.find(s => !askedIds.has(s.id))
@@ -3282,7 +3285,7 @@ export class ScenarioBank {
      */
     static pickPracticeScenario(biasType, { seenIds = new Set(), excludeIds = new Set() } = {}) {
         const candidates = shuffle(STANDALONE_SCENARIOS.filter(s =>
-            s.biasType === biasType && !excludeIds.has(s.id)
+            s.biasType === biasType && !s.retired && !excludeIds.has(s.id)
         ));
         return candidates.find(s => s.practiceOnly && !seenIds.has(s.id))
             || candidates.find(s => seenIds.has(s.id))

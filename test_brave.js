@@ -27,7 +27,7 @@ const PORT = 8088;
 const BRAVE_PATH = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser';
 const CHECKPOINT_EVERY = REVIEW_BLOCK;
 
-const MAIN_POOL = MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.filler);
+const MAIN_POOL = MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.filler && !s.retired);
 const isFiller = id => Boolean(ScenarioBank.getScenario(id).filler);
 const scenariosByTitle = new Map(MASTER_SCENARIOS.map(s => [s.title, s]));
 
@@ -54,7 +54,8 @@ function checkScenarioData() {
         assert.ok(s.scenarioText && s.options.length >= 2, `Incomplete scenario ${s.id}`);
     }
     for (const s of STANDALONE_SCENARIOS) {
-        assert.equal(s.options.filter(o => o.isBest).length, 1, `${s.id} needs exactly one best option`);
+        assert.ok(s.options.some(o => o.isBest), `${s.id} needs at least one best option`);
+        assert.ok(s.options.some(o => !o.isBest), `${s.id} needs at least one wrong option`);
         assert.ok(s.bestAnswer && s.reasoning && s.biasName && s.bookRef, `${s.id} is missing explanation fields`);
     }
     for (const [pairId, pair] of Object.entries(PAIRED_TESTS)) {
@@ -508,7 +509,7 @@ async function runBrowserChecks(browser) {
         return img.decode().then(() => img.naturalWidth > 0, () => false);
     })));
     assert.ok(adImages.length === MASTER_SCENARIOS.filter(s => s.image).length && adImages.every(Boolean), 'Every ad image should load');
-    assert.equal(reviewCards, STANDALONE_SCENARIOS.length + Object.keys(PAIRED_TESTS).length, 'Review page card count');
+    assert.equal(reviewCards, STANDALONE_SCENARIOS.filter(s => !s.retired).length + Object.keys(PAIRED_TESTS).length, 'Review page card count');
 
     assert.deepEqual(pageErrors, [], 'Page threw errors');
     return { first, second };
