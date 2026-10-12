@@ -18,7 +18,7 @@ import puppeteer from 'puppeteer-core';
 import { createStaticServer } from './serve.js';
 import {
     MASTER_SCENARIOS, STANDALONE_SCENARIOS, PAIRED_TESTS, BIAS_CATEGORIES,
-    MIN_PAIR_GAP, REVIEW_BLOCK, ScenarioBank
+    MIN_PAIR_GAP, REVIEW_BLOCK, SHORT_SESSION_MAX, ScenarioBank
 } from './js/scenarioBank.js';
 import { BiasAnalyzer } from './js/biasAnalyzer.js';
 import { Progress, normalizeId, displayId, newGuestId, isGuestId } from './js/progress.js';
@@ -425,6 +425,7 @@ async function runBrowserChecks(browser) {
     const firstPlanned = first.queue.filter(e => !e.retest && !isFiller(e.id)).map(e => e.id);
     assert.deepEqual([...firstPlanned].sort(), shortIds, 'The short version should ask every short-version question once');
     assert.ok(first.queue.some(e => isFiller(e.id)), 'Session 1 should include straightforward questions');
+    assert.ok(first.queue.length <= SHORT_SESSION_MAX, `The short version ran to ${first.queue.length} questions, over the ${SHORT_SESSION_MAX} limit`);
     assert.match(await text(page, '#play-again-btn'), /Continue to the Full Version/, 'The short version should offer the full version');
 
     // Continuing goes through every regular question not yet seen

@@ -961,7 +961,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "ads-fake-urgency",
-        short: true,
         biasType: "FAKE_URGENCY",
         title: "Travel Booking Countdown",
         scenarioText: "You are planning a trip three weeks from now. A booking site shows a hotel you like with the banners \"Only 2 rooms left at this price!\" and \"14 people are looking at this hotel right now,\" plus a timer: \"Deal expires in 09:59.\" You haven't checked any other sites yet. What do you do?",
@@ -1051,7 +1050,6 @@ export const STANDALONE_SCENARIOS = [
     // -------------------------------------------------------------
     {
         id: "ad-phone-plan",
-        short: true,
         biasType: "FINE_PRINT",
         title: "Phone Plan Ad",
         image: {
@@ -1168,7 +1166,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "ad-airfare-from",
-        short: true,
         biasType: "DRIP_PRICING",
         title: "Airfare Sale Ad",
         image: {
@@ -1242,7 +1239,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "sec-firewall-record",
-        short: true,
         biasType: "ADAPTIVE_ADVERSARY",
         title: "Firewall's Perfect Year",
         scenarioText: "Last year, your web application firewall's rules blocked every attack recorded in your logs. This month, attackers have started probing your site with payloads designed to slip past rules like yours. How much should last year's perfect record reassure you about next year?",
@@ -1258,7 +1254,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "sec-cve-counts",
-        short: true,
         biasType: "WYSIATI",
         title: "Comparing Library CVE Counts",
         scenarioText: "Library A had 120 published vulnerabilities (CVEs) last year. Library B, which does the same job, had 3. Library A is very widely used, has a dedicated security team, and pays bug bounties. Library B is maintained by one volunteer and has never had a security audit. What do the CVE counts tell you about which is safer to use?",
@@ -1335,7 +1330,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "sec-default-passwords",
-        short: true,
         biasType: "DEFAULTS",
         title: "Camera Password Design",
         scenarioText: "You're designing a home security camera. Option A ships every camera with the same default password and a note telling customers to change it. Option B gives each camera its own unique password and asks customers to set their own during setup. Which do you choose?",
@@ -1441,7 +1435,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "sec-takeover-rates",
-        short: true,
         biasType: "DENOMINATOR",
         title: "Account Takeover Rates",
         scenarioText: "Last year, Service A had 30 account-takeover incidents among its 3,000,000 users. Service B had 3 incidents among its 10,000 users. Which service had the higher rate of account takeovers?",
@@ -1502,7 +1495,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-help-desk-call",
-        short: true,
         biasType: "AUTHORITY_PRESSURE",
         title: "Urgent Help Desk Call",
         scenarioText: "You work on Larkwood's IT help desk. A caller says she's Dana Ortiz, VP of Sales, stuck at an airport before a board presentation and locked out after getting a new phone. She knows her employee ID and her manager's name, and she's getting angry. She wants her multi-factor authentication reset right now. What do you do?",
@@ -1518,7 +1510,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-deepfake-call",
-        short: true,
         biasType: "AUTHORITY_PRESSURE",
         title: "Video Call Transfer",
         scenarioText: "On a video call, your CFO and two colleagues you recognize ask you to make 15 urgent transfers totaling $25 million for a confidential acquisition. Their faces and voices look and sound right. What do you do?",
@@ -1557,7 +1548,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-cert-warning",
-        short: true,
         biasType: "HABITUATION",
         title: "Café Wi-Fi Warning",
         scenarioText: "You're on a café's Wi-Fi and open your bank's website, which you use every week. Instead of the sign-in page, you see this. You've clicked past warnings like it before and nothing bad happened. What do you do?",
@@ -1596,7 +1586,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-typosquat-package",
-        short: true,
         biasType: "LOOKALIKES",
         title: "Setup Script Package",
         scenarioText: "A teammate's setup script runs \"pip install requets\". The popular Python HTTP library everyone uses is \"requests\". What do you do?",
@@ -1612,7 +1601,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-parking-qr",
-        short: true,
         biasType: "LOOKALIKES",
         title: "Parking Meter QR Code",
         scenarioText: "A city parking meter has a card reader and printed instructions for the city's parking app. Someone has stuck a sticker over part of the instructions with a QR code: \"Pay faster by phone: scan here.\" What do you do?",
@@ -1671,7 +1659,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-bundled-installer",
-        short: true,
         biasType: "DEFAULTS",
         title: "Photo Editor Installer",
         scenarioText: "You're installing PhotoTool, a free photo editor you want. Partway through, the installer shows the screen below. What do you do?",
@@ -1720,7 +1707,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-sextortion",
-        short: true,
         biasType: "BAIT",
         title: "Threatening Email",
         scenarioText: "An email says: \"I hacked your computer and recorded you through your webcam. Your password is Summer2019, proof I'm serious. Pay $1,200 in Bitcoin within 48 hours or I send the video to your contacts.\" Summer2019 is an old password you used years ago. What's most likely going on?",
@@ -1735,7 +1721,6 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-found-usb",
-        short: true,
         biasType: "BAIT",
         title: "Parking Lot USB Drive",
         scenarioText: "In your office parking lot, you find a USB drive labeled \"Salaries 2026: CONFIDENTIAL.\" What do you do?",
@@ -2205,6 +2190,81 @@ export const STANDALONE_SCENARIOS = [
         options: [
             { text: "Yes", biasValue: 1, isBest: false },
             { text: "No, expect it to catch less", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-phishing-shared-file",
+        practiceOnly: true,
+        biasType: "PHISHING",
+        title: "Expected Shared File",
+        scenarioText: "Your colleague Priya told you this morning that she'd share the budget spreadsheet. An hour later an email arrives from priya.nair@larkwood.com (your company's real domain) saying she shared \"Q3 budget\" with you, with a link to your company's usual file-sharing site. Is this email safe to open?",
+        bestAnswer: "Yes; it's expected and from the real domain",
+        reasoning: "It passes every check: you were told it was coming, it's from a colleague's real larkwood.com address, and the link goes to the file-sharing site you already use. Spotting phishing means checking, not treating every email as an attack.",
+        biasName: "Spotting Phishing",
+        bookRef: "Security awareness research (sender, expectation, and request checks)",
+        options: [
+            { text: "Yes; it's expected and from the real domain", biasValue: 0, isBest: true },
+            { text: "No; report it as phishing", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "practice-authority-bank-change",
+        practiceOnly: true,
+        biasType: "AUTHORITY_PRESSURE",
+        title: "Supplier Bank Change",
+        scenarioText: "An email from your long-time supplier's usual address says their bank has changed, and asks you to send this month's $36,000 payment to a new account number, today if possible. What do you do?",
+        bestAnswer: "Call the supplier on a number you already have before paying",
+        reasoning: "Changed bank details are one of the most common payment-fraud tricks, and the real supplier's mailbox may have been taken over, so the right address proves nothing. Confirming by phone on a number from your own records is the standard check.",
+        biasName: "Authority & Impersonation",
+        bookRef: "Influence research (Cialdini 1984)",
+        options: [
+            { text: "Pay the new account", biasValue: 1, isBest: false },
+            { text: "Call the supplier on a number you already have before paying", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-lookalike-sender",
+        practiceOnly: true,
+        biasType: "LOOKALIKES",
+        title: "Payment Service Sender",
+        scenarioText: "Your payment account is with PayStream, at paystream.com. An email from support@paystream-help.com says your account is on hold. Does that sender belong to PayStream?",
+        bestAnswer: "No; paystream-help.com is a different domain",
+        reasoning: "paystream-help.com and paystream.com are separate domains, and anyone can register the first. A familiar name inside an address is exactly what lookalike domains rely on.",
+        biasName: "Lookalikes & Hidden Links",
+        bookRef: "Thinking, Fast and Slow - Chapter 5 (cognitive ease)",
+        options: [
+            { text: "Yes; it has PayStream's name in it", biasValue: 1, isBest: false },
+            { text: "No; paystream-help.com is a different domain", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-habituation-admin-prompt",
+        practiceOnly: true,
+        biasType: "HABITUATION",
+        title: "Unexpected Permission Prompt",
+        scenarioText: "While you're reading email, your laptop asks: \"Allow UpdateHelper to make changes to your device?\" You didn't open or install anything called UpdateHelper. What do you click?",
+        bestAnswer: "No",
+        reasoning: "Permission prompts appear so often that people click Yes by reflex. A prompt for software you didn't start is the one to stop on: saying yes would give it full control of the laptop. Click No and tell IT.",
+        biasName: "Warning & Prompt Fatigue",
+        bookRef: "Usable security research (Akhawe & Felt 2013)",
+        options: [
+            { text: "Yes", biasValue: 1, isBest: false },
+            { text: "No", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "practice-bait-prize-text",
+        practiceOnly: true,
+        biasType: "BAIT",
+        title: "Gift Card Text",
+        scenarioText: "A text message says: \"Congratulations! Your phone carrier has selected you for a $500 gift card. Claim within 24 hours: [link].\" What do you do?",
+        bestAnswer: "Delete it, or report it as spam",
+        reasoning: "A surprise prize with a deadline is bait: excitement and urgency get you to tap before you check. Carriers don't hand out gift cards through random texts, and the link usually leads to a page that collects personal or card details.",
+        biasName: "Fear & Curiosity Bait",
+        bookRef: "Social engineering research (fear appeals; Tischer et al. 2016)",
+        options: [
+            { text: "Tap the link to claim it", biasValue: 1, isBest: false },
+            { text: "Delete it, or report it as spam", biasValue: 0, isBest: true }
         ]
     },
 
@@ -3105,6 +3165,8 @@ export const REVIEW_BLOCK = 10;
 // A short final block holds no pairs.
 const PAIRS_PER_BLOCK = 2;
 export const MIN_PAIR_GAP = REVIEW_BLOCK - PAIRS_PER_BLOCK;
+// The short version (planned questions plus retests) never runs longer than this
+export const SHORT_SESSION_MAX = 40;
 // About one straightforward question (where the obvious answer is right) is
 // scattered into every this-many regular questions
 const QUESTIONS_PER_SCATTERED_FILLER = 9;

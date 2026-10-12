@@ -12,7 +12,7 @@
  */
 
 import { sound } from './audio.js';
-import { ScenarioBank, PAIRED_TESTS, BIAS_CATEGORIES, REVIEW_BLOCK, BONUS_TOKEN } from './scenarioBank.js';
+import { ScenarioBank, PAIRED_TESTS, BIAS_CATEGORIES, REVIEW_BLOCK, BONUS_TOKEN, SHORT_SESSION_MAX } from './scenarioBank.js';
 import { BiasAnalyzer } from './biasAnalyzer.js';
 import { BrainChart } from './chart.js';
 import { Progress, normalizeId, displayId, newGuestId } from './progress.js';
@@ -656,8 +656,11 @@ class GradeMyBrainApp {
         const askedIds = new Set([...this.progress.seenIds, ...session.queue.slice(0, session.position).map(e => e.id)]);
         const missedIds = this.progress.missedIds();
         const addedRetests = [];
+        // The short version stops adding retests once it would pass SHORT_SESSION_MAX
+        const nonPadding = () => session.queue.filter((e, i) => !e.pad || i < session.position).length;
         for (const biasType of missedTypes) {
             if ((session.retestCounts[biasType] || 0) >= MAX_RETESTS_PER_TOPIC) continue;
+            if (session.version === 'short' && nonPadding() >= SHORT_SESSION_MAX) break;
             const sc = ScenarioBank.pickRetestScenario(biasType, { excludeIds: unavailable, missedIds, askedIds });
             if (!sc) continue;
             unavailable.add(sc.id);
