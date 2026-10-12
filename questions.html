@@ -511,15 +511,17 @@ function cardBodyHtml(item) {
             </div>`;
     }
     const s = item.scenario;
+    const inbox = s.inbox ? `
+        <ul class="options">${s.inbox.map((m, i) => `<li class="${m.phish ? '' : 'best'}"><span class="opt-mark">${m.phish ? 'phish' : 'real'}</span><span><strong>${i + 1}. ${esc(m.from)}</strong> &lt;${esc(m.address)}&gt;: ${esc(m.subject)}. <em>${esc(m.why)}</em></span></li>`).join('')}</ul>` : '';
     const mock = s.mockScreen ? `
-        <p class="rule">Players see this as an interactive mock screen for ${esc(s.mockScreen.brand)}: "${esc(s.mockScreen.heading)}" ${esc(s.mockScreen.body)} The choices below are its buttons and links, labeled as they appear: ${s.options.map(o => `${esc(o.ui)} "${esc(o.label)}"`).join('; ')}.</p>` : '';
+        <p class="rule">Players see a mock ${esc(s.mockScreen.kind || 'app')} screen${s.mockScreen.brand ? ` for ${esc(s.mockScreen.brand)}` : ''}: "${esc(s.mockScreen.heading)}" ${esc(s.mockScreen.body)}${s.options.every(o => o.ui) ? ` The choices below are its buttons and links, labeled as they appear: ${s.options.map(o => `${esc(o.ui)} "${esc(o.label)}"`).join('; ')}.` : ''}</p>` : '';
     const image = s.image ? `
         <a class="ad-link" href="${esc(s.image.src)}" target="_blank" rel="noopener"><img class="ad-image" src="${esc(s.image.src)}" alt="${esc(s.image.alt)}" width="640" height="400" loading="lazy"></a>` : '';
     return `
         ${image}
         <p class="prompt">${esc(s.scenarioText)}</p>
         ${mock}
-        ${optionsHtml(s.options, { scored: true })}
+        ${s.inbox ? inbox : optionsHtml(s.options, { scored: true })}
         <div class="explain">
             <span class="label">Best answer</span>
             <p class="best-answer">${esc(s.bestAnswer)}</p>

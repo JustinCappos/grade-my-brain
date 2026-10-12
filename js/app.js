@@ -39,6 +39,9 @@ const STARTING_SCORE = 100;
 const POINTS_CORRECT = 20;
 const POINTS_WRONG = -15;
 const ACTIVE_ID_KEY = 'gmb_active_id';
+// The fake bonus pop-up appears once per player, at this question (0-based)
+const BONUS_POPUP_AT = 6;
+const BONUS_POPUP_SECONDS = 59;
 
 const KIND_LABELS = { deceptive: 'Deceptive practice', good: 'Better practice', example: 'Real-world case' };
 
@@ -112,7 +115,9 @@ class GradeMyBrainApp {
         this.auditPickerEl = document.getElementById('audit-session-picker');
         this.auditSelectEl = document.getElementById('audit-session-select');
         this.missedByTopicEl = document.getElementById('missed-by-topic');
-        this.policyDebriefEl = document.getElementById('policy-debrief');
+        this.hiddenTestsEl = document.getElementById('hidden-tests');
+        this.bonusPopupEl = document.getElementById('bonus-popup');
+        this.bonusTimerEl = document.getElementById('bonus-timer');
         this.sys1BarEl = document.getElementById('sys1-bar');
         this.sys2BarEl = document.getElementById('sys2-bar');
         this.sys1ValEl = document.getElementById('sys1-val');
@@ -163,6 +168,9 @@ class GradeMyBrainApp {
         };
 
         this.auditSelectEl.onchange = () => this.renderAudit(this.auditSelectEl.value);
+
+        document.getElementById('bonus-claim-btn').onclick = () => this.answerBonusPopup(true);
+        document.getElementById('bonus-decline-btn').onclick = () => this.answerBonusPopup(false);
 
         this.closeAuditModalBtn.onclick = () => {
             playSafely(() => sound.playClick());
@@ -400,13 +408,62 @@ class GradeMyBrainApp {
 
         this.scenarioTitleEl.textContent = sc.title;
         this.scenarioTextEl.textContent = sc.scenarioText;
-        this.scenarioMediaEl.innerHTML = this.imageHtml(sc);
+        this.maybeShowBonusPopup();
+        this.scenarioMediaEl.innerHTML = this.imageHtml(sc) +
+            (sc.mockScreen && !this.isInteractiveMock(sc) ? this.mockScreenHtml(sc, { interactive: false }) : '');
         this.renderOptions(this.optionsContainerEl, sc, opt => this.handleAnswer(opt));
+    }
+
+    // --- Hidden test: fake bonus pop-up ---
+
+    maybeShowBonusPopup() {
+        const tests = (this.progress.data.hiddenTests ||= {});
+        if (tests.bonusPopup || this.session.position !== BONUS_POPUP_AT) return;
+        tests.bonusPopup = { shownAt: Date.now(), clicked: null };
+        this.progress.save();
+
+        document.getElementById('bonus-thanks').hidden = true;
+        document.getElementById('bonus-claim-btn').hidden = false;
+        document.getElementById('bonus-decline-btn').hidden = false;
+        this.bonusPopupEl.hidden = false;
+        let remaining = BONUS_POPUP_SECONDS;
+        this.bonusTimerEl.textContent = `0:${String(remaining).padStart(2, '0')}`;
+        clearInterval(this.bonusTimer);
+        this.bonusTimer = setInterval(() => {
+            remaining--;
+            this.bonusTimerEl.textContent = `0:${String(Math.max(0, remaining)).padStart(2, '0')}`;
+            if (remaining <= 0) this.hideBonusPopup();
+        }, 1000);
+    }
+
+    // Records the click only; the pop-up never asks for anything
+    answerBonusPopup(clicked) {
+        const test = this.progress.data.hiddenTests && this.progress.data.hiddenTests.bonusPopup;
+        if (!test || test.clicked !== null) return;
+        test.clicked = clicked;
+        this.progress.save();
+        if (clicked) {
+            document.getElementById('bonus-claim-btn').hidden = true;
+            document.getElementById('bonus-decline-btn').hidden = true;
+            document.getElementById('bonus-thanks').hidden = false;
+            setTimeout(() => this.hideBonusPopup(), 1200);
+        } else {
+            this.hideBonusPopup();
+        }
+    }
+
+    hideBonusPopup() {
+        clearInterval(this.bonusTimer);
+        this.bonusPopupEl.hidden = true;
     }
 
     renderOptions(container, sc, onSelect) {
         container.innerHTML = '';
-        if (sc.mockScreen) {
+        if (sc.inbox) {
+            this.renderInbox(container, sc, onSelect);
+            return;
+        }
+        if (this.isInteractiveMock(sc)) {
             // The choices are the mock screen's own buttons and links
             container.innerHTML = this.mockScreenHtml(sc, { interactive: true });
             container.querySelectorAll('[data-option-index]').forEach(el => {
@@ -467,7 +524,8 @@ class GradeMyBrainApp {
                 correct,
                 biasValue: selectedOpt.biasValue ?? (correct ? 0 : 1),
                 retest: entry.retest,
-                yourAnswer: selectedOpt.text
+                yourAnswer: selectedOpt.text,
+                inboxAnswers: selectedOpt.inboxAnswers || null
             });
         }
 
@@ -760,36 +818,172 @@ class GradeMyBrainApp {
         }).join('');
     }
 
-    // A realistic app screen whose buttons are the answer choices. In reviews it
-    // is shown again, not clickable, so the player can see what they faced.
-    mockScreenHtml(sc, { interactive }) {
+    // True when a question's answer choices are the buttons of its mock screen;
+    // otherwise the screen is shown as a picture above ordinary choices
+    isInteractiveMock(sc) {
+        return Boolean(sc.mockScreen) && sc.options.every(o => o.ui);
+    }
+
+    // A realistic screen (app dialog, phone, browser page, cookie banner, or
+    // installer). When `interactive`, the options with a `ui` role are its
+    // clickable buttons; in reviews it is shown again, not clickable.
+    mockScreenHtml(sc, { interactive, compact = false }) {
         const m = sc.mockScreen;
+        const kind = m.kind || 'dialog';
+        const live = interactive && this.isInteractiveMock(sc);
         const button = (opt, cls) => {
             const idx = sc.options.indexOf(opt);
-            return interactive
+            return live
                 ? `<button type="button" class="${cls}" data-option-index="${idx}">${esc(opt.label)}</button>`
                 : `<span class="${cls}" aria-hidden="true">${esc(opt.label)}</span>`;
         };
-        const byRole = role => sc.options.filter(o => o.ui === role);
-        return `
-            <figure class="mock-screen-wrap${interactive ? '' : ' mock-screen-static'}">
-                <div class="mock-screen" role="group" aria-label="${esc(m.brand)} cancellation screen">
-                    <div class="mock-screen-bar"><span class="mock-brand">${esc(m.brand)}</span><span class="mock-step">${esc(m.step)}</span></div>
+        const roles = (...names) => names.flatMap(r => sc.options.filter(o => o.ui === r));
+        const staticButtons = labels => (labels || []).map((label, i) =>
+            `<span class="mock-btn ${i === labels.length - 1 ? 'mock-btn-primary' : 'mock-btn-secondary'}" aria-hidden="true">${esc(label)}</span>`).join('');
+        const bullets = m.bullets ? `<ul class="mock-bullets">${m.bullets.map(b => `<li>${esc(b)}</li>`).join('')}</ul>` : '';
+
+        let screen;
+        if (kind === 'phone') {
+            screen = `
+                <div class="mock-phone">
+                    <div class="mock-phone-status"><span>${esc(m.time)}</span><span>📶 🔋</span></div>
+                    ${m.stacked ? `<p class="mock-phone-stacked">${esc(m.stacked)}</p>` : ''}
+                    ${m.message ? `<div class="mock-phone-message"><p class="mock-phone-from">${esc(m.message.from)}</p><p>${esc(m.message.text)}</p></div>` : ''}
+                    <div class="mock-phone-prompt">
+                        <p class="mock-heading">${esc(m.heading)}</p>
+                        <p class="mock-text">${esc(m.body)}</p>
+                        <div class="mock-btn-row">${roles('primary', 'secondary').map(o => button(o, `mock-btn ${o.ui === 'primary' ? 'mock-btn-primary' : 'mock-btn-secondary'}`)).join('')}</div>
+                        ${roles('link').map(o => button(o, 'mock-btn mock-btn-link')).join('')}
+                    </div>
+                </div>`;
+        } else if (kind === 'browser') {
+            screen = `
+                <div class="mock-browser${m.alarm ? ' mock-browser-alarm' : ''}">
+                    <div class="mock-browser-bar">
+                        <span class="mock-url${m.urlWarning ? ' mock-url-warning' : ''}">${m.urlWarning ? '⚠ Not secure · ' : '🔒 '}${esc(m.url)}</span>
+                    </div>
+                    <div class="mock-browser-page">
+                        <p class="mock-heading">${esc(m.heading)}</p>
+                        <p class="mock-text">${esc(m.body)}</p>
+                        ${live || roles('primary', 'secondary', 'link').length ? `
+                            ${roles('primary', 'secondary').map(o => button(o, `mock-btn ${o.ui === 'primary' ? 'mock-btn-primary' : 'mock-btn-secondary'}`)).join('')}
+                            ${roles('link').map(o => button(o, 'mock-btn mock-btn-link')).join('')}` : `<div class="mock-btn-row">${staticButtons(m.buttons)}</div>`}
+                    </div>
+                </div>`;
+        } else if (kind === 'banner') {
+            screen = `
+                <div class="mock-page">
+                    <div class="mock-page-masthead">${esc(m.brand)}</div>
+                    <div class="mock-page-lines"><span></span><span></span><span></span><span></span></div>
+                    <div class="mock-cookie-banner">
+                        ${roles('close').map(o => button(o, 'mock-btn mock-btn-close')).join('')}
+                        <p class="mock-heading">${esc(m.heading)}</p>
+                        <p class="mock-text">${esc(m.body)}</p>
+                        <div class="mock-btn-row">
+                            ${roles('link').map(o => button(o, 'mock-btn mock-btn-link')).join('')}
+                            ${roles('primary').map(o => button(o, 'mock-btn mock-btn-primary')).join('')}
+                        </div>
+                    </div>
+                </div>`;
+        } else if (kind === 'installer') {
+            screen = `
+                <div class="mock-installer">
+                    <div class="mock-installer-bar"><span>${esc(m.brand)}</span><span>${esc(m.step)}</span></div>
+                    <div class="mock-installer-body">
+                        <p class="mock-heading">${esc(m.heading)}</p>
+                        <p class="mock-checkbox"><span class="mock-checkbox-box" aria-hidden="true">✓</span>${esc(m.checkbox)}</p>
+                    </div>
+                    <div class="mock-installer-footer">${staticButtons(m.buttons)}</div>
+                </div>`;
+        } else {
+            screen = `
+                <div class="mock-screen">
+                    <div class="mock-screen-bar"><span class="mock-brand">${esc(m.brand)}</span>${m.step ? `<span class="mock-step">${esc(m.step)}</span>` : ''}</div>
                     <div class="mock-screen-body">
                         <p class="mock-heading">${esc(m.heading)}</p>
                         <p class="mock-text">${esc(m.body)}</p>
+                        ${bullets}
                         ${m.offer ? `
                             <div class="mock-offer">
                                 <p class="mock-offer-label">${esc(m.offer.label)}</p>
                                 <p class="mock-offer-text">${esc(m.offer.text)}</p>
-                                ${byRole('offer').map(o => button(o, 'mock-btn mock-btn-offer')).join('')}
+                                ${roles('offer').map(o => button(o, 'mock-btn mock-btn-offer')).join('')}
                             </div>` : ''}
-                        ${byRole('primary').map(o => button(o, 'mock-btn mock-btn-primary')).join('')}
-                        ${byRole('link').map(o => button(o, 'mock-btn mock-btn-link')).join('')}
+                        ${roles('primary').map(o => button(o, 'mock-btn mock-btn-primary')).join('')}
+                        ${roles('secondary').map(o => button(o, 'mock-btn mock-btn-secondary')).join('')}
+                        ${roles('link').map(o => button(o, 'mock-btn mock-btn-link')).join('')}
                     </div>
-                </div>
+                </div>`;
+        }
+        return `
+            <figure class="mock-screen-wrap${live ? '' : ' mock-screen-static'}${compact ? ' mock-screen-compact' : ''}" role="group" aria-label="Mock screen: ${esc(m.heading)}">
+                ${screen}
                 <figcaption>Mock screen from a fictional service.</figcaption>
             </figure>`;
+    }
+
+    // The phishing inbox: the player marks each email, then submits the lot
+    renderInbox(container, sc, onSelect) {
+        const choices = {};
+        const n = sc.inbox.length;
+        container.innerHTML = `
+            <div class="inbox-wrap">
+                <div class="inbox">
+                    <div class="inbox-bar">Inbox · ${n} unread</div>
+                    ${sc.inbox.map((mail, i) => `
+                        <div class="inbox-row" data-row="${i}">
+                            <p class="inbox-from"><strong>${esc(mail.from)}</strong> <span class="inbox-address">&lt;${esc(mail.address)}&gt;</span></p>
+                            <p class="inbox-subject">${esc(mail.subject)}</p>
+                            <p class="inbox-preview">${esc(mail.preview)}</p>
+                            <div class="inbox-actions">
+                                <button type="button" class="inbox-choice" data-inbox-row="${i}" data-inbox-choice="report" aria-pressed="false">Report phishing</button>
+                                <button type="button" class="inbox-choice" data-inbox-row="${i}" data-inbox-choice="keep" aria-pressed="false">Keep</button>
+                            </div>
+                        </div>`).join('')}
+                </div>
+                <button type="button" id="inbox-submit" class="glow-btn inbox-submit" disabled>Mark every email to finish (0 of ${n})</button>
+            </div>`;
+        const submit = container.querySelector('#inbox-submit');
+        container.querySelectorAll('.inbox-choice').forEach(btn => {
+            btn.onclick = () => {
+                const row = Number(btn.dataset.inboxRow);
+                choices[row] = btn.dataset.inboxChoice;
+                container.querySelectorAll(`.inbox-choice[data-inbox-row="${row}"]`).forEach(b =>
+                    b.setAttribute('aria-pressed', String(b === btn)));
+                const done = Object.keys(choices).length;
+                submit.disabled = done < n;
+                submit.textContent = done < n ? `Mark every email to finish (${done} of ${n})` : 'Done sorting →';
+            };
+        });
+        submit.onclick = () => {
+            if (this.isProcessing || Object.keys(choices).length < n) return;
+            playSafely(() => sound.playWagerSelect());
+            const mistakes = sc.inbox.filter((mail, i) => (choices[i] === 'report') !== mail.phish).length;
+            onSelect({
+                text: mistakes === 0 ? 'Sorted every email correctly' : `Sorted ${n - mistakes} of ${n} emails correctly`,
+                isBest: mistakes === 0,
+                biasValue: mistakes / n,
+                inboxAnswers: { ...choices }
+            });
+        };
+    }
+
+    // Per-email results for a sorted inbox, shown in reviews
+    inboxResultsHtml(sc, answers) {
+        return `
+            <div class="inbox-results">
+                ${sc.inbox.map((mail, i) => {
+                    const yours = answers ? answers[i] : null;
+                    const right = mail.phish ? 'report' : 'keep';
+                    const ok = yours === right;
+                    return `
+                        <div class="inbox-result ${yours ? (ok ? 'inbox-ok' : 'inbox-wrong') : ''}">
+                            <p class="inbox-from"><strong>${i + 1}. ${esc(mail.from)}</strong> <span class="inbox-address">&lt;${esc(mail.address)}&gt;</span></p>
+                            <p class="inbox-subject">${esc(mail.subject)}</p>
+                            <p class="inbox-verdict">${yours ? `${ok ? '✓' : '✗'} You chose ${yours === 'report' ? 'Report' : 'Keep'}. ` : ''}${mail.phish ? 'Phishing' : 'Real'}: ${esc(mail.why)}</p>
+                        </div>`;
+                }).join('')}
+            </div>`;
     }
 
     // An ad image for questions that have one; select it to see it full size
@@ -835,7 +1029,8 @@ class GradeMyBrainApp {
             title = sc.title;
             body = `
                 ${this.imageHtml(sc, { compact: true })}
-                ${sc.mockScreen ? this.mockScreenHtml(sc, { interactive: false }) : ''}
+                ${sc.mockScreen ? this.mockScreenHtml(sc, { interactive: false, compact: true }) : ''}
+                ${sc.inbox ? this.inboxResultsHtml(sc, item.inboxAnswers) : ''}
                 <p class="review-scenario">${esc(sc.scenarioText)}</p>
                 <p class="answer-row"><span class="answer-label">Your answer</span><span class="answer-yours">${esc(item.yourAnswer)}</span></p>`;
             ({ bestAnswer, reasoning, biasName, bookRef } = sc);
@@ -900,6 +1095,7 @@ class GradeMyBrainApp {
                 ${tipHtml}
                 <h4 class="review-title">${esc(sc.title)}</h4>
                 ${this.imageHtml(sc, { compact: true })}
+                ${sc.mockScreen && !this.isInteractiveMock(sc) ? this.mockScreenHtml(sc, { interactive: false, compact: true }) : ''}
                 <p class="review-scenario">${esc(sc.scenarioText)}</p>
                 ${feedback}
             </article>`;
@@ -1056,7 +1252,7 @@ class GradeMyBrainApp {
 
         const session = this.session;
         const sessionComplete = Boolean(session && session.phase === 'complete');
-        this.renderPolicyDebrief(sessionComplete);
+        this.renderHiddenTests(sessionComplete);
         this.playAgainBtn.hidden = !sessionComplete;
         const unseenFull = ScenarioBank.mainQuestions('full').filter(sc => !seenIds.has(sc.id)).length;
         this.playAgainBtn.textContent = unseenFull > 0
@@ -1068,36 +1264,74 @@ class GradeMyBrainApp {
         }, 50);
     }
 
-    // Shown when a session ends, so nobody misses that the entry screen's
-    // privacy policy was itself a lesson in deceptive design
-    renderPolicyDebrief(show) {
-        this.policyDebriefEl.hidden = !show;
+    // Shown first when a session ends: the tests the player didn't know they
+    // were taking, each with a clear pass or fail
+    renderHiddenTests(show) {
+        this.hiddenTestsEl.hidden = !show;
         if (!show) return;
-        const { checked, openedPolicy } = this.progress.data.consent;
-        const youDid = checked
-            ? (openedPolicy ? 'You opened the privacy policy, then agreed to it anyway.' : 'You agreed to the privacy policy without opening it.')
-            : (openedPolicy
-                ? 'You read the privacy policy, unchecked the box, and clicked the greyed-out button anyway. Well spotted.'
-                : 'You unchecked the consent box and clicked the greyed-out button anyway.');
+        const tests = [];
 
-        this.policyDebriefEl.innerHTML = `
-            <p class="policy-debrief-eyebrow">Before you go</p>
-            <h3 id="policy-debrief-title" class="policy-debrief-title">Did you read the privacy policy?</h3>
-            <p>${esc(youDid)} Go read it now: it grants us naming rights to your firstborn child, shares your data
-                with a raccoon named Gerald, and settles disputes by rock-paper-scissors by mail. Section 3.2 also says
-                the Continue button only <em>looked</em> disabled when the box was unchecked. It worked the whole time.</p>
-            <a class="glow-btn policy-debrief-link" href="privacy.html" target="_blank" rel="noopener">Read the privacy policy ↗</a>
-            <p class="policy-debrief-subtitle">What that screen was teaching</p>
-            <ul class="policy-debrief-list">
-                <li><strong>The box was checked for you.</strong> Pre-selected consent is a default effect: most people keep
-                    whatever is chosen for them. In 2019 the EU's top court ruled that a pre-ticked box is not valid
-                    consent for cookies.</li>
-                <li><strong>The greyed-out button wasn't disabled.</strong> It only looked that way. Visual cues steer
-                    people even when they're false, which is why dark patterns lean on them.</li>
-                <li><strong>Almost nobody reads these.</strong> In a study by Obar and Oeldorf-Hirsch, most people
-                    skipped a fake social network's privacy policy, and 98% missed a clause handing over their
-                    firstborn child.</li>
-            </ul>
+        const { checked, openedPolicy } = this.progress.data.consent;
+        const policyStatus = !checked ? 'pass' : (openedPolicy ? 'partial' : 'fail');
+        tests.push({
+            status: policyStatus,
+            title: 'The privacy policy you agreed to',
+            result: {
+                fail: 'You agreed to a privacy policy without reading it.',
+                partial: 'You opened the privacy policy, then agreed to it anyway.',
+                pass: openedPolicy
+                    ? 'You read the privacy policy, unchecked the box, and found that the greyed-out Continue button still worked.'
+                    : 'You unchecked the consent box and found that the greyed-out Continue button still worked.'
+            }[policyStatus],
+            detail: `
+                <p>The policy you agreed to granted us naming rights to your firstborn child, shared your data with a raccoon
+                    named Gerald, and settled disputes by rock-paper-scissors by mail. Section 3.2 said the Continue button only
+                    <em>looked</em> disabled when the box was unchecked.</p>
+                <ul class="policy-debrief-list">
+                    <li><strong>The box was checked for you.</strong> Most people keep whatever is pre-selected. In 2019 the EU's top court ruled that a pre-ticked box is not valid consent for cookies.</li>
+                    <li><strong>The greyed-out button wasn't disabled.</strong> Visual cues steer people even when they're false.</li>
+                    <li><strong>Almost nobody reads these.</strong> In a study by Obar and Oeldorf-Hirsch, 98% of people missed a clause handing over their firstborn child.</li>
+                </ul>
+                <a class="glow-btn policy-debrief-link" href="privacy.html" target="_blank" rel="noopener">Read the privacy policy ↗</a>`
+        });
+
+        const bonus = this.progress.data.hiddenTests && this.progress.data.hiddenTests.bonusPopup;
+        if (bonus) {
+            const bonusStatus = bonus.clicked ? 'fail' : 'pass';
+            tests.push({
+                status: bonusStatus,
+                title: 'The bonus-points pop-up',
+                result: bonus.clicked
+                    ? 'You clicked "Claim my 50 points" on a pop-up that wasn\'t from this game.'
+                    : 'You didn\'t claim the "50-point bonus" pop-up. It wasn\'t from this game.',
+                detail: `
+                    <p>Its address was grademybrain-rewards.net, not this site, and it used a free reward and a one-minute
+                        countdown, two classic phishing lures. In a real attack, the next screen would ask you to sign in, and
+                        your password would go to the attacker. This game never collects passwords; the pop-up only recorded
+                        whether you clicked.</p>`
+            });
+        }
+
+        const failed = tests.filter(t => t.status !== 'pass').length;
+        const label = { pass: 'Passed', partial: 'Partly passed', fail: 'Failed' };
+        this.hiddenTestsEl.className = `hidden-tests ${failed > 0 ? 'hidden-tests-failed' : 'hidden-tests-passed'}`;
+        this.hiddenTestsEl.innerHTML = `
+            <p class="hidden-tests-eyebrow">Hidden tests</p>
+            <h3 id="hidden-tests-title" class="hidden-tests-title">${failed > 0
+                ? `You fell for ${failed} of ${tests.length} hidden ${tests.length === 1 ? 'test' : 'tests'}`
+                : `You passed ${tests.length === 1 ? 'the hidden test' : `all ${tests.length} hidden tests`}`}</h3>
+            <p class="hidden-tests-intro">Not every test in this game was a question.</p>
+            <div class="hidden-test-list">
+                ${tests.map(t => `
+                    <article class="hidden-test hidden-test-${t.status}">
+                        <div class="hidden-test-head">
+                            <span class="hidden-test-badge">${t.status === 'pass' ? '✓' : '✗'} ${label[t.status]}</span>
+                            <h4 class="hidden-test-title">${esc(t.title)}</h4>
+                        </div>
+                        <p class="hidden-test-result">${esc(t.result)}</p>
+                        ${t.detail}
+                    </article>`).join('')}
+            </div>
             ${this.examplesHtml(BIAS_CATEGORIES.DEFAULTS)}`;
     }
 

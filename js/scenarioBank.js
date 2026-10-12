@@ -164,6 +164,41 @@ export const BIAS_CATEGORIES = {
         bookReference: "Thinking, Fast and Slow - Chapter 22 (statistics and intuition need a regular environment)",
         tip: "Use your history as a starting point, then ask what has changed: what attackers are doing to others like you now, and what your defenses would never have seen. Past data predicts best when nobody is trying to beat it."
     },
+    PHISHING: {
+        name: "Spotting Phishing",
+        shortName: "Phishing",
+        description: "Telling real messages from phishing by checking who sent them, whether you expected them, and what they ask, without flagging everything.",
+        bookReference: "Security awareness research (sender, expectation, and request checks)",
+        tip: "Check the real sender address, not just the name; ask whether you expected the message; and look at what it wants you to do. Report what fails those checks and keep what passes. Flagging everything is a mistake too."
+    },
+    AUTHORITY_PRESSURE: {
+        name: "Authority & Impersonation",
+        shortName: "Authority",
+        description: "Skipping checks because a request seems to come from someone important, especially when it's urgent or secret.",
+        bookReference: "Influence research (Cialdini 1984)",
+        tip: "The more important, urgent, or secret a request is, the more it deserves verifying. Confirm through a channel you already trust, never through the message or call that made the request."
+    },
+    LOOKALIKES: {
+        name: "Lookalikes & Hidden Links",
+        shortName: "Lookalikes",
+        description: "Trusting a web address, package name, or code that looks familiar at a glance, or one whose destination you can't see.",
+        bookReference: "Thinking, Fast and Slow - Chapter 5 (cognitive ease)",
+        tip: "Read the exact domain right before the first single slash, letter by letter. Type addresses yourself, and avoid links and codes whose destination you can't check."
+    },
+    HABITUATION: {
+        name: "Warning & Prompt Fatigue",
+        shortName: "Fatigue",
+        description: "Clicking through warnings and approval prompts out of habit, or just to make them stop.",
+        bookReference: "Usable security research (Akhawe & Felt 2013)",
+        tip: "Treat a warning or prompt you didn't expect as news, not noise. If you didn't start a sign-in, don't approve it; if a site you use every week suddenly warns you, stop."
+    },
+    BAIT: {
+        name: "Fear & Curiosity Bait",
+        shortName: "Bait",
+        description: "Acting on alarm or curiosity, such as virus warnings, threats, or tempting found items, before checking whether the story holds up.",
+        bookReference: "Social engineering research (fear appeals; Tischer et al. 2016)",
+        tip: "Strong fear or curiosity is a signal to slow down. Ask what evidence you actually have, and route anything suspicious to IT instead of investigating it yourself."
+    },
     STRAIGHTFORWARD: {
         name: "Second-Guessing the Obvious",
         shortName: "Overthinking",
@@ -1418,6 +1453,300 @@ export const STANDALONE_SCENARIOS = [
         ]
     },
 
+    // -------------------------------------------------------------
+    // SOCIAL ENGINEERING AND DECEPTIVE INTERFACES (all in the short
+    // version). Brands and people are fictional; mock screens are
+    // rendered by the game.
+    // -------------------------------------------------------------
+    {
+        id: "se-phishing-inbox",
+        short: true,
+        biasType: "PHISHING",
+        title: "Sort Your Inbox",
+        scenarioText: "You work at Larkwood, whose email addresses all end in @larkwood.com. A few minutes ago you asked for a password reset on Larkwood's sign-in page. Sort these six emails: report the phishing ones, and keep the real ones.",
+        inbox: [
+            { from: "Larkwood IT Service Desk", address: "it-support@larkwood-helpdesk.com", subject: "Action required: your mailbox is full", preview: "Your mailbox has exceeded its limit. Sign in within 24 hours to avoid losing incoming mail.", phish: true, why: "The sender's domain is larkwood-helpdesk.com, not larkwood.com, and it pushes a deadline." },
+            { from: "Priya Nair", address: "priya.nair@larkwood.com", subject: "Invitation: Q3 planning, Thursday 10:00", preview: "Priya Nair has invited you to Q3 planning in Conference Room B.", phish: false, why: "A routine meeting invitation from a colleague's real larkwood.com address, asking nothing unusual." },
+            { from: "SignFlow", address: "no-reply@signflow-secure.co", subject: "Please review and sign: updated salary agreement", preview: "A document is waiting for your signature. Review it now.", phish: true, why: "An unexpected \"salary\" document from an unfamiliar service: curiosity bait with a sign-in link." },
+            { from: "Larkwood Accounts", address: "accounts@larkwood.com", subject: "Your password reset request", preview: "You asked to reset your password a few minutes ago. Use this link within 15 minutes.", phish: false, why: "You asked for this reset minutes ago, and it comes from the real larkwood.com domain." },
+            { from: "Jordan Lee", address: "jordan.lee.ceo.office@gmail.com", subject: "Quick favor: are you at your desk?", preview: "I need you to take care of something for me before my next meeting. Reply ASAP.", phish: true, why: "The CEO's name on a personal Gmail address, asking for a vague, urgent favor: classic business email compromise." },
+            { from: "Larkwood HR", address: "hr@larkwood.com", subject: "Reminder: open enrollment ends Friday", preview: "Review your benefits choices on the HR portal before Friday at 5 p.m.", phish: false, why: "A routine HR reminder from the real domain that points you to a portal you already use." }
+        ],
+        bestAnswer: "Report emails 1, 3 and 5; keep emails 2, 4 and 6",
+        reasoning: "The phishing emails each fail a basic check: the real sender address (not just the display name), whether you expected the message, and what it asks you to do. The real ones pass: they come from larkwood.com, you expected them or they're routine, and they ask nothing risky. Reporting everything isn't the goal either; a filter that flags real mail trains people to ignore it.",
+        biasName: "Spotting Phishing",
+        bookRef: "Security awareness research (sender, expectation, and request checks)",
+        options: [
+            { text: "Every email sorted correctly", biasValue: 0, isBest: true },
+            { text: "Some emails sorted incorrectly", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "se-ceo-wire",
+        short: true,
+        biasType: "AUTHORITY_PRESSURE",
+        title: "CEO Wire Request",
+        scenarioText: "You work in finance at Larkwood (email domain larkwood.com). An email from \"Jordan Lee, CEO\" at jordan.lee@larkwood-corp.com says: \"I'm boarding a flight and can't talk. Please wire $48,500 to our new vendor today; details attached. Keep this between us until the deal is announced.\" What do you do?",
+        bestAnswer: "Call the CEO or the finance lead on a number you already have",
+        reasoning: "This is business email compromise, which the FBI's Internet Crime Complaint Center reports costs businesses billions of dollars a year. Every detail pushes you to skip checks: authority, urgency, secrecy, and a reason the boss can't be reached. The domain is also wrong (larkwood-corp.com). Replying to the email just reaches the attacker; verifying through a channel you already trust is what stops it.",
+        biasName: "Authority & Impersonation",
+        bookRef: "Influence research (Cialdini 1984); FBI IC3 reports",
+        options: [
+            { text: "Send the wire", biasValue: 1, isBest: false },
+            { text: "Reply to the email to confirm first", biasValue: 0.5, isBest: false },
+            { text: "Call the CEO or the finance lead on a number you already have", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "se-help-desk-call",
+        short: true,
+        biasType: "AUTHORITY_PRESSURE",
+        title: "Urgent Help Desk Call",
+        scenarioText: "You work on Larkwood's IT help desk. A caller says she's Dana Ortiz, VP of Sales, stuck at an airport before a board presentation and locked out after getting a new phone. She knows her employee ID and her manager's name, and she's getting angry. She wants her multi-factor authentication reset right now. What do you do?",
+        bestAnswer: "Call her back on the number in the company directory before resetting anything",
+        reasoning: "Employee IDs and managers' names are easy to find or guess, and seniority plus anger plus a deadline are exactly what social engineers use to rush help desks. The 2023 MGM Resorts breach reportedly began with a call like this. A security question isn't much better, since answers like a mother's maiden name are often public. Calling back on a number you already have checks who is really asking.",
+        biasName: "Authority & Impersonation",
+        bookRef: "Influence research (Cialdini 1984)",
+        options: [
+            { text: "Reset it; she knows her employee ID", biasValue: 1, isBest: false },
+            { text: "Ask her security question first", biasValue: 0.5, isBest: false },
+            { text: "Call her back on the number in the company directory before resetting anything", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "se-deepfake-call",
+        short: true,
+        biasType: "AUTHORITY_PRESSURE",
+        title: "Video Call Transfer",
+        scenarioText: "On a video call, your CFO and two colleagues you recognize ask you to make 15 urgent transfers totaling $25 million for a confidential acquisition. Their faces and voices look and sound right. What do you do?",
+        bestAnswer: "Verify through a separate channel you already trust before moving any money",
+        reasoning: "In 2024 an employee of the engineering firm Arup transferred about $25 million after a video call in which the CFO and colleagues were deepfakes. Seeing and hearing someone is no longer proof it's them. An unusual, secret, urgent request for money calls for verification through a channel the requester doesn't control.",
+        biasName: "Authority & Impersonation",
+        bookRef: "Influence research (Cialdini 1984)",
+        options: [
+            { text: "Make the transfers", biasValue: 1, isBest: false },
+            { text: "Verify through a separate channel you already trust before moving any money", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "se-mfa-fatigue",
+        short: true,
+        biasType: "HABITUATION",
+        title: "Late-Night Sign-In Prompts",
+        scenarioText: "It's 1 a.m. and you aren't signing in to anything. Your phone has buzzed with sign-in approval requests for your work account four times in ten minutes, and then this text arrives. What do you tap?",
+        mockScreen: {
+            kind: "phone",
+            time: "1:12 AM",
+            stacked: "4 earlier sign-in requests",
+            message: { from: "+1 (555) 014-2263", text: "Larkwood IT: we're fixing a sync error on your account. Approve the prompt and the alerts will stop." },
+            heading: "Approve sign-in to Larkwood?",
+            body: "Location: unknown · Device: Windows · Just now"
+        },
+        bestAnswer: "Report suspicious sign-in",
+        reasoning: "Repeated prompts you didn't trigger mean someone already has your password and is trying to wear you down. This is called MFA fatigue or push bombing, and it's how attackers got into Uber in 2022, combined with a message pretending to be IT. Approving lets them in. Denying stops this attempt but leaves them with your password; reporting it gets the password reset and the attacker locked out.",
+        biasName: "Warning & Prompt Fatigue",
+        bookRef: "Usable security research (MFA fatigue)",
+        options: [
+            { text: "Approve", ui: "primary", label: "Approve", biasValue: 1, isBest: false },
+            { text: "Deny", ui: "secondary", label: "Deny", biasValue: 0.5, isBest: false },
+            { text: "Report suspicious sign-in", ui: "link", label: "Report suspicious sign-in", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "se-cert-warning",
+        short: true,
+        biasType: "HABITUATION",
+        title: "Café Wi-Fi Warning",
+        scenarioText: "You're on a café's Wi-Fi and open your bank's website, which you use every week. Instead of the sign-in page, you see this. You've clicked past warnings like it before and nothing bad happened. What do you do?",
+        mockScreen: {
+            kind: "browser",
+            url: "https://www.northbridgebank.com",
+            urlWarning: true,
+            heading: "Your connection isn't private",
+            body: "Someone may be trying to intercept your connection to www.northbridgebank.com and steal information like passwords, messages, or card numbers."
+        },
+        bestAnswer: "Back to safety",
+        reasoning: "On public Wi-Fi, a certificate warning for a site you use every week is exactly what an interception attack looks like. Clicking past warnings before without consequences is outcome bias plus habituation: in Akhawe and Felt's 2013 study, users clicked through a large share of browser security warnings. Go back, and use your bank's app or a trusted network instead.",
+        biasName: "Warning & Prompt Fatigue",
+        bookRef: "Usable security research (Akhawe & Felt 2013)",
+        options: [
+            { text: "Back to safety", ui: "primary", label: "Back to safety", biasValue: 0, isBest: true },
+            { text: "Advanced: proceed anyway", ui: "link", label: "Advanced: Proceed to www.northbridgebank.com (unsafe)", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "se-lookalike-url",
+        short: true,
+        biasType: "LOOKALIKES",
+        title: "Which Address Is Real?",
+        scenarioText: "Your bank is Northbridge Bank, at northbridgebank.com. An email asks you to sign in and review a payment. Which of these addresses actually belongs to your bank?",
+        bestAnswer: "northbridgebank.com/login",
+        reasoning: "What matters is the domain right before the first single slash. northbridgebank.com.account-review.net belongs to account-review.net. secure-northbridgebank.com is a different domain anyone could register. northbrídgebank.com uses an accented í that's easy to miss. System 1 reads familiar shapes, not exact letters, which is why lookalikes work. The safest habit is to type your bank's address yourself instead of following email links.",
+        biasName: "Lookalikes & Hidden Links",
+        bookRef: "Thinking, Fast and Slow - Chapter 5 (cognitive ease)",
+        options: [
+            { text: "northbridgebank.com.account-review.net/login", biasValue: 1, isBest: false },
+            { text: "secure-northbridgebank.com/login", biasValue: 1, isBest: false },
+            { text: "northbrídgebank.com/login", biasValue: 1, isBest: false },
+            { text: "northbridgebank.com/login", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "se-typosquat-package",
+        short: true,
+        biasType: "LOOKALIKES",
+        title: "Setup Script Package",
+        scenarioText: "A teammate's setup script runs \"pip install requets\". The popular Python HTTP library everyone uses is \"requests\". What do you do?",
+        bestAnswer: "Install \"requests\" instead and tell your teammate",
+        reasoning: "Attackers regularly publish malicious packages on PyPI and npm with names one letter off popular ones, waiting for typos. Installing a package runs its code on your machine. A name that looks almost right is the warning sign, so fix the typo rather than trusting it.",
+        biasName: "Lookalikes & Hidden Links",
+        bookRef: "Thinking, Fast and Slow - Chapter 5 (cognitive ease)",
+        options: [
+            { text: "Run the script as written", biasValue: 1, isBest: false },
+            { text: "Install \"requets\" and check whether it works", biasValue: 1, isBest: false },
+            { text: "Install \"requests\" instead and tell your teammate", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "se-parking-qr",
+        short: true,
+        biasType: "LOOKALIKES",
+        title: "Parking Meter QR Code",
+        scenarioText: "A city parking meter has a sticker with a QR code: \"Pay faster by phone: scan here.\" What do you do?",
+        bestAnswer: "Pay with the city's official app or the payment method built into the meter",
+        reasoning: "A QR code hides its destination until you've already opened it, and anyone can put a sticker on a meter. Fake parking QR codes leading to payment-stealing sites have been reported in many cities. Using the official app or the meter itself avoids the question of where the code goes.",
+        biasName: "Lookalikes & Hidden Links",
+        bookRef: "Thinking, Fast and Slow - Chapter 5 (cognitive ease)",
+        options: [
+            { text: "Scan it and pay", biasValue: 1, isBest: false },
+            { text: "Pay with the city's official app or the payment method built into the meter", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "se-cookie-banner",
+        short: true,
+        biasType: "DEFAULTS",
+        title: "News Site Cookie Banner",
+        scenarioText: "You're reading a news site and don't want advertisers tracking you. This banner covers the bottom of the page. What do you click?",
+        mockScreen: {
+            kind: "banner",
+            brand: "DailyByte News",
+            heading: "We value your privacy",
+            body: "We and our 847 partners use cookies to personalize content and ads. By continuing to browse, you agree to our use of cookies."
+        },
+        bestAnswer: "Settings",
+        reasoning: "There's no \"Reject\" button, and the small print says continuing to browse counts as agreeing, so closing the banner doesn't refuse anything. The only way to refuse is buried in Settings. Making refusal harder than acceptance is a dark pattern: in 2022 France's privacy regulator fined Google and Facebook a combined 210 million euros for it.",
+        biasName: "Default Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 34",
+        options: [
+            { text: "Accept all", ui: "primary", label: "Accept all", biasValue: 1, isBest: false },
+            { text: "Settings", ui: "link", label: "Settings", biasValue: 0, isBest: true },
+            { text: "Close the banner (×)", ui: "close", label: "×", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "se-oauth-consent",
+        short: true,
+        biasType: "FINE_PRINT",
+        title: "Document Viewer Permissions",
+        scenarioText: "A colleague's email links to a shared document. When you open it, you're asked to sign in with your work account, and then this appears. What do you click?",
+        mockScreen: {
+            kind: "dialog",
+            brand: "Larkwood Sign-In",
+            heading: "DocViewer Pro wants to access your Larkwood account",
+            body: "This will allow DocViewer Pro to:",
+            bullets: ["Read, compose, and send email from your account", "Permanently delete all your email", "See and download all your files"]
+        },
+        bestAnswer: "Cancel",
+        reasoning: "Viewing one document never requires sending and deleting your email. This is consent phishing: instead of stealing your password, the attacker gets you to grant their app access, which survives a password change. In 2017 a fake \"Google Docs\" app spread this way to about a million Gmail users. Read what an app is asking for before you click Allow.",
+        biasName: "Hidden Fine Print",
+        bookRef: "Consumer protection guidance (FTC, clear and conspicuous disclosures)",
+        options: [
+            { text: "Allow", ui: "primary", label: "Allow", biasValue: 1, isBest: false },
+            { text: "Cancel", ui: "secondary", label: "Cancel", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "se-bundled-installer",
+        short: true,
+        biasType: "DEFAULTS",
+        title: "Photo Editor Installer",
+        scenarioText: "You're installing PhotoTool, a free photo editor you want. Partway through, the installer shows the screen below. What do you do?",
+        mockScreen: {
+            kind: "installer",
+            brand: "PhotoTool Setup",
+            step: "Step 2 of 3",
+            heading: "Recommended: speed up your browsing",
+            checkbox: "Install SpeedyBar and make SpeedySearch my homepage and default search engine (recommended)",
+            buttons: ["Back", "Next"]
+        },
+        bestAnswer: "Uncheck the SpeedyBar box, then click Next",
+        reasoning: "The extra software is pre-selected and labeled \"recommended\" so that clicking Next, which most people do, installs it. Bundled toolbars and search hijackers spread largely through boxes like this one. Unchecking it gets you what you came for without the add-on; cancelling the whole install isn't necessary.",
+        biasName: "Default Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 34",
+        options: [
+            { text: "Click Next", biasValue: 1, isBest: false },
+            { text: "Uncheck the SpeedyBar box, then click Next", biasValue: 0, isBest: true },
+            { text: "Cancel the whole installation", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "se-scareware",
+        short: true,
+        biasType: "BAIT",
+        title: "Virus Warning Pop-Up",
+        scenarioText: "While browsing, a full-screen page appears with a loud alarm sound. What do you do?",
+        mockScreen: {
+            kind: "browser",
+            url: "http://windows-security-alert.support-center.live",
+            urlWarning: true,
+            alarm: true,
+            heading: "WARNING: Your computer is infected with 5 viruses!",
+            body: "Your files and passwords are at risk. Do not close this window. Call Microsoft Certified Support immediately: 1-888-555-0147",
+            buttons: ["Scan & Remove", "Call Support"]
+        },
+        bestAnswer: "Close the tab, or quit the browser if it won't close",
+        reasoning: "A web page can't scan your computer, and Microsoft doesn't put phone numbers in pop-ups. This is a tech-support scam: fear and urgency get you to call, and the \"technician\" asks for remote access or payment. Closing the tab (or force-quitting the browser) ends it; the page itself is the only thing wrong.",
+        biasName: "Fear & Curiosity Bait",
+        bookRef: "Social engineering research (fear appeals)",
+        options: [
+            { text: "Call the support number", biasValue: 1, isBest: false },
+            { text: "Click Scan & Remove", biasValue: 1, isBest: false },
+            { text: "Close the tab, or quit the browser if it won't close", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "se-sextortion",
+        short: true,
+        biasType: "BAIT",
+        title: "Threatening Email",
+        scenarioText: "An email says: \"I hacked your computer and recorded you through your webcam. Your password is Summer2019, proof I'm serious. Pay $1,200 in Bitcoin within 48 hours or I send the video to your contacts.\" Summer2019 is an old password you used years ago. What's most likely going on?",
+        bestAnswer: "The password came from an old data breach, and the threat is a bluff",
+        reasoning: "Waves of emails like this have used passwords leaked in old data breaches to seem convincing. The real password makes the whole story feel true, but it's the only evidence offered, and it doesn't show anyone was ever on your computer. Don't pay; change that password anywhere you still use it, and report the email.",
+        biasName: "Fear & Curiosity Bait",
+        bookRef: "Thinking, Fast and Slow - Chapter 7 (What You See Is All There Is)",
+        options: [
+            { text: "They hacked your computer and have a video", biasValue: 1, isBest: false },
+            { text: "The password came from an old data breach, and the threat is a bluff", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "se-found-usb",
+        short: true,
+        biasType: "BAIT",
+        title: "Parking Lot USB Drive",
+        scenarioText: "In your office parking lot, you find a USB drive labeled \"Salaries 2026: CONFIDENTIAL.\" What do you do?",
+        bestAnswer: "Hand it to IT or security without plugging it in",
+        reasoning: "A dropped drive with a tempting label is a classic attack: plugging it in can run malicious code, and some devices pose as keyboards and type commands. In a 2016 study at the University of Illinois, people opened files on nearly half of the drives researchers scattered around campus. A personal computer isn't safe either; IT can examine it safely.",
+        biasName: "Fear & Curiosity Bait",
+        bookRef: "Social engineering research (Tischer et al. 2016)",
+        options: [
+            { text: "Plug it into your work laptop to find the owner", biasValue: 1, isBest: false },
+            { text: "Plug it into a personal computer instead", biasValue: 1, isBest: false },
+            { text: "Hand it to IT or security without plugging it in", biasValue: 0, isBest: true }
+        ]
+    },
+
     // =============================================================
     // PRACTICE-ONLY QUESTIONS
     // Used for practice during reviews and to fill retests, never in the
@@ -2223,6 +2552,22 @@ export const STANDALONE_SCENARIOS = [
         options: [
             { text: "Yes, apply it promptly", biasValue: 0, isBest: true },
             { text: "Wait a few months to see if problems turn up", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "straight-requested-reset",
+        filler: true,
+        short: true,
+        biasType: "STRAIGHTFORWARD",
+        title: "Expected Reset Email",
+        scenarioText: "You just asked for a password reset on your bank's website, which you typed into the browser yourself. Thirty seconds later an email arrives from the bank's usual address, with a reset link to the bank's own domain. Should you use it?",
+        bestAnswer: "Yes, use it",
+        reasoning: "You started this yourself moments ago, the sender is the bank's usual address, and the link goes to the bank's real domain. Suspicion is the right default for unexpected messages; an expected one that passes every check is fine to use.",
+        biasName: "Second-Guessing the Obvious",
+        bookRef: "Thinking, Fast and Slow - Chapter 22",
+        options: [
+            { text: "Yes, use it", biasValue: 0, isBest: true },
+            { text: "No, report it as phishing", biasValue: 1, isBest: false }
         ]
     }
 ];

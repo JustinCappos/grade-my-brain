@@ -248,6 +248,7 @@ async function playSession(page, label) {
     let practiceAnswered = 0;
     let lastReviewed = 0;
     let tokensSettled = 0;
+    let bonusClaimed = false;
     let lastMainPercent = 0;
 
     for (let round = 1; ; round++) {
@@ -263,6 +264,14 @@ async function playSession(page, label) {
         assert.equal(Number(await text(page, '#current-score')), shownScore,
             `${label}: score must stay hidden until the review`);
 
+        // The hidden bonus pop-up appears once per player; the test player falls for it
+        if (!(await isHidden(page, '#bonus-popup'))) {
+            assert.equal(round, 7, `${label}: the bonus pop-up should appear at question 7`);
+            await page.click('#bonus-claim-btn');
+            await page.waitForFunction(() => document.getElementById('bonus-popup').hidden);
+            bonusClaimed = true;
+        }
+
         const scenario = scenariosByTitle.get(await text(page, '#scenario-title'));
         assert.ok(scenario, `${label}: unknown scenario on round ${round}`);
         played.push(scenario.id);
@@ -275,6 +284,8 @@ async function playSession(page, label) {
                 assert.equal(round - pairFirstRound[scenario.pair], MIN_PAIR_GAP, `${label}: pair spacing`);
                 correct = true; // first options always answer a pair consistently
             }
+        } else if (scenario.inbox) {
+            correct = false; // the test keeps every email, phishing included
         } else {
             correct = scenario.options[0].isBest === true;
         }
@@ -283,10 +294,18 @@ async function playSession(page, label) {
             if (!correct) missedTypes.add(scenario.biasType);
         }
 
-        // Choices are option cards, or the buttons of a mock screen; pick the first option
-        const cards = await page.$$('#options-container [data-option-index]');
-        assert.equal(cards.length, scenario.options.length, `${label}: wrong option count for ${scenario.id}`);
-        await page.click('#options-container [data-option-index="0"]');
+        if (scenario.inbox) {
+            // Mark every email "Keep", then submit
+            const keeps = await page.$$('#options-container .inbox-choice[data-inbox-choice="keep"]');
+            assert.equal(keeps.length, scenario.inbox.length, `${label}: inbox should list every email`);
+            for (const keep of keeps) await keep.click();
+            await page.click('#inbox-submit');
+        } else {
+            // Choices are option cards, or the buttons of a mock screen; pick the first option
+            const cards = await page.$$('#options-container [data-option-index]');
+            assert.equal(cards.length, scenario.options.length, `${label}: wrong option count for ${scenario.id}`);
+            await page.click('#options-container [data-option-index="0"]');
+        }
 
         const total = (await sessionState()).queue.length;
         const atReview = round % CHECKPOINT_EVERY === 0 || round === total;
@@ -334,8 +353,8 @@ async function playSession(page, label) {
     assert.equal(await isHidden(page, '#play-again-btn'), false, `${label}: next-session button should show`);
 
     // The final screen points players back to the privacy policy
-    assert.equal(await isHidden(page, '#policy-debrief'), false, `${label}: privacy policy debrief should show`);
-    assert.ok(await page.$('#policy-debrief a[href="privacy.html"]'), `${label}: debrief should link to the policy`);
+    assert.equal(await isHidden(page, '#hidden-tests'), false, `${label}: hidden-tests debrief should show`);
+    assert.ok(await page.$('#hidden-tests a[href="privacy.html"]'), `${label}: debrief should link to the policy`);
 
     // The audit lists every missed topic, each opening to its missed questions
     const auditTopics = await page.$$eval('.missed-topic', els => els.map(el => el.dataset.bias));
@@ -368,7 +387,7 @@ async function playSession(page, label) {
     assert.deepEqual(played, finalQueue.map(e => e.id), `${label}: played order should match the queue`);
     const tokenQuestions = played.filter(id => ScenarioBank.getScenario(id).token).length;
     assert.equal(tokensSettled, tokenQuestions, `${label}: every Bonus Token question should settle at a review`);
-    return { queue: finalQueue, added, finalScore: expectedScore, practiceAnswered };
+    return { queue: finalQueue, added, finalScore: expectedScore, practiceAnswered, bonusClaimed };
 }
 
 async function runBrowserChecks(browser) {
@@ -393,8 +412,11 @@ async function runBrowserChecks(browser) {
 
     // Session 1 is the short version by default
     const first = await playSession(page, 'session 1 (short)');
-    const debrief = await text(page, '#policy-debrief');
+    const debrief = await text(page, '#hidden-tests');
     assert.ok(debrief.includes('unchecked'), 'Debrief should reflect that the player unchecked the box');
+    assert.ok(first.bonusClaimed, 'The bonus pop-up should appear in the first session');
+    assert.ok(/fell for 1 of 2 hidden tests/.test(debrief), 'Debrief should count the bonus pop-up as a failed test');
+    assert.ok(await page.$('#hidden-tests .hidden-test-fail'), 'The bonus pop-up result should be marked as failed');
     const shortIds = ScenarioBank.mainQuestions('short').map(s => s.id).sort();
     const firstPlanned = first.queue.filter(e => !e.retest && !isFiller(e.id)).map(e => e.id);
     assert.deepEqual([...firstPlanned].sort(), shortIds, 'The short version should ask every short-version question once');

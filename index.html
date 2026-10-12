@@ -181,6 +181,23 @@
         </aside>
     </main>
 
+    <!-- Hidden test: a fake "bonus points" pop-up that isn't from the game.
+         It asks for nothing and only records whether the player clicks Claim. -->
+    <div id="bonus-popup" class="bonus-popup" role="dialog" aria-modal="true" aria-labelledby="bonus-popup-title" hidden>
+        <div class="bonus-window">
+            <div class="bonus-window-bar"><span class="bonus-url">🔒 grademybrain-rewards.net/claim</span></div>
+            <div class="bonus-window-body">
+                <p class="bonus-emoji" aria-hidden="true">🎉</p>
+                <h2 id="bonus-popup-title" class="bonus-title">You've unlocked a 50-point bonus!</h2>
+                <p class="bonus-text">Players who claim in the next minute get <strong>+50 Brain Points</strong> added to their score.</p>
+                <p class="bonus-timer">Offer ends in <span id="bonus-timer">0:59</span></p>
+                <button type="button" id="bonus-claim-btn" class="bonus-claim">Claim my 50 points</button>
+                <button type="button" id="bonus-decline-btn" class="bonus-decline">No thanks</button>
+                <p id="bonus-thanks" class="bonus-text" hidden>Thanks! Your bonus will be added shortly.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Post-Game & Mid-Game Cognitive Audit Modal -->
     <div id="summary-modal" class="modal-backdrop">
         <div class="modal-content glass-panel audit-modal-large">
@@ -192,6 +209,9 @@
                 Behavioral Analysis based on <em>Thinking, Fast and Slow</em> (Kahneman & Tversky)
             </p>
 
+            <!-- Results of the hidden tests (privacy policy, bonus pop-up), shown first when a session ends -->
+            <section id="hidden-tests" class="hidden-tests" aria-labelledby="hidden-tests-title" hidden></section>
+
             <!-- Final Grade Banner -->
             <div class="audit-header-banner">
                 <div id="final-grade-badge" class="grade-badge" style="width: 75px; height: 75px; font-size: 2.4rem;">A</div>
@@ -200,9 +220,6 @@
                     <p style="font-size: 1.1rem;">Brain Score: <strong id="final-score" style="color: var(--primary-cyan);">250</strong> PTS | System 2 Accuracy: <strong id="stat-accuracy" style="color: #34d399;">70%</strong></p>
                 </div>
             </div>
-
-            <!-- End-of-session debrief on the entry screen's privacy policy tricks -->
-            <section id="policy-debrief" class="policy-debrief" aria-labelledby="policy-debrief-title" hidden></section>
 
             <!-- Progress across sessions for this ID code -->
             <div id="progress-summary" class="progress-summary"></div>
