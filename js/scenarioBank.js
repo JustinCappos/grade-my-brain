@@ -1254,13 +1254,13 @@ export const STANDALONE_SCENARIOS = [
         short: true,
         biasType: "ANCHORING",
         title: "Vulnerability Patch Order",
-        scenarioText: "Your scanner lists two vulnerabilities. The first has a CVSS severity score of 9.8 but is in a tool on an isolated build server that no outside system can reach. The second scores 6.5, is on your internet-facing login page, and appears on CISA's list of vulnerabilities known to be actively exploited. Which do you fix first?",
+        scenarioText: "Your scanner lists two vulnerabilities. The first has a CVSS severity score of 9.8 but is in a tool on an isolated internal test server. That server only builds throwaway versions that your QA team runs on separate, isolated test hardware. Nothing built on it ever ships to customers, and no outside system can reach it. The second scores 6.5, is on your internet-facing login page, and appears on CISA's list of vulnerabilities known to be actively exploited. Which do you fix first?",
         bestAnswer: "The 6.5 on the login page",
-        reasoning: "A CVSS score rates how bad a flaw could be in general, not how much risk it poses to you. The 6.5 is reachable from the internet and attackers are already using it; the 9.8 is on a machine attackers can't reach. A big number is a powerful anchor, but exposure and real-world exploitation matter more for deciding what to fix first.",
+        reasoning: "A CVSS score rates how bad a flaw could be in general, not how much risk it poses to you. The 6.5 is reachable from the internet and attackers are already using it; the 9.8 is on an isolated test machine that attackers can't reach and that produces nothing customers ever run. A big number is a powerful anchor, but exposure and real-world exploitation matter more for deciding what to fix first.",
         biasName: "Anchoring Effect",
         bookRef: "Thinking, Fast and Slow - Chapter 11",
         options: [
-            { text: "The 9.8 on the build server", biasValue: 1, isBest: false },
+            { text: "The 9.8 on the test server", biasValue: 1, isBest: false },
             { text: "The 6.5 on the login page", biasValue: 0, isBest: true }
         ]
     },
