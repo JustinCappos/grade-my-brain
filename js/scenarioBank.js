@@ -1272,14 +1272,14 @@ export const STANDALONE_SCENARIOS = [
         short: true,
         biasType: "WYSIATI",
         title: "Security Dashboard Report",
-        scenarioText: "Your security dashboard reports: \"100% of detected attacks last month were blocked.\" What does this show?",
-        bestAnswer: "Only that the attacks you detected were blocked",
+        scenarioText: "Your security dashboard reports: \"100% of detected attacks last month were blocked.\" Based on this report, could any attacks have gotten through last month?",
+        bestAnswer: "Yes, possibly",
         reasoning: "The dashboard can only count attacks it noticed. An attack that slipped past detection doesn't appear anywhere, so it can't lower the percentage. A perfect score is consistent with excellent defenses and with an undetected breach. Treating the visible number as the whole picture is exactly what Kahneman means by \"What You See Is All There Is.\"",
         biasName: "What You See Is All There Is",
         bookRef: "Thinking, Fast and Slow - Chapter 7",
         options: [
-            { text: "Your defenses stopped every attack last month", biasValue: 1, isBest: false },
-            { text: "Only that the attacks you detected were blocked", biasValue: 0, isBest: true }
+            { text: "No", biasValue: 1, isBest: false },
+            { text: "Yes, possibly", biasValue: 0, isBest: true }
         ]
     },
     {
