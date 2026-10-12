@@ -2313,18 +2313,20 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-shop-fitout",
+        // The id is kept so saved sessions still load
         filler: true,
+        short: true,
         biasType: "STRAIGHTFORWARD",
-        title: "Twenty-First Bakery Shop",
-        scenarioText: "A bakery chain has fitted out 20 identical shops with the same contractor, and every one took 6 to 7 weeks. The 21st shop is identical and uses the same contractor. How long should you plan for?",
-        bestAnswer: "About 7 weeks",
-        reasoning: "This is the outside view at work: 20 near-identical past projects all took 6 to 7 weeks, so that's the right plan. The planning fallacy is about ignoring track records like this, not about padding every estimate.",
+        title: "Penetration Test Timeline",
+        scenarioText: "Leadership wants a date for the annual penetration test of your payment system. Your team's estimate is 8 weeks, which they got by looking at the last five tests with the same firm and the same scope: those took 7, 8, 9, 8, and 8 weeks. What timeline do you give?",
+        bestAnswer: "About 8 weeks",
+        reasoning: "The planning fallacy comes from estimating with the inside view, picturing how this project should go. This estimate already uses the outside view: five nearly identical past tests that averaged 8 weeks with little variation. Adding a big buffer on top would correct for a mistake the team didn't make. Padding every estimate isn't the lesson; checking where the estimate came from is.",
         biasName: "Second-Guessing the Obvious",
         bookRef: "Thinking, Fast and Slow - Chapters 22 & 23",
         options: [
-            { text: "About 7 weeks", biasValue: 0, isBest: true },
-            { text: "About 14 weeks", biasValue: 1, isBest: false },
-            { text: "About 4 weeks", biasValue: 1, isBest: false }
+            { text: "About 8 weeks", biasValue: 0, isBest: true },
+            { text: "About 12 weeks", biasValue: 1, isBest: false },
+            { text: "About 6 weeks", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -2480,14 +2482,14 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-license-conjunction",
-        filler: true,
-        biasType: "STRAIGHTFORWARD",
+        // Now a conjunction-fallacy question (the id is kept so saved sessions still load)
+        biasType: "REPRESENTATIVENESS",
         title: "Neighbor's Driving Record",
-        scenarioText: "Your neighbor Dana drives to work every day. Which is more probable?",
+        scenarioText: "Your neighbor Dana loves driving fast, owns a Ferrari, and gets speeding tickets every few months. Which is more probable?",
         bestAnswer: "Dana has a driver's license",
-        reasoning: "Adding a detail can only make a statement less probable, and here the intuitive answer and the logical one agree: \"has a license\" is more probable than \"has a license and owns a red car.\" Not every probability question hides a twist.",
-        biasName: "Second-Guessing the Obvious",
-        bookRef: "Thinking, Fast and Slow - Chapters 15 & 22",
+        reasoning: "Every person who has a license and owns a red car also has a license, so the second statement can never be more probable than the first. The Ferrari and the speeding tickets make \"owns a red car\" feel likely, since so many Ferraris are red, but adding a detail can only lower the probability. This is the same conjunction fallacy as the Linda problem.",
+        biasName: "Representativeness & Conjunction Fallacy",
+        bookRef: "Thinking, Fast and Slow - Chapter 15",
         options: [
             { text: "Dana has a driver's license", biasValue: 0, isBest: true },
             { text: "Dana has a driver's license and owns a red car", biasValue: 1, isBest: false }
