@@ -43,6 +43,9 @@ const ACTIVE_ID_KEY = 'gmb_active_id';
 // The fake bonus pop-up appears once per player, at this question (0-based)
 const BONUS_POPUP_AT = 6;
 const BONUS_POPUP_SECONDS = 59;
+// Hidden test: a pre-ticked "share to the leaderboard" box beside Continue on
+// the first review at or after this question that isn't the last one
+const LEADERBOARD_BOX_FROM = 20;
 
 const KIND_LABELS = { deceptive: 'Deceptive practice', good: 'Better practice', example: 'Real-world case' };
 
@@ -715,8 +718,21 @@ class GradeMyBrainApp {
         this.renderCheckpoint();
     }
 
+    // Hidden test: there is no leaderboard; the box only records whether the
+    // player left it ticked. It appears once per ID (again after a reload).
+    showLeaderboardBox(cp, isLast) {
+        const tests = (this.progress.data.hiddenTests ||= {});
+        if (tests.leaderboard) return tests.leaderboard.kept === null && tests.leaderboard.at === cp.to;
+        if (isLast || cp.to < LEADERBOARD_BOX_FROM) return false;
+        tests.leaderboard = { at: cp.to, kept: null };
+        this.progress.save();
+        return true;
+    }
+
     handleCheckpointContinue() {
         playSafely(() => sound.playClick());
+        const box = this.checkpointEl.querySelector('#leaderboard-share');
+        if (box) this.progress.data.hiddenTests.leaderboard.kept = box.checked;
         const session = this.session;
         if (session.position >= session.queue.length) {
             this.finishSession();
@@ -785,6 +801,11 @@ class GradeMyBrainApp {
                     <div class="review-list">${this.missedWithPracticeHtml(missed, cp.practice)}</div>
                 </section>` : ''}
 
+            ${this.showLeaderboardBox(cp, isLast) ? `
+                <label class="consent-row leaderboard-row" for="leaderboard-share">
+                    <input type="checkbox" id="leaderboard-share" checked>
+                    <span>Share my results on the public Grade My Brain leaderboard</span>
+                </label>` : ''}
             <button id="checkpoint-continue-btn" class="glow-btn checkpoint-continue" type="button">
                 ${isLast ? 'See your session results →' : `Continue to question ${session.position + 1} →`}
             </button>
@@ -1332,7 +1353,7 @@ class GradeMyBrainApp {
                     and settled disputes by rock-paper-scissors by mail. Section 3.2 said the Continue button only
                     <em>looked</em> disabled when the box was unchecked.</p>
                 <ul class="policy-debrief-list">
-                    <li><strong>Agreeing took one click.</strong> Most people tick the box just to get past it. Some sites go further and tick it for you, but in 2019 the EU's top court ruled that a pre-ticked box is not valid consent for cookies.</li>
+                    <li><strong>Agreeing took one click.</strong> Most people tick the box just to get past it, without reading what they're agreeing to.</li>
                     <li><strong>The greyed-out button wasn't disabled.</strong> Visual cues steer people even when they're false.</li>
                     <li><strong>Almost nobody reads these.</strong> In a study by Obar and Oeldorf-Hirsch, 98% of people missed a clause handing over their firstborn child.</li>
                 </ul>
@@ -1353,6 +1374,24 @@ class GradeMyBrainApp {
                         countdown, two classic phishing lures. In a real attack, the next screen would ask you to sign in, and
                         your password would go to the attacker. This game never collects passwords; the pop-up only recorded
                         whether you clicked.</p>`
+            });
+        }
+
+        const leaderboard = this.progress.data.hiddenTests && this.progress.data.hiddenTests.leaderboard;
+        if (leaderboard && leaderboard.kept !== null) {
+            tests.push({
+                status: leaderboard.kept ? 'fail' : 'pass',
+                title: 'The leaderboard box',
+                result: leaderboard.kept
+                    ? 'You left "Share my results on the public leaderboard" ticked. It was ticked for you, right next to Continue.'
+                    : 'You spotted the pre-ticked "Share my results on the public leaderboard" box and unticked it.',
+                detail: `
+                    <p>There is no leaderboard, and nothing was posted: the box only recorded whether you left it ticked.
+                        On a real site, a box like this could publish your name and results or sign you up for marketing.</p>
+                    <ul class="policy-debrief-list">
+                        <li><strong>Defaults do the deciding.</strong> Most people keep whatever is pre-selected, which is why sites pre-tick the option they want you to pick.</li>
+                        <li><strong>It isn't real consent.</strong> In 2019 the EU's top court ruled that a pre-ticked box is not valid consent for cookies (the Planet49 case).</li>
+                    </ul>`
             });
         }
 

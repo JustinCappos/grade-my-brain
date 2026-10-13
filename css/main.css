@@ -848,6 +848,10 @@ body.intro-mode .main-container {
     cursor: pointer;
 }
 
+.leaderboard-row {
+    margin-top: 6px;
+}
+
 .consent-row a {
     color: inherit;
     text-decoration: underline;

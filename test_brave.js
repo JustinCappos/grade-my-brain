@@ -421,7 +421,10 @@ async function runBrowserChecks(browser) {
     const debrief = await text(page, '#hidden-tests');
     assert.ok(debrief.includes('unchecked'), 'Debrief should reflect that the player left the box unchecked');
     assert.ok(first.bonusClaimed, 'The bonus pop-up should appear in the first session');
-    assert.ok(/Gotcha! 1 of 2 sneaky tests caught you/.test(debrief), 'Debrief should count the bonus pop-up as a failed test');
+    assert.ok(/Gotcha! 2 of 3 sneaky tests caught you/.test(debrief), 'Debrief should count the bonus pop-up and leaderboard box as failed tests');
+    const leaderboard = await page.evaluate(() => JSON.parse(localStorage.getItem('gmb_progress_e2e-player')).hiddenTests.leaderboard);
+    assert.deepEqual(leaderboard, { at: 20, kept: true }, 'The pre-ticked leaderboard box should appear at the round 2 review and be recorded');
+    assert.ok(debrief.includes('The leaderboard box'), 'Debrief should reveal the leaderboard box');
     assert.ok(await page.$('#hidden-tests .hidden-test-fail'), 'The bonus pop-up result should be marked as failed');
     const shortIds = ScenarioBank.mainQuestions('short').map(s => s.id).sort();
     const firstPlanned = first.queue.filter(e => !e.retest && !isFiller(e.id)).map(e => e.id);
