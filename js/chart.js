@@ -120,14 +120,23 @@ export class BrainChart {
         const canvas = document.getElementById(canvasId);
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
-        
-        const rect = canvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
 
-        const w = canvas.width;
-        const h = canvas.height;
+        // Redraw whenever the canvas changes size, since the audit modal is
+        // still animating open (and may be resized) when this first runs
+        canvas._radarSummary = biasSummary;
+        if (!canvas._radarObserver && typeof ResizeObserver !== 'undefined') {
+            canvas._radarObserver = new ResizeObserver(() => BrainChart.renderRadarChart(canvasId, canvas._radarSummary));
+            canvas._radarObserver.observe(canvas);
+        }
+
+        // clientWidth ignores CSS transforms, unlike getBoundingClientRect
+        const dpr = window.devicePixelRatio || 1;
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        if (w === 0 || h === 0) return;
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         ctx.clearRect(0, 0, w, h);
 
@@ -158,7 +167,7 @@ export class BrainChart {
         }
 
         // Draw spokes & labels
-        ctx.font = `${Math.max(10, Math.floor(h * 0.035))}px Inter, sans-serif`;
+        ctx.font = `${Math.max(11, Math.floor(h * 0.04))}px Inter, sans-serif`;
         ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';

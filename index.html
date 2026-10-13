@@ -15,7 +15,7 @@
             <h1 class="brand-title">Grade My Brain</h1>
             <div class="grade-badge-container">
                 <div id="grade-badge" class="grade-badge">?</div>
-                <div id="grade-title" class="grade-title">Not graded yet</div>
+                <div id="grade-title" class="grade-title">Warming up</div>
             </div>
         </div>
 
@@ -56,8 +56,8 @@
 
             <ul class="intro-points">
                 <li><span class="intro-point-icon" aria-hidden="true">🧩</span>Short scenarios about security, technology, money and risk</li>
-                <li><span class="intro-point-icon" aria-hidden="true">🔍</span>A review every 10 questions explains what you missed</li>
-                <li><span class="intro-point-icon" aria-hidden="true">🔁</span>Topics you miss come back later as retests</li>
+                <li><span class="intro-point-icon" aria-hidden="true">🔍</span>A review every 10 questions shows how each trick works</li>
+                <li><span class="intro-point-icon" aria-hidden="true">🔁</span>Tricky topics come back later for a rematch</li>
             </ul>
 
             <div class="intro-rules" role="note">
@@ -140,6 +140,7 @@
             <!-- Grade Scale Panel -->
             <div class="grade-scale-panel glass-panel">
                 <h3 class="section-title">🏆 Grades by Accuracy</h3>
+                <p class="grade-scale-note">Most people start low: these questions are built to fool fast thinking. Rematches help you climb.</p>
                 <div class="grade-list">
                     <div class="grade-row">
                         <span class="grade-tag" style="background:#06b6d4;">S+</span>
@@ -164,17 +165,17 @@
                     <div class="grade-row">
                         <span class="grade-tag" style="background:#eab308;">C</span>
                         <span>60–69%</span>
-                        <span>Calculated Analyst</span>
+                        <span>Curious Analyst</span>
                     </div>
                     <div class="grade-row">
                         <span class="grade-tag" style="background:#f97316;">D</span>
                         <span>50–59%</span>
-                        <span>Novice Risk-Taker</span>
+                        <span>Brain in Training</span>
                     </div>
                     <div class="grade-row">
-                        <span class="grade-tag" style="background:#ef4444;">F</span>
+                        <span class="grade-tag" style="background:#fb7185;">F</span>
                         <span>Below 50%</span>
-                        <span>Cognitive Casualty</span>
+                        <span>Fast Thinker</span>
                     </div>
                 </div>
             </div>
@@ -202,7 +203,7 @@
     <div id="summary-modal" class="modal-backdrop">
         <div class="modal-content glass-panel audit-modal-large">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h2 class="brand-title" style="font-size: 2rem;">🧠 Cognitive Diagnostic Audit</h2>
+                <h2 class="brand-title" style="font-size: 2rem;">🧠 Your Brain Report</h2>
                 <button id="close-audit-modal-btn" class="control-btn" style="padding: 6px 12px;">✕ Close</button>
             </div>
             <p style="color: var(--text-muted); margin-bottom: 20px;">
@@ -218,6 +219,7 @@
                 <div style="text-align: left;">
                     <h3 id="final-grade-title" style="font-size: 1.5rem; font-weight: 800;">Grandmaster Strategist</h3>
                     <p style="font-size: 1.1rem;">Brain Score: <strong id="final-score" style="color: var(--primary-cyan);">250</strong> PTS | System 2 Accuracy: <strong id="stat-accuracy" style="color: #34d399;">70%</strong></p>
+                    <p id="final-grade-cheer" class="final-grade-cheer"></p>
                 </div>
             </div>
 
@@ -250,7 +252,7 @@
             <div class="audit-grid">
                 <!-- Radar Chart Container -->
                 <div class="radar-box glass-panel">
-                    <h4 style="font-size: 1rem; color: #e2e8f0; margin-bottom: 12px;">🕸️ Cognitive Resiliency Profile (Radar Chart)</h4>
+                    <h4 style="font-size: 1rem; color: #e2e8f0; margin-bottom: 12px;">🕸️ Your Brain's Shape (Radar Chart)</h4>
                     <div style="width: 100%; height: 280px; position: relative;">
                         <canvas id="bias-radar-chart"></canvas>
                     </div>
@@ -259,12 +261,12 @@
                 <!-- Vulnerabilities & Strengths Column -->
                 <div class="diagnostics-col">
                     <div class="diag-section">
-                        <h4 style="font-size: 0.95rem; color: #f87171; margin-bottom: 10px;">⚠️ Key Cognitive Vulnerabilities</h4>
+                        <h4 style="font-size: 0.95rem; color: #fbbf24; margin-bottom: 10px;">🌱 Room to Grow</h4>
                         <div id="vulnerabilities-list"></div>
                     </div>
 
                     <div class="diag-section" style="margin-top: 15px;">
-                        <h4 style="font-size: 0.95rem; color: #34d399; margin-bottom: 10px;">🛡️ Key Decision Strengths</h4>
+                        <h4 style="font-size: 0.95rem; color: #34d399; margin-bottom: 10px;">💪 Your Superpowers</h4>
                         <div id="strengths-list"></div>
                     </div>
                 </div>
@@ -274,7 +276,7 @@
             <section id="missed-by-topic" class="missed-by-topic"></section>
 
             <button id="play-again-btn" class="glow-btn" style="margin-top: 25px; width: 260px; font-size: 1.1rem; margin-left: auto; margin-right: auto; display: block;">
-                ▶ Retest Weak Topics
+                ▶ Rematch the Sneaky Topics
             </button>
         </div>
     </div>

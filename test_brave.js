@@ -294,7 +294,7 @@ async function playSession(page, label) {
             correct = scenario.options[0].isBest === true;
         }
         if (correct !== undefined) {
-            expectedScore = Math.max(0, expectedScore + (correct ? 20 : -15));
+            expectedScore = Math.max(0, expectedScore + (correct ? 20 : 0));
             if (!correct) missedTypes.add(scenario.biasType);
         }
 
@@ -419,7 +419,7 @@ async function runBrowserChecks(browser) {
     const debrief = await text(page, '#hidden-tests');
     assert.ok(debrief.includes('unchecked'), 'Debrief should reflect that the player unchecked the box');
     assert.ok(first.bonusClaimed, 'The bonus pop-up should appear in the first session');
-    assert.ok(/fell for 1 of 2 hidden tests/.test(debrief), 'Debrief should count the bonus pop-up as a failed test');
+    assert.ok(/Gotcha! 1 of 2 sneaky tests caught you/.test(debrief), 'Debrief should count the bonus pop-up as a failed test');
     assert.ok(await page.$('#hidden-tests .hidden-test-fail'), 'The bonus pop-up result should be marked as failed');
     const shortIds = ScenarioBank.mainQuestions('short').map(s => s.id).sort();
     const firstPlanned = first.queue.filter(e => !e.retest && !isFiller(e.id)).map(e => e.id);

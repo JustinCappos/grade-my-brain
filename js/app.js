@@ -20,15 +20,15 @@ import { Progress, normalizeId, displayId, newGuestId } from './progress.js';
 // Grades come from the share of reviewed answers that were right, so they
 // mean the same thing however long the session runs
 export const GRADES = [
-    { min: 0, max: 49, grade: 'F', title: 'Cognitive Casualty', color: '#ef4444' },
-    { min: 50, max: 59, grade: 'D', title: 'Novice Risk-Taker', color: '#f97316' },
-    { min: 60, max: 69, grade: 'C', title: 'Calculated Analyst', color: '#eab308' },
+    { min: 0, max: 49, grade: 'F', title: 'Fast Thinker', color: '#fb7185' },
+    { min: 50, max: 59, grade: 'D', title: 'Brain in Training', color: '#f97316' },
+    { min: 60, max: 69, grade: 'C', title: 'Curious Analyst', color: '#eab308' },
     { min: 70, max: 79, grade: 'B', title: 'Tactical Mind', color: '#3b82f6' },
     { min: 80, max: 89, grade: 'A', title: 'Grandmaster Strategist', color: '#8b5cf6' },
     { min: 90, max: 94, grade: 'S', title: 'Elite Mastermind', color: '#ec4899' },
     { min: 95, max: 100, grade: 'S+', title: 'Transcendent Genius', color: '#06b6d4' }
 ];
-const UNGRADED = { grade: '?', title: 'Not graded yet', color: '#64748b' };
+const UNGRADED = { grade: '?', title: 'Warming up', color: '#64748b' };
 
 export const CHECKPOINT_EVERY = REVIEW_BLOCK;
 // At most this many missed bias types get a practice question per review
@@ -37,7 +37,8 @@ const MAX_PRACTICE_PER_REVIEW = 3;
 const MAX_RETESTS_PER_TOPIC = 2;
 const STARTING_SCORE = 100;
 const POINTS_CORRECT = 20;
-const POINTS_WRONG = -15;
+// A miss costs nothing: points only ever go up for learning
+const POINTS_WRONG = 0;
 const ACTIVE_ID_KEY = 'gmb_active_id';
 // The fake bonus pop-up appears once per player, at this question (0-based)
 const BONUS_POPUP_AT = 6;
@@ -49,6 +50,22 @@ function esc(text) {
     return String(text ?? '').replace(/[&<>"']/g, c => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[c]));
+}
+
+// A friendly line after a review's tally, so a rough round never reads as a verdict
+function missedCheer(missed, total) {
+    if (missed === 0) return ' Flawless round!';
+    if (missed * 2 >= total) return ' These are built to fool fast thinking, so that\'s normal. Each one below makes the next trick easier to spot.';
+    return ' Nice going. The ones below show how each trick works.';
+}
+
+// Shown under the final grade: every grade gets encouragement, never a verdict
+function gradeCheer(accuracy) {
+    if (accuracy === null) return 'Your grade appears after your first review.';
+    if (accuracy >= 90) return 'Your slow, careful brain was on duty. Very hard to trick!';
+    if (accuracy >= 70) return 'You spotted most of the tricks. A few more rematches and you\'ll be untrickable.';
+    if (accuracy >= 50) return 'Solid start. These questions are designed to catch everyone, and you caught a lot of them.';
+    return 'Welcome to the club: these questions are designed to fool fast thinking, and they fool almost everyone at first. Every trick you review makes you harder to fool.';
 }
 
 function sessionStorageGet(key) {
@@ -110,6 +127,7 @@ class GradeMyBrainApp {
         this.finalGradeBadge = document.getElementById('final-grade-badge');
         this.finalGradeTitle = document.getElementById('final-grade-title');
         this.finalScoreEl = document.getElementById('final-score');
+        this.finalGradeCheerEl = document.getElementById('final-grade-cheer');
         this.statAccuracyEl = document.getElementById('stat-accuracy');
         this.progressSummaryEl = document.getElementById('progress-summary');
         this.auditPickerEl = document.getElementById('audit-session-picker');
@@ -740,20 +758,20 @@ class GradeMyBrainApp {
         const deltaText = `${cp.delta >= 0 ? '+' : ''}${cp.delta} PTS`;
         const scoredText = cp.items.length === 0
             ? "You'll see how you did on these questions in your next review."
-            : `You got ${right.length} of ${cp.items.length} scored ${cp.items.length === 1 ? 'question' : 'questions'} right.`;
+            : `You got ${right.length} of ${cp.items.length} scored ${cp.items.length === 1 ? 'question' : 'questions'} right.${missedCheer(missed.length, cp.items.length)}`;
         const pendingText = cp.pendingCount > 0
             ? ` ${cp.pendingCount} ${cp.pendingCount === 1 ? 'question is' : 'questions are'} paired with one still to come and will be scored later.`
             : '';
         const retestCount = (cp.addedRetests || []).length;
         const retestText = retestCount > 0
-            ? ` ${retestCount === 1 ? 'One retest question has' : `${retestCount} retest questions have`} been added to the end of this session to check what you learned.`
+            ? ` ${retestCount === 1 ? 'One rematch question has' : `${retestCount} rematch questions have`} been added to the end of this session, so you can show what you learned.`
             : '';
 
         this.checkpointEl.innerHTML = `
             <div class="checkpoint-head">
                 <div>
                     <p class="checkpoint-eyebrow">Round ${Math.ceil(cp.to / CHECKPOINT_EVERY)} review</p>
-                    <h2 class="checkpoint-title">${missed.length === 0 ? 'Nothing tripped you up' : 'What tripped you up'}</h2>
+                    <h2 class="checkpoint-title">${missed.length === 0 ? 'Nothing tripped you up 🎉' : 'The tricks that got you'}</h2>
                 </div>
                 <span class="breakdown-delta-badge ${cp.delta >= 0 ? 'delta-up' : 'delta-down'}">${deltaText}</span>
             </div>
@@ -762,8 +780,8 @@ class GradeMyBrainApp {
 
             ${missed.length > 0 ? `
                 <section class="missed-section" aria-labelledby="missed-heading">
-                    <h3 id="missed-heading" class="missed-heading">Read these first <span class="missed-count">${missed.length} missed</span></h3>
-                    <p class="checkpoint-summary">Each one explains the better answer. Try the practice questions before moving on; they don't affect your score.</p>
+                    <h3 id="missed-heading" class="missed-heading">Worth a second look <span class="missed-count">${missed.length} to learn from</span></h3>
+                    <p class="checkpoint-summary">Each one shows how the trick works. Try the practice questions before moving on; they're just for fun and don't affect your score.</p>
                     <div class="review-list">${this.missedWithPracticeHtml(missed, cp.practice)}</div>
                 </section>` : ''}
 
@@ -1027,7 +1045,7 @@ class GradeMyBrainApp {
     reviewCardHtml(item, { showExamples = true } = {}) {
         const category = BIAS_CATEGORIES[item.biasType];
         const retestBadge = item.retest
-            ? `<span class="retest-badge">${item.correct ? 'Retest · learned it' : 'Retest · still tricky'}</span>`
+            ? `<span class="retest-badge">${item.correct ? 'Rematch · learned it' : 'Rematch · still sneaky'}</span>`
             : '';
 
         let title, body, bestAnswer, reasoning, biasName, bookRef;
@@ -1105,7 +1123,7 @@ class GradeMyBrainApp {
         const sc = ScenarioBank.getScenario(practice.scenarioId);
         const feedback = practice.answer ? `
             <div class="practice-feedback ${practice.answer.correct ? 'practice-right' : 'practice-wrong'}">
-                <p class="practice-verdict">${practice.answer.correct ? '🎯 Right' : '⚠️ Not quite'}: you chose "${esc(practice.answer.text)}"</p>
+                <p class="practice-verdict">${practice.answer.correct ? '🎯 Nailed it' : '🤔 Sneaky one'}: you chose "${esc(practice.answer.text)}"</p>
                 <p class="answer-row"><span class="answer-label">Best answer</span><span class="answer-best">${esc(sc.bestAnswer)}</span></p>
                 <p class="review-reasoning">${esc(sc.reasoning)}</p>
             </div>` : `<div id="practice-options-${idx}" class="wagers-grid practice-options"></div>`;
@@ -1219,6 +1237,7 @@ class GradeMyBrainApp {
         this.finalGradeTitle.textContent = gradeInfo.title;
         this.finalGradeTitle.style.color = gradeInfo.color;
         this.finalScoreEl.textContent = data.shownScore;
+        this.finalGradeCheerEl.textContent = gradeCheer(accuracy);
         this.statAccuracyEl.textContent = accuracy === null ? '–' : `${accuracy}%`;
 
         this.sys1BarEl.style.width = `${audit.system1Score}%`;
@@ -1234,8 +1253,8 @@ class GradeMyBrainApp {
         this.progressSummaryEl.innerHTML = `
             <p><strong>${esc(displayId(this.progress.id))}</strong> · ${seen} of ${total} questions seen · ${this.progress.data.sessionsCompleted} ${this.progress.data.sessionsCompleted === 1 ? 'session' : 'sessions'} completed</p>
             <p>${retestNames.length > 0
-                ? `Topics to retest: ${esc(retestNames.join(', '))}`
-                : 'No topics need a retest right now.'}</p>
+                ? `Up for a rematch: ${esc(retestNames.join(', '))}`
+                : 'No rematches needed right now. Nice work!'}</p>
             ${this.session && this.session.phase === 'complete' && this.session.version === 'short'
                 ? '<p>You finished the short version. The full version covers decision-making beyond security and technology.</p>'
                 : ''}`;
@@ -1243,19 +1262,19 @@ class GradeMyBrainApp {
         const emptyNote = text => `<p style="color: var(--text-muted); font-size: 0.9rem;">${text}</p>`;
         const missedCount = type => reviewed.filter(i => !i.correct && i.biasType === type).length;
         this.vulnerabilitiesListEl.innerHTML = audit.topVulnerabilities.length === 0
-            ? emptyNote('No vulnerabilities detected.')
+            ? emptyNote('Nothing caught you out. Impressive!')
             : audit.topVulnerabilities.map(v => `
                 <button type="button" class="audit-item vuln audit-item-link" data-bias="${esc(v.type)}">
-                    <h4>⚠️ ${esc(v.name)} (${v.susceptibilityPercent}% Vulnerability)</h4>
+                    <h4>🌱 ${esc(v.name)}</h4>
                     <p>${esc(v.description)}</p>
                     <span class="book-ref">📖 ${esc(v.bookRef)}</span>
-                    <span class="audit-item-more">See the ${missedCount(v.type)} missed ${missedCount(v.type) === 1 ? 'question' : 'questions'} explained ↓</span>
+                    <span class="audit-item-more">See how ${missedCount(v.type) === 1 ? 'this trick works' : 'these tricks work'} (${missedCount(v.type)}) ↓</span>
                 </button>`).join('');
         this.strengthsListEl.innerHTML = audit.topStrengths.length === 0
-            ? emptyNote('No strengths detected yet.')
+            ? emptyNote('Your superpowers will show up here as you play.')
             : audit.topStrengths.map(s => `
                 <div class="audit-item strength">
-                    <h4>🛡️ ${esc(s.name)} (${100 - s.susceptibilityPercent}% Resiliency)</h4>
+                    <h4>💪 ${esc(s.name)} (${100 - s.susceptibilityPercent}% resistant)</h4>
                     <p>${esc(s.description)}</p>
                     <span class="book-ref">📖 ${esc(s.bookRef)}</span>
                 </div>`).join('');
@@ -1277,7 +1296,7 @@ class GradeMyBrainApp {
         const unseenFull = ScenarioBank.mainQuestions('full').filter(sc => !seenIds.has(sc.id)).length;
         this.playAgainBtn.textContent = unseenFull > 0
             ? `▶ Continue to the Full Version (${unseenFull} more questions)`
-            : (retestNames.length > 0 ? '▶ Retest Weak Topics' : '✓ Finish');
+            : (retestNames.length > 0 ? '▶ Rematch the Sneaky Topics' : '✓ Finish');
         setTimeout(() => {
             // Only plot the biases this session has actually reviewed
             BrainChart.renderRadarChart('bias-radar-chart', audit.summary.filter(s => s.count > 0));
@@ -1333,19 +1352,21 @@ class GradeMyBrainApp {
         }
 
         const failed = tests.filter(t => t.status !== 'pass').length;
-        const label = { pass: 'Passed', partial: 'Partly passed', fail: 'Failed' };
+        const label = { pass: 'Dodged it', partial: 'Half caught', fail: 'Gotcha' };
         this.hiddenTestsEl.className = `hidden-tests ${failed > 0 ? 'hidden-tests-failed' : 'hidden-tests-passed'}`;
         this.hiddenTestsEl.innerHTML = `
             <p class="hidden-tests-eyebrow">Hidden tests</p>
             <h3 id="hidden-tests-title" class="hidden-tests-title">${failed > 0
-                ? `You fell for ${failed} of ${tests.length} hidden ${tests.length === 1 ? 'test' : 'tests'}`
-                : `You passed ${tests.length === 1 ? 'the hidden test' : `all ${tests.length} hidden tests`}`}</h3>
-            <p class="hidden-tests-intro">Not every test in this game was a question.</p>
+                ? `Gotcha! ${failed} of ${tests.length} sneaky ${tests.length === 1 ? 'test' : 'tests'} caught you`
+                : `You dodged ${tests.length === 1 ? 'the sneaky test' : `all ${tests.length} sneaky tests`}!`}</h3>
+            <p class="hidden-tests-intro">${failed > 0
+                ? "Not every test in this game was a question. Don't worry: these catch almost everyone, and now you know what to look for."
+                : 'Not every test in this game was a question, and you spotted the tricks. Well played!'}</p>
             <div class="hidden-test-list">
                 ${tests.map(t => `
                     <article class="hidden-test hidden-test-${t.status}">
                         <div class="hidden-test-head">
-                            <span class="hidden-test-badge">${t.status === 'pass' ? '✓' : '✗'} ${label[t.status]}</span>
+                            <span class="hidden-test-badge">${t.status === 'pass' ? '✓' : '🎣'} ${label[t.status]}</span>
                             <h4 class="hidden-test-title">${esc(t.title)}</h4>
                         </div>
                         <p class="hidden-test-result">${esc(t.result)}</p>
@@ -1368,8 +1389,8 @@ class GradeMyBrainApp {
         const topics = [...byType.entries()].sort((a, b) => b[1].length - a[1].length);
 
         this.missedByTopicEl.innerHTML = `
-            <h3 class="missed-heading">What you got wrong <span class="missed-count">${missed.length} missed</span></h3>
-            <p class="checkpoint-summary">Select a topic to see each question you missed, explained, with a tip for next time.</p>
+            <h3 class="missed-heading">Tricks to learn from <span class="missed-count">${missed.length} ${missed.length === 1 ? 'question' : 'questions'}</span></h3>
+            <p class="checkpoint-summary">Select a topic to see how each trick works, with a tip for beating it next time.</p>
             <div class="missed-topics">
                 ${topics.map(([type, items]) => {
                     const category = BIAS_CATEGORIES[type];
@@ -1377,7 +1398,7 @@ class GradeMyBrainApp {
                         <details class="missed-topic" data-bias="${esc(type)}">
                             <summary>
                                 <span class="missed-topic-name">${esc(category.name)}</span>
-                                <span class="missed-topic-count">${items.length} missed</span>
+                                <span class="missed-topic-count">${items.length} to learn from</span>
                             </summary>
                             <div class="missed-topic-body">
                                 <p class="review-scenario">${esc(category.description)}</p>
