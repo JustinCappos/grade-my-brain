@@ -230,7 +230,7 @@ const settle = () => new Promise(r => setTimeout(r, 400));
 const text = (page, selector) => page.$eval(selector, el => el.textContent.trim());
 const isHidden = (page, selector) => page.$eval(selector, el => el.hidden);
 
-async function enterId(page, id, { checkConsent, fullVersion = false }) {
+async function enterId(page, id, { checkConsent }) {
     assert.equal(await isHidden(page, '#intro-view'), false, 'ID screen should show first');
     await page.type('#id-code-input', id);
     const looksDisabled = () => page.$eval('#intro-continue-btn', el => el.classList.contains('looks-disabled'));
@@ -249,7 +249,6 @@ async function enterId(page, id, { checkConsent, fullVersion = false }) {
             el.click();
         });
     }
-    if (fullVersion) await page.click('#full-version-toggle');
     await page.click('#intro-continue-btn');
     await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
 }
@@ -460,9 +459,10 @@ async function runBrowserChecks(browser) {
     assert.ok(first.queue.some(e => isFiller(e.id)), 'Session 1 should include straightforward questions');
     assert.ok(first.queue.length <= SHORT_SESSION_MAX, `The short version ran to ${first.queue.length} questions, over the ${SHORT_SESSION_MAX} limit`);
     assert.match(await text(page, '#play-again-btn'), /Continue to the Full Version/, 'The short version should offer the full version');
+    assert.equal(await isHidden(page, '#full-version-cta'), false, 'The final screen should invite the player to the full version');
 
-    // Continuing goes through every regular question not yet seen
-    await page.click('#play-again-btn');
+    // Continuing (from the invitation) goes through every regular question not yet seen
+    await page.click('#full-version-cta-btn');
     await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
     const secondStart = await page.evaluate(() => window.brainApp.session.queue);
     const secondPlanned = secondStart.filter(e => !e.retest && !isFiller(e.id)).map(e => e.id).sort();
@@ -501,16 +501,18 @@ async function runBrowserChecks(browser) {
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.click('#switch-id-btn');
     assert.equal(await isHidden(page, '#intro-view'), false, 'Switch ID should show the ID screen');
-    // A blank ID plays as a guest with its own fresh progress; the checkbox picks the full version
-    await enterId(page, '', { checkConsent: true, fullVersion: true });
+    // A blank ID plays as a guest with its own fresh progress, starting with the short version
+    assert.equal(await page.$('#full-version-toggle'), null, 'The start screen should not offer the full version');
+    await enterId(page, '', { checkConsent: true });
     const guestKeys = () => page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('gmb_progress_~guest-')));
     const firstGuest = await guestKeys();
     assert.equal(firstGuest.length, 1, 'A blank ID should play as a new guest');
     assert.equal(await text(page, '#current-round'), '1', 'A new player starts at round 1');
-    const fullStart = await page.evaluate(() => window.brainApp.session.queue);
-    assert.deepEqual(fullStart.filter(e => !isFiller(e.id)).map(e => e.id).sort(), MAIN_POOL.map(s => s.id).sort(),
-        'Choosing the full version should cover every regular question');
-    assert.equal(fullStart.length % REVIEW_BLOCK, 0, 'The full version should be whole review blocks');
+    const guestStart = await page.evaluate(() => window.brainApp.session);
+    assert.equal(guestStart.version, 'short', 'A new player should start with the short version');
+    assert.deepEqual(guestStart.queue.filter(e => !isFiller(e.id)).map(e => e.id).sort(), ScenarioBank.mainQuestions('short').map(s => s.id).sort(),
+        'The short version should cover every short question');
+    assert.equal(guestStart.queue.length % REVIEW_BLOCK, 0, 'The short version should be whole review blocks');
 
     // Switching to another blank ID starts over instead of resuming the last guest
     await page.click('#options-container [data-option-index="0"]');

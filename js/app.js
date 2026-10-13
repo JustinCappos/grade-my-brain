@@ -110,7 +110,8 @@ class GradeMyBrainApp {
         this.introFormEl = document.getElementById('intro-form');
         this.idInputEl = document.getElementById('id-code-input');
         this.consentEl = document.getElementById('privacy-consent');
-        this.fullVersionEl = document.getElementById('full-version-toggle');
+        this.fullVersionCtaEl = document.getElementById('full-version-cta');
+        this.fullVersionCtaTextEl = document.getElementById('full-version-cta-text');
         this.privacyLinkEl = document.getElementById('privacy-link');
         this.introContinueBtn = document.getElementById('intro-continue-btn');
 
@@ -204,6 +205,7 @@ class GradeMyBrainApp {
             this.hideSummaryModal();
             this.startSession('full');
         };
+        document.getElementById('full-version-cta-btn').onclick = () => this.playAgainBtn.onclick();
 
         // Continue looks greyed out until the consent box is checked. Without
         // the box, it works only once the privacy policy has been opened
@@ -236,9 +238,6 @@ class GradeMyBrainApp {
     showIntro() {
         this.showView('intro');
         this.idInputEl.value = '';
-        this.fullVersionEl.checked = false;
-        document.getElementById('short-version-count').textContent = ScenarioBank.sessionLengthEstimate('short');
-        document.getElementById('full-version-count').textContent = ScenarioBank.sessionLengthEstimate('full');
         this.consentEl.checked = false;
         this.introContinueBtn.classList.add('looks-disabled');
         this.updateHeaderUI();
@@ -253,7 +252,6 @@ class GradeMyBrainApp {
             Progress.clearGuests();
             id = newGuestId();
         }
-        this.requestedVersion = this.fullVersionEl.checked ? 'full' : 'short';
         playSafely(() => sound.playClick());
         this.progress = new Progress(id);
         this.progress.data.consent = {
@@ -272,7 +270,7 @@ class GradeMyBrainApp {
         // Sessions saved before padding existed: treat their whole queue as planned
         if (queueValid && session.plannedLength === undefined) session.plannedLength = session.queue.length;
         if (!queueValid) {
-            this.startSession(this.requestedVersion || 'short');
+            this.startSession('short');
         } else if (session.phase === 'checkpoint') {
             this.renderCheckpoint();
         } else if (session.phase === 'complete') {
@@ -1279,9 +1277,7 @@ class GradeMyBrainApp {
             <p>${retestNames.length > 0
                 ? `Up for a rematch: ${esc(retestNames.join(', '))}`
                 : 'No rematches needed right now. Nice work!'}</p>
-            ${this.session && this.session.phase === 'complete' && this.session.version === 'short'
-                ? '<p>You finished the short version. The full version covers decision-making beyond security and technology.</p>'
-                : ''}`;
+`;
 
         const emptyNote = text => `<p style="color: var(--text-muted); font-size: 0.9rem;">${text}</p>`;
         const missedCount = type => reviewed.filter(i => !i.correct && i.biasType === type).length;
@@ -1318,6 +1314,10 @@ class GradeMyBrainApp {
         this.renderHiddenTests(sessionComplete);
         this.playAgainBtn.hidden = !sessionComplete;
         const unseenFull = ScenarioBank.mainQuestions('full').filter(sc => !seenIds.has(sc.id)).length;
+        this.fullVersionCtaEl.hidden = !(sessionComplete && session.version === 'short' && unseenFull > 0);
+        this.fullVersionCtaTextEl.textContent = `You've finished the short version on security, technology and deceptive design. `
+            + `The full version has ${unseenFull} more questions on money, risk, statistics and everyday decisions, `
+            + `with rematches for anything that tripped you up. Your progress is saved, so you can stop any time.`;
         this.playAgainBtn.textContent = unseenFull > 0
             ? `▶ Continue to the Full Version (${unseenFull} more questions)`
             : (retestNames.length > 0 ? '▶ Rematch the Sneaky Topics' : '✓ Finish');
