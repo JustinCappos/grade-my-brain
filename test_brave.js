@@ -231,6 +231,15 @@ async function enterId(page, id, { checkConsent, fullVersion = false }) {
     if (checkConsent) {
         await page.click('#privacy-consent');
         assert.ok(!(await looksDisabled()), 'Checking consent should make Continue look enabled');
+    } else {
+        // Without consent, Continue does nothing until the policy has been opened
+        await page.click('#intro-continue-btn');
+        await settle();
+        assert.equal(await isHidden(page, '#intro-view'), false, 'Continue should not work before the policy is opened');
+        await page.$eval('#privacy-link', el => {
+            el.addEventListener('click', e => e.preventDefault(), { once: true });
+            el.click();
+        });
     }
     if (fullVersion) await page.click('#full-version-toggle');
     await page.click('#intro-continue-btn');
@@ -369,7 +378,8 @@ async function playSession(page, label) {
 
     // The final screen points players back to the privacy policy
     assert.equal(await isHidden(page, '#hidden-tests'), false, `${label}: hidden-tests debrief should show`);
-    assert.ok(await page.$('#hidden-tests a[href="privacy.html"]'), `${label}: debrief should link to the policy`);
+    const passedPolicy = await page.evaluate(() => window.brainApp.progress.data.consent.checked === false);
+    if (!passedPolicy) assert.ok(await page.$('#hidden-tests a[href="privacy.html"]'), `${label}: debrief should link to the policy`);
 
     // The audit lists every missed topic, each opening to its missed questions
     const auditTopics = await page.$$eval('.missed-topic', els => els.map(el => el.dataset.bias));
@@ -428,7 +438,8 @@ async function runBrowserChecks(browser) {
     // Session 1 is the short version by default
     const first = await playSession(page, 'session 1 (short)');
     const debrief = await text(page, '#hidden-tests');
-    assert.ok(debrief.includes('unchecked'), 'Debrief should reflect that the player left the box unchecked');
+    assert.ok(debrief.includes('continued without agreeing'), 'Debrief should reflect that the player continued without agreeing');
+    assert.ok(await page.$('#hidden-tests img[src="images/gerald-sad.svg"]'), 'Passing the policy test should show sad Gerald');
     assert.ok(first.bonusClaimed, 'The bonus pop-up should appear in the first session');
     assert.ok(/Gotcha! 2 of 3 sneaky tests caught you/.test(debrief), 'Debrief should count the bonus pop-up and leaderboard box as failed tests');
     const leaderboard = await page.evaluate(() => JSON.parse(localStorage.getItem('gmb_progress_e2e-player')).hiddenTests.leaderboard);

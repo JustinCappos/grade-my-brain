@@ -205,8 +205,9 @@ class GradeMyBrainApp {
             this.startSession('full');
         };
 
-        // Continue looks greyed out until the consent box is checked, but it
-        // works either way (the privacy policy mentions this).
+        // Continue looks greyed out until the consent box is checked. Without
+        // the box, it works only once the privacy policy has been opened
+        // (section 3.2 of the policy says so).
         this.consentEl.onchange = () => {
             this.introContinueBtn.classList.toggle('looks-disabled', !this.consentEl.checked);
         };
@@ -246,6 +247,7 @@ class GradeMyBrainApp {
 
     // A blank ID starts a fresh guest (see newGuestId)
     handleIntroContinue() {
+        if (!this.consentEl.checked && !this.openedPolicy) return;
         let id = normalizeId(this.idInputEl.value);
         if (!id) {
             Progress.clearGuests();
@@ -1335,19 +1337,22 @@ class GradeMyBrainApp {
         const policyStatus = !checked ? 'pass' : (openedPolicy ? 'partial' : 'fail');
         tests.push({
             status: policyStatus,
-            title: 'The privacy policy you agreed to',
+            title: policyStatus === 'pass' ? 'The privacy policy' : 'The privacy policy you agreed to',
             result: {
                 fail: 'You checked the box and agreed to a privacy policy without reading it.',
                 partial: 'You opened the privacy policy, then checked the box and agreed to it anyway.',
-                pass: openedPolicy
-                    ? 'You read the privacy policy, left the box unchecked, and found that the greyed-out Continue button still worked.'
-                    : 'You left the consent box unchecked and found that the greyed-out Continue button still worked.'
+                pass: 'You read the privacy policy and continued without agreeing to it.'
             }[policyStatus],
-            detail: `
+            detail: policyStatus === 'pass' ? `
+                <figure class="gerald">
+                    <img src="images/gerald-sad.svg" alt="Gerald, a sad raccoon in a bandit mask, holding an empty folder labelled No Data" width="150" height="163">
+                    <figcaption><strong>Poor Gerald.</strong> He's the raccoon the policy said we'd share your data with.
+                        Smart move continuing without ticking the box: he got nothing.</figcaption>
+                </figure>` : `
                 <figure class="gerald">
                     <img src="images/gerald.svg" alt="Gerald, a raccoon in a bandit mask, clutching a folder labelled Your Data" width="150" height="163">
                     <figcaption><strong>Meet Gerald.</strong> He's the raccoon the privacy policy said we'd share your data with.
-                        ${policyStatus === 'pass' ? 'Thanks to you, he got nothing.' : 'He says thanks!'}</figcaption>
+                        He says thanks!</figcaption>
                 </figure>
                 <p>The policy you agreed to granted us naming rights to your firstborn child, shared your data with Gerald,
                     and settled disputes by rock-paper-scissors by mail. Section 3.2 said the Continue button only
