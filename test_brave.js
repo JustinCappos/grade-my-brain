@@ -15,6 +15,7 @@
 
 import assert from 'assert/strict';
 import puppeteer from 'puppeteer-core';
+import { domainToASCII } from 'url';
 import { createStaticServer } from './serve.js';
 import {
     MASTER_SCENARIOS, STANDALONE_SCENARIOS, PAIRED_TESTS, BIAS_CATEGORIES,
@@ -131,6 +132,13 @@ function checkSessionBuilder() {
     assert.ok(retests.every(s => !s.pair), 'Retests are standalone questions');
     assert.ok(!retests.some(s => s.id === 'baserate-1'), 'Retests should avoid the exact question missed');
     checkQueue(queue, 'retest session');
+
+    // A homoglyph sender's revealed address must be the real punycode form of the one shown
+    for (const mail of MASTER_SCENARIOS.flatMap(s => s.inbox || []).filter(m => m.realAddress)) {
+        const [user, domain] = mail.address.split('@');
+        assert.equal(mail.realAddress, `${user}@${domainToASCII(domain)}`, `Wrong real address for ${mail.address}`);
+        assert.notEqual(domainToASCII(domain), domain, `${mail.address} should contain a lookalike character`);
+    }
 
     // A missed phishing topic is retested with the backup inbox, which is never planned or used for practice
     const backup = ScenarioBank.pickRetestScenario('PHISHING', { askedIds: new Set(['se-phishing-inbox']), missedIds: new Set(['se-phishing-inbox']) });

@@ -1041,6 +1041,7 @@ class GradeMyBrainApp {
                     return `
                         <div class="inbox-result ${yours ? (ok ? 'inbox-ok' : 'inbox-wrong') : ''}">
                             <p class="inbox-from"><strong>${i + 1}. ${esc(mail.from)}</strong> <span class="inbox-address">&lt;${esc(mail.address)}&gt;</span></p>
+                            ${mail.realAddress ? `<p class="inbox-real-address">Really: <span class="inbox-address">${esc(mail.realAddress)}</span></p>` : ''}
                             <p class="inbox-subject">${esc(mail.subject)}</p>
                             <p class="inbox-verdict">${yours ? `${ok ? '✓' : '✗'} You chose ${yours === 'report' ? 'Report' : 'Keep'}. ` : ''}${mail.phish ? 'Phishing' : 'Real'}: ${esc(mail.why)}</p>
                         </div>`;

@@ -1872,6 +1872,8 @@ body.intro-mode .main-container {
 .inbox-result.inbox-wrong { border-left-color: var(--accent-red); }
 
 .inbox-result .inbox-address { color: var(--text-muted); }
+.inbox-real-address { font-size: 0.82rem; color: #fcd34d; }
+.inbox-real-address .inbox-address { color: #fcd34d; }
 
 .inbox-verdict {
     font-size: 0.85rem;
