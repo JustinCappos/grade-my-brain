@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220" role="img" aria-labelledby="bonus-hook-title">
+  <title id="bonus-hook-title">A fishing hook dangling a shiny gift box labelled +50</title>
+
+  <!-- Fishing line -->
+  <line x1="100" y1="0" x2="100" y2="58" stroke="#cbd5e1" stroke-width="3"/>
+
+  <!-- Hook -->
+  <path d="M100 56 V96 Q100 124 76 124 Q56 124 56 104" fill="none" stroke="#94a3b8" stroke-width="7" stroke-linecap="round"/>
+  <path d="M56 104 L48 114 M56 104 L66 110" stroke="#94a3b8" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="100" cy="56" r="6" fill="none" stroke="#94a3b8" stroke-width="5"/>
+
+  <!-- Ribbon loop caught on the hook -->
+  <path d="M66 118 Q72 136 88 140" fill="none" stroke="#f472b6" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Gift box -->
+  <g transform="rotate(-8 110 172)">
+    <rect x="66" y="140" width="92" height="66" rx="10" fill="#8b5cf6"/>
+    <rect x="62" y="132" width="100" height="20" rx="6" fill="#a78bfa"/>
+    <rect x="104" y="132" width="16" height="74" fill="#f472b6"/>
+    <!-- Bow -->
+    <path d="M112 132 Q92 108 98 126 Q100 134 112 132 Z" fill="#f472b6"/>
+    <path d="M112 132 Q132 108 126 126 Q124 134 112 132 Z" fill="#f472b6"/>
+    <!-- Cute face -->
+    <circle cx="84" cy="172" r="5" fill="#1e1b4b"/>
+    <circle cx="140" cy="172" r="5" fill="#1e1b4b"/>
+    <circle cx="86" cy="170" r="1.6" fill="#ffffff"/>
+    <circle cx="142" cy="170" r="1.6" fill="#ffffff"/>
+    <path d="M82 186 Q88 192 94 186" stroke="#1e1b4b" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <ellipse cx="76" cy="182" rx="5" ry="3" fill="#f9a8d4" opacity="0.7"/>
+    <ellipse cx="148" cy="182" rx="5" ry="3" fill="#f9a8d4" opacity="0.7"/>
+    <!-- +50 tag -->
+    <rect x="124" y="184" width="36" height="20" rx="5" fill="#fbbf24"/>
+    <text x="142" y="199" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="800" fill="#78350f">+50</text>
+  </g>
+
+  <!-- Sparkles -->
+  <path d="M168 104 l4 10 l10 4 l-10 4 l-4 10 l-4 -10 l-10 -4 l10 -4 Z" fill="#fde68a"/>
+  <path d="M36 150 l3 7 l7 3 l-7 3 l-3 7 l-3 -7 l-7 -3 l7 -3 Z" fill="#fde68a"/>
+  <path d="M172 186 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#fde68a"/>
+</svg>

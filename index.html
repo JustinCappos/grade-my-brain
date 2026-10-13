@@ -214,16 +214,6 @@
                 </div>
             </div>
 
-            <!-- After the short version: the invitation to the full version -->
-            <section id="full-version-cta" class="full-version-cta" aria-labelledby="full-version-cta-title" hidden>
-                <div>
-                    <p class="full-version-cta-eyebrow">Ready for more?</p>
-                    <h3 id="full-version-cta-title" class="full-version-cta-title">Take on the full version</h3>
-                    <p id="full-version-cta-text" class="full-version-cta-text"></p>
-                </div>
-                <button type="button" id="full-version-cta-btn" class="glow-btn full-version-cta-btn">▶ Start the full version</button>
-            </section>
-
             <!-- Progress across sessions for this ID code -->
             <div id="progress-summary" class="progress-summary"></div>
 
@@ -275,6 +265,19 @@
 
             <!-- Every missed question, grouped by topic, each expandable -->
             <section id="missed-by-topic" class="missed-by-topic"></section>
+
+            <!-- After the short version: the invitation to the full version -->
+            <section id="full-version-cta" class="full-version-cta" aria-labelledby="full-version-cta-title" hidden>
+                <div>
+                    <p class="full-version-cta-eyebrow">Ready for more?</p>
+                    <h3 id="full-version-cta-title" class="full-version-cta-title">Take on the full version</h3>
+                    <p id="full-version-cta-text" class="full-version-cta-text"></p>
+                </div>
+                <div class="full-version-cta-actions">
+                    <button type="button" id="full-version-cta-btn" class="glow-btn full-version-cta-btn">▶ Start the full version</button>
+                    <button type="button" id="exit-btn" class="control-btn exit-btn">I'm done for now</button>
+                </div>
+            </section>
 
             <button id="play-again-btn" class="glow-btn" style="margin-top: 25px; width: 260px; font-size: 1.1rem; margin-left: auto; margin-right: auto; display: block;">
                 ▶ Rematch the Sneaky Topics

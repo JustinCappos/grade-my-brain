@@ -15,7 +15,7 @@ import { sound } from './audio.js';
 import { ScenarioBank, PAIRED_TESTS, BIAS_CATEGORIES, REVIEW_BLOCK, BONUS_TOKEN, SHORT_SESSION_MAX } from './scenarioBank.js';
 import { BiasAnalyzer } from './biasAnalyzer.js';
 import { BrainChart } from './chart.js';
-import { Progress, normalizeId, displayId, newGuestId } from './progress.js';
+import { Progress, normalizeId, displayId, newGuestId, isGuestId } from './progress.js';
 
 // Grades come from the share of reviewed answers that were right, so they
 // mean the same thing however long the session runs
@@ -206,6 +206,11 @@ class GradeMyBrainApp {
             this.startSession('full');
         };
         document.getElementById('full-version-cta-btn').onclick = () => this.playAgainBtn.onclick();
+        document.getElementById('exit-btn').onclick = () => {
+            playSafely(() => sound.playClick());
+            this.hideSummaryModal();
+            this.renderGoodbye();
+        };
 
         // Continue looks greyed out until the consent box is checked. Without
         // the box, it works only once the privacy policy has been opened
@@ -1176,6 +1181,34 @@ class GradeMyBrainApp {
         this.renderCheckpoint({ scroll: false });
     }
 
+    // Shown when the player stops after the short version
+    renderGoodbye() {
+        this.showView('checkpoint');
+        const unseenFull = ScenarioBank.mainQuestions('full').filter(sc => !this.progress.seenIds.has(sc.id)).length;
+        const guest = isGuestId(this.progress.id);
+        this.checkpointEl.innerHTML = `
+            <div class="checkpoint-head">
+                <div>
+                    <p class="checkpoint-eyebrow">All done for now</p>
+                    <h2 class="checkpoint-title">Thanks for playing! 🧠</h2>
+                </div>
+            </div>
+            <p class="checkpoint-summary">${guest
+                ? 'You played as a guest, so you can pick up where you left off as long as this tab stays open.'
+                : `Your progress is saved under ${esc(displayId(this.progress.id))}, so you can come back any time.`}
+                The full version's ${unseenFull} questions are here whenever you want them.</p>
+            <div class="full-version-cta-actions">
+                <button id="goodbye-full-btn" class="glow-btn full-version-cta-btn" type="button">▶ Start the full version</button>
+                <button id="goodbye-report-btn" class="control-btn exit-btn" type="button">See my report again</button>
+            </div>
+        `;
+        this.checkpointEl.querySelector('#goodbye-full-btn').onclick = () => this.playAgainBtn.onclick();
+        this.checkpointEl.querySelector('#goodbye-report-btn').onclick = () => {
+            playSafely(() => sound.playClick());
+            this.showCognitiveAuditSummary({ final: true });
+        };
+    }
+
     // Shown when every question has been seen and nothing needs a retest
     renderAllDone() {
         this.showView('checkpoint');
@@ -1312,9 +1345,9 @@ class GradeMyBrainApp {
         const session = this.session;
         const sessionComplete = Boolean(session && session.phase === 'complete');
         this.renderHiddenTests(sessionComplete);
-        this.playAgainBtn.hidden = !sessionComplete;
         const unseenFull = ScenarioBank.mainQuestions('full').filter(sc => !seenIds.has(sc.id)).length;
         this.fullVersionCtaEl.hidden = !(sessionComplete && session.version === 'short' && unseenFull > 0);
+        this.playAgainBtn.hidden = !sessionComplete || !this.fullVersionCtaEl.hidden;
         this.fullVersionCtaTextEl.textContent = `You've finished the short version on security, technology and deceptive design. `
             + `The full version has ${unseenFull} more questions on money, risk, statistics and everyday decisions, `
             + `with rematches for anything that tripped you up. Your progress is saved, so you can stop any time.`;
@@ -1376,6 +1409,12 @@ class GradeMyBrainApp {
                     ? 'You clicked "Claim my 50 points" on a pop-up that wasn\'t from this game.'
                     : 'You didn\'t claim the "50-point bonus" pop-up. It wasn\'t from this game.',
                 detail: `
+                    <figure class="gerald hidden-test-figure">
+                        <img src="images/bonus-hook.svg" alt="A fishing hook dangling a shiny gift box labelled +50" width="110" height="121">
+                        <figcaption>${bonus.clicked
+                            ? '<strong>Hooked!</strong> The shiny "+50 points" was the bait.'
+                            : '<strong>Not today, hook.</strong> You left the shiny bait dangling.'}</figcaption>
+                    </figure>
                     <p>Its address was grademybrain-rewards.net, not this site, and it used a free reward and a one-minute
                         countdown, two classic phishing lures. In a real attack, the next screen would ask you to sign in, and
                         your password would go to the attacker. This game never collects passwords; the pop-up only recorded
@@ -1392,6 +1431,12 @@ class GradeMyBrainApp {
                     ? 'You left "Share my results on the public leaderboard" ticked. It was ticked for you, right next to Continue.'
                     : 'You spotted the pre-ticked "Share my results on the public leaderboard" box and unticked it.',
                 detail: `
+                    <figure class="gerald hidden-test-figure">
+                        <img src="images/leaderboard-box.svg" alt="A sneaky smiling trophy holding up a ticked checkbox" width="110" height="110">
+                        <figcaption>${leaderboard.kept
+                            ? '<strong>The sneaky checkbox wins this round.</strong> It was ticked before you got there.'
+                            : '<strong>Take that, defaults!</strong> You unticked the sneaky checkbox.'}</figcaption>
+                    </figure>
                     <p>There is no leaderboard, and nothing was posted: the box only recorded whether you left it ticked.
                         On a real site, a box like this could publish your name and results or sign you up for marketing.</p>
                     <ul class="policy-debrief-list">

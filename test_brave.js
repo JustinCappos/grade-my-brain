@@ -381,7 +381,8 @@ async function playSession(page, label) {
     await page.waitForFunction(() => document.getElementById('summary-modal').classList.contains('active'));
     await settle(); // the radar chart draws just after the audit opens
     assert.equal(Number(await text(page, '#final-score')), expectedScore, `${label}: final score`);
-    assert.equal(await isHidden(page, '#play-again-btn'), false, `${label}: next-session button should show`);
+    const nextVisible = !(await isHidden(page, '#play-again-btn')) || !(await isHidden(page, '#full-version-cta'));
+    assert.ok(nextVisible, `${label}: next-session button should show`);
 
     // The final screen points players back to the privacy policy
     assert.equal(await isHidden(page, '#hidden-tests'), false, `${label}: hidden-tests debrief should show`);
@@ -458,11 +459,16 @@ async function runBrowserChecks(browser) {
     assert.deepEqual([...firstPlanned].sort(), shortIds, 'The short version should ask every short-version question once');
     assert.ok(first.queue.some(e => isFiller(e.id)), 'Session 1 should include straightforward questions');
     assert.ok(first.queue.length <= SHORT_SESSION_MAX, `The short version ran to ${first.queue.length} questions, over the ${SHORT_SESSION_MAX} limit`);
-    assert.match(await text(page, '#play-again-btn'), /Continue to the Full Version/, 'The short version should offer the full version');
     assert.equal(await isHidden(page, '#full-version-cta'), false, 'The final screen should invite the player to the full version');
+    assert.equal(await isHidden(page, '#play-again-btn'), true, 'The invitation replaces the bottom button');
+    assert.match(await text(page, '#full-version-cta-btn'), /Start the full version/);
+    // Stopping shows a goodbye screen that still offers the full version
+    await page.click('#exit-btn');
+    await page.waitForFunction(() => !document.getElementById('checkpoint-view').hidden && document.getElementById('goodbye-full-btn'));
+    assert.equal(await page.$eval('#summary-modal', el => el.classList.contains('active')), false, "I'm done should close the report");
 
     // Continuing (from the invitation) goes through every regular question not yet seen
-    await page.click('#full-version-cta-btn');
+    await page.click('#goodbye-full-btn');
     await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
     const secondStart = await page.evaluate(() => window.brainApp.session.queue);
     const secondPlanned = secondStart.filter(e => !e.retest && !isFiller(e.id)).map(e => e.id).sort();

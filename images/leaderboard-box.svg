@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-labelledby="leaderboard-box-title">
+  <title id="leaderboard-box-title">A sneaky smiling trophy holding up a pre-ticked checkbox</title>
+
+  <!-- Trophy handles -->
+  <path d="M58 58 Q24 58 30 90 Q36 116 66 112" fill="none" stroke="#f59e0b" stroke-width="10" stroke-linecap="round"/>
+  <path d="M142 58 Q176 58 170 90 Q164 116 134 112" fill="none" stroke="#f59e0b" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- Cup -->
+  <path d="M52 40 H148 V82 Q148 138 100 138 Q52 138 52 82 Z" fill="#fbbf24"/>
+  <path d="M60 46 H72 V84 Q72 112 88 126 Q62 116 60 84 Z" fill="#fde68a" opacity="0.7"/>
+  <rect x="48" y="32" width="104" height="14" rx="6" fill="#f59e0b"/>
+
+  <!-- Sneaky face: side-eye and a smirk -->
+  <ellipse cx="82" cy="80" rx="10" ry="8" fill="#ffffff"/>
+  <ellipse cx="118" cy="80" rx="10" ry="8" fill="#ffffff"/>
+  <circle cx="88" cy="81" r="5" fill="#451a03"/>
+  <circle cx="124" cy="81" r="5" fill="#451a03"/>
+  <path d="M71 70 Q82 66 93 72" stroke="#92400e" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M107 72 Q118 64 129 68" stroke="#92400e" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M88 104 Q104 114 116 100" stroke="#451a03" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="70" cy="98" rx="6" ry="3.5" fill="#fb923c" opacity="0.6"/>
+  <ellipse cx="130" cy="98" rx="6" ry="3.5" fill="#fb923c" opacity="0.6"/>
+
+  <!-- Stem and base -->
+  <rect x="90" y="136" width="20" height="26" fill="#f59e0b"/>
+  <rect x="66" y="160" width="68" height="16" rx="5" fill="#d97706"/>
+  <rect x="58" y="174" width="84" height="22" rx="6" fill="#92400e"/>
+  <text x="100" y="190" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="800" fill="#fde68a">#1</text>
+
+  <!-- Arm holding up a ticked checkbox -->
+  <path d="M146 96 Q168 86 176 64" fill="none" stroke="#f59e0b" stroke-width="7" stroke-linecap="round"/>
+  <g transform="rotate(10 186 46)">
+    <rect x="164" y="24" width="44" height="44" rx="9" fill="#ffffff" stroke="#38bdf8" stroke-width="5"/>
+    <path d="M173 46 L183 57 L200 34" fill="none" stroke="#0ea5e9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Sparkles -->
+  <path d="M30 26 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#fde68a"/>
+  <path d="M184 150 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 l6 -2 Z" fill="#fde68a"/>
+</svg>
