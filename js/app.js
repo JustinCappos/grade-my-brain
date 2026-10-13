@@ -202,8 +202,8 @@ class GradeMyBrainApp {
             this.startSession('full');
         };
 
-        // The pre-checked consent box: unchecking it greys out Continue, but
-        // the button keeps working (the privacy policy mentions this).
+        // Continue looks greyed out until the consent box is checked, but it
+        // works either way (the privacy policy mentions this).
         this.consentEl.onchange = () => {
             this.introContinueBtn.classList.toggle('looks-disabled', !this.consentEl.checked);
         };
@@ -235,8 +235,8 @@ class GradeMyBrainApp {
         this.fullVersionEl.checked = false;
         document.getElementById('short-version-count').textContent = ScenarioBank.sessionLengthEstimate('short');
         document.getElementById('full-version-count').textContent = ScenarioBank.sessionLengthEstimate('full');
-        this.consentEl.checked = true;
-        this.introContinueBtn.classList.remove('looks-disabled');
+        this.consentEl.checked = false;
+        this.introContinueBtn.classList.add('looks-disabled');
         this.updateHeaderUI();
         this.chart.updateHistory([{ round: 0, score: STARTING_SCORE }]);
     }
@@ -1316,11 +1316,11 @@ class GradeMyBrainApp {
             status: policyStatus,
             title: 'The privacy policy you agreed to',
             result: {
-                fail: 'You agreed to a privacy policy without reading it.',
-                partial: 'You opened the privacy policy, then agreed to it anyway.',
+                fail: 'You checked the box and agreed to a privacy policy without reading it.',
+                partial: 'You opened the privacy policy, then checked the box and agreed to it anyway.',
                 pass: openedPolicy
-                    ? 'You read the privacy policy, unchecked the box, and found that the greyed-out Continue button still worked.'
-                    : 'You unchecked the consent box and found that the greyed-out Continue button still worked.'
+                    ? 'You read the privacy policy, left the box unchecked, and found that the greyed-out Continue button still worked.'
+                    : 'You left the consent box unchecked and found that the greyed-out Continue button still worked.'
             }[policyStatus],
             detail: `
                 <figure class="gerald">
@@ -1332,7 +1332,7 @@ class GradeMyBrainApp {
                     and settled disputes by rock-paper-scissors by mail. Section 3.2 said the Continue button only
                     <em>looked</em> disabled when the box was unchecked.</p>
                 <ul class="policy-debrief-list">
-                    <li><strong>The box was checked for you.</strong> Most people keep whatever is pre-selected. In 2019 the EU's top court ruled that a pre-ticked box is not valid consent for cookies.</li>
+                    <li><strong>Agreeing took one click.</strong> Most people tick the box just to get past it. Some sites go further and tick it for you, but in 2019 the EU's top court ruled that a pre-ticked box is not valid consent for cookies.</li>
                     <li><strong>The greyed-out button wasn't disabled.</strong> Visual cues steer people even when they're false.</li>
                     <li><strong>Almost nobody reads these.</strong> In a study by Obar and Oeldorf-Hirsch, 98% of people missed a clause handing over their firstborn child.</li>
                 </ul>

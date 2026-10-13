@@ -213,13 +213,15 @@ const settle = () => new Promise(r => setTimeout(r, 400));
 const text = (page, selector) => page.$eval(selector, el => el.textContent.trim());
 const isHidden = (page, selector) => page.$eval(selector, el => el.hidden);
 
-async function enterId(page, id, { uncheckConsent, fullVersion = false }) {
+async function enterId(page, id, { checkConsent, fullVersion = false }) {
     assert.equal(await isHidden(page, '#intro-view'), false, 'ID screen should show first');
     await page.type('#id-code-input', id);
-    if (uncheckConsent) {
+    const looksDisabled = () => page.$eval('#intro-continue-btn', el => el.classList.contains('looks-disabled'));
+    assert.equal(await page.$eval('#privacy-consent', el => el.checked), false, 'The consent box should start unchecked');
+    assert.ok(await looksDisabled(), 'Continue should look disabled until consent is checked');
+    if (checkConsent) {
         await page.click('#privacy-consent');
-        const looksDisabled = await page.$eval('#intro-continue-btn', el => el.classList.contains('looks-disabled'));
-        assert.ok(looksDisabled, 'Continue should look disabled once consent is unchecked');
+        assert.ok(!(await looksDisabled()), 'Checking consent should make Continue look enabled');
     }
     if (fullVersion) await page.click('#full-version-toggle');
     await page.click('#intro-continue-btn');
@@ -410,14 +412,14 @@ async function runBrowserChecks(browser) {
     await page.evaluate(() => document.fonts.ready);
     assert.deepEqual(await outsideHosts(), [], 'The game should not contact other servers');
 
-    await enterId(page, 'E2E-Player', { uncheckConsent: true });
+    await enterId(page, 'E2E-Player', { checkConsent: false });
     const consent = await page.evaluate(() => JSON.parse(localStorage.getItem('gmb_progress_e2e-player')).consent);
-    assert.equal(consent.checked, false, 'Unchecked consent should be recorded');
+    assert.equal(consent.checked, false, 'Leaving consent unchecked should be recorded');
 
     // Session 1 is the short version by default
     const first = await playSession(page, 'session 1 (short)');
     const debrief = await text(page, '#hidden-tests');
-    assert.ok(debrief.includes('unchecked'), 'Debrief should reflect that the player unchecked the box');
+    assert.ok(debrief.includes('unchecked'), 'Debrief should reflect that the player left the box unchecked');
     assert.ok(first.bonusClaimed, 'The bonus pop-up should appear in the first session');
     assert.ok(/Gotcha! 1 of 2 sneaky tests caught you/.test(debrief), 'Debrief should count the bonus pop-up as a failed test');
     assert.ok(await page.$('#hidden-tests .hidden-test-fail'), 'The bonus pop-up result should be marked as failed');
@@ -469,7 +471,7 @@ async function runBrowserChecks(browser) {
     await page.click('#switch-id-btn');
     assert.equal(await isHidden(page, '#intro-view'), false, 'Switch ID should show the ID screen');
     // A blank ID plays as a guest with its own fresh progress; the checkbox picks the full version
-    await enterId(page, '', { uncheckConsent: false, fullVersion: true });
+    await enterId(page, '', { checkConsent: true, fullVersion: true });
     const guestKeys = () => page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('gmb_progress_~guest-')));
     const firstGuest = await guestKeys();
     assert.equal(firstGuest.length, 1, 'A blank ID should play as a new guest');
@@ -484,7 +486,7 @@ async function runBrowserChecks(browser) {
     await page.waitForFunction(() => window.brainApp.session.position === 1);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.click('#switch-id-btn');
-    await enterId(page, '', { uncheckConsent: false });
+    await enterId(page, '', { checkConsent: true });
     assert.equal(await page.evaluate(() => window.brainApp.session.position), 0, 'A new guest should start at the first question');
     const secondGuest = await guestKeys();
     assert.equal(secondGuest.length, 1, 'The earlier guest progress should be cleared');

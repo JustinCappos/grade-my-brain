@@ -48,7 +48,7 @@ function defaultStorage() {
 function freshData() {
     return {
         version: DATA_VERSION,
-        consent: { checked: true, openedPolicy: false },
+        consent: { checked: false, openedPolicy: false },
         seen: {},
         // { scenarioId, biasType, correct, kind: 'main' | 'retest' | 'practice', at }
         results: [],
