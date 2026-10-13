@@ -498,13 +498,14 @@ async function runBrowserChecks(browser) {
     await page.reload({ waitUntil: 'networkidle0' });
     assert.equal(await isHidden(page, '#scenario-stage'), false, 'Reloading should resume the current guest');
 
-    // The privacy policy loads and mentions that the greyed-out button still works
+    // The privacy policy loads, mentions that the greyed-out button still works, and has no picture of Gerald
     await page.goto(`http://localhost:${PORT}/privacy.html`, { waitUntil: 'networkidle0' });
     const policy = await page.$eval('main', el => el.textContent);
     await page.evaluate(() => document.fonts.ready);
     assert.deepEqual(await outsideHosts(), [], 'The privacy policy should not contact other servers');
-    assert.ok(/collects no data/.test(policy), 'Policy should include the serious data section');
+    assert.ok(/collects no data/.test(policy) && /no legal effect/.test(policy), 'Policy should include the accurate data summary');
     assert.ok(/greyed out/.test(policy) && /still works/.test(policy), 'Policy should mention the greyed-out button');
+    assert.equal(await page.$('main img'), null, 'The privacy policy should have no images');
 
     // The question review page renders every question
     await page.goto(`http://localhost:${PORT}/questions.html`, { waitUntil: 'networkidle0' });
