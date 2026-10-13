@@ -27,7 +27,7 @@ const PORT = 8088;
 const BRAVE_PATH = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser';
 const CHECKPOINT_EVERY = REVIEW_BLOCK;
 
-const MAIN_POOL = MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.filler && !s.retired);
+const MAIN_POOL = MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.retestOnly && !s.filler && !s.retired);
 const isFiller = id => Boolean(ScenarioBank.getScenario(id).filler);
 const scenariosByTitle = new Map(MASTER_SCENARIOS.map(s => [s.title, s]));
 
@@ -131,6 +131,15 @@ function checkSessionBuilder() {
     assert.ok(retests.every(s => !s.pair), 'Retests are standalone questions');
     assert.ok(!retests.some(s => s.id === 'baserate-1'), 'Retests should avoid the exact question missed');
     checkQueue(queue, 'retest session');
+
+    // A missed phishing topic is retested with the backup inbox, which is never planned or used for practice
+    const backup = ScenarioBank.pickRetestScenario('PHISHING', { askedIds: new Set(['se-phishing-inbox']), missedIds: new Set(['se-phishing-inbox']) });
+    assert.equal(backup.id, 'se-phishing-inbox-home', 'A phishing retest should use the backup inbox first');
+    assert.ok(!ScenarioBank.mainQuestions('full').some(s => s.retestOnly), 'Retest-only questions are never planned');
+    for (let i = 0; i < 20; i++) {
+        const p = ScenarioBank.pickPracticeScenario('PHISHING', {});
+        assert.ok(!p || p.id !== 'se-phishing-inbox-home', 'The unseen backup inbox should not be used for practice');
+    }
 
     // Everything seen and nothing missed: nothing left to play
     assert.equal(ScenarioBank.buildSession({ seenIds: new Set(MAIN_POOL.map(s => s.id)) }).queue.length, 0);

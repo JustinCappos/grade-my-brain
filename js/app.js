@@ -1179,7 +1179,7 @@ class GradeMyBrainApp {
     renderAllDone() {
         this.showView('checkpoint');
         this.updateHeaderUI();
-        const total = ScenarioBank.getAllScenarios().filter(sc => !sc.practiceOnly).length;
+        const total = ScenarioBank.getAllScenarios().filter(sc => !sc.practiceOnly && !sc.retestOnly).length;
         this.checkpointEl.innerHTML = `
             <div class="checkpoint-head">
                 <div>
@@ -1266,7 +1266,7 @@ class GradeMyBrainApp {
         this.sys1ValEl.textContent = `${audit.system1Score}% Heuristic`;
         this.sys2ValEl.textContent = `${audit.system2Score}% Analytical`;
 
-        const mainPool = ScenarioBank.getAllScenarios().filter(sc => !sc.practiceOnly);
+        const mainPool = ScenarioBank.getAllScenarios().filter(sc => !sc.practiceOnly && !sc.retestOnly);
         const total = mainPool.length;
         const seenIds = this.progress.seenIds;
         const seen = mainPool.filter(sc => seenIds.has(sc.id)).length;

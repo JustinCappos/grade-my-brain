@@ -324,8 +324,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Anchoring Effect",
         bookRef: "Thinking, Fast and Slow - Chapter 11",
         options: [
-            { text: "Accept Settlement (Pay $200,000)", biasValue: 1, isBest: false },
-            { text: "Reject Settlement (Proceed to Trial)", biasValue: 0, isBest: true }
+            { text: "Reject Settlement (Proceed to Trial)", biasValue: 0, isBest: true },
+            { text: "Accept Settlement (Pay $200,000)", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -439,8 +439,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Conjunction Fallacy",
         bookRef: "Thinking, Fast and Slow - Chapter 15",
         options: [
-            { text: "Mark is a software engineer who founded an AI startup with $10M VC funding", biasValue: 1, isBest: false },
-            { text: "Mark is a software engineer", biasValue: 0, isBest: true }
+            { text: "Mark is a software engineer", biasValue: 0, isBest: true },
+            { text: "Mark is a software engineer who founded an AI startup with $10M VC funding", biasValue: 1, isBest: false }
         ]
     },
 
@@ -507,8 +507,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Availability Heuristic",
         bookRef: "Thinking, Fast and Slow - Chapters 12 & 13",
         options: [
-            { text: "Prioritize hardening the database servers", biasValue: 1, isBest: false },
-            { text: "Prioritize patching file storage servers", biasValue: 0, isBest: true }
+            { text: "Prioritize patching file storage servers", biasValue: 0, isBest: true },
+            { text: "Prioritize hardening the database servers", biasValue: 1, isBest: false }
         ]
     },
 
@@ -539,8 +539,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Sunk Cost Fallacy",
         bookRef: "Thinking, Fast and Slow - Chapter 32",
         options: [
-            { text: "Keep your current shares", biasValue: 1, isBest: false },
-            { text: "Sell and buy the alternative stock", biasValue: 0, isBest: true }
+            { text: "Sell and buy the alternative stock", biasValue: 0, isBest: true },
+            { text: "Keep your current shares", biasValue: 1, isBest: false }
         ]
     },
 
@@ -639,8 +639,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Planning Fallacy",
         bookRef: "Thinking, Fast and Slow - Chapter 23",
         options: [
-            { text: "Budget $500,000", biasValue: 1, isBest: false },
-            { text: "Budget $700,000", biasValue: 0, isBest: true }
+            { text: "Budget $700,000", biasValue: 0, isBest: true },
+            { text: "Budget $500,000", biasValue: 1, isBest: false }
         ]
     },
 
@@ -661,9 +661,9 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Availability Heuristic",
         bookRef: "Thinking, Fast and Slow - Chapters 12 & 13",
         options: [
-            { text: "Homicide, by roughly 2 to 1", biasValue: 1, isBest: false },
+            { text: "Suicide, by roughly 2 to 1", biasValue: 0, isBest: true },
             { text: "About the same", biasValue: 0.5, isBest: false },
-            { text: "Suicide, by roughly 2 to 1", biasValue: 0, isBest: true }
+            { text: "Homicide, by roughly 2 to 1", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -676,9 +676,9 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Availability Heuristic",
         bookRef: "Thinking, Fast and Slow - Chapters 12 & 13",
         options: [
-            { text: "Tornadoes", biasValue: 1, isBest: false },
+            { text: "Extreme heat", biasValue: 0, isBest: true },
             { text: "About the same", biasValue: 0.5, isBest: false },
-            { text: "Extreme heat", biasValue: 0, isBest: true }
+            { text: "Tornadoes", biasValue: 1, isBest: false }
         ]
     },
 
@@ -729,8 +729,8 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Thinking, Fast and Slow - Chapter 17",
         options: [
             { text: "Warnings motivate; bonuses make people complacent", biasValue: 1, isBest: false },
-            { text: "Extreme results tend to move back toward average", biasValue: 0, isBest: true },
-            { text: "The bonus group was distracted by spending their bonuses", biasValue: 1, isBest: false }
+            { text: "The bonus group was distracted by spending their bonuses", biasValue: 1, isBest: false },
+            { text: "Extreme results tend to move back toward average", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -781,8 +781,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Outcome Bias",
         bookRef: "Thinking, Fast and Slow - Chapter 19",
         options: [
-            { text: "A poor decision", biasValue: 1, isBest: false },
-            { text: "A sound decision", biasValue: 0, isBest: true }
+            { text: "A sound decision", biasValue: 0, isBest: true },
+            { text: "A poor decision", biasValue: 1, isBest: false }
         ]
     },
 
@@ -817,8 +817,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Loss Aversion",
         bookRef: "Thinking, Fast and Slow - Chapters 26 & 31",
         options: [
-            { text: "Take the bet", biasValue: 0, isBest: true },
-            { text: "Decline the bet", biasValue: 1, isBest: false }
+            { text: "Decline the bet", biasValue: 1, isBest: false },
+            { text: "Take the bet", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -900,8 +900,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Framing Effect (MPG Illusion)",
         bookRef: "Thinking, Fast and Slow - Chapter 34",
         options: [
-            { text: "Replacing the truck (12 to 14 mpg; 5.1 to 6.0 km/L)", biasValue: 0, isBest: true },
             { text: "Replacing the sedan (30 to 40 mpg; 12.8 to 17.0 km/L)", biasValue: 1, isBest: false },
+            { text: "Replacing the truck (12 to 14 mpg; 5.1 to 6.0 km/L)", biasValue: 0, isBest: true },
             { text: "They save about the same", biasValue: 0.5, isBest: false }
         ]
     },
@@ -919,8 +919,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Peak-End Rule & Duration Neglect",
         bookRef: "Thinking, Fast and Slow - Chapter 35",
         options: [
-            { text: "Version A", biasValue: 0, isBest: true },
             { text: "Version B", biasValue: 1, isBest: false },
+            { text: "Version A", biasValue: 0, isBest: true },
             { text: "About the same", biasValue: 0.5, isBest: false }
         ]
     },
@@ -1160,8 +1160,8 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Consumer protection guidance (CFPB, deferred interest promotions)",
         options: [
             { text: "Interest starts on the remaining $120 from now on", biasValue: 1, isBest: false },
-            { text: "Interest is charged on the full $2,400, back to the purchase date", biasValue: 0, isBest: true },
-            { text: "Nothing extra is owed", biasValue: 1, isBest: false }
+            { text: "Nothing extra is owed", biasValue: 1, isBest: false },
+            { text: "Interest is charged on the full $2,400, back to the purchase date", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -1278,8 +1278,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "What You See Is All There Is",
         bookRef: "Thinking, Fast and Slow - Chapter 7",
         options: [
-            { text: "No", biasValue: 1, isBest: false },
-            { text: "Yes, possibly", biasValue: 0, isBest: true }
+            { text: "Yes, possibly", biasValue: 0, isBest: true },
+            { text: "No", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1324,8 +1324,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Sunk Cost Fallacy",
         bookRef: "Thinking, Fast and Slow - Chapter 32",
         options: [
-            { text: "Keep building your own library", biasValue: 1, isBest: false },
-            { text: "Switch to the audited library", biasValue: 0, isBest: true }
+            { text: "Switch to the audited library", biasValue: 0, isBest: true },
+            { text: "Keep building your own library", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1367,9 +1367,9 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Manufactured Urgency",
         bookRef: "Dark patterns research (Mathur et al. 2019)",
         options: [
+            { text: "Open the IT portal from your bookmarks and change it there", biasValue: 0, isBest: true },
             { text: "Click \"Keep my current password\" and sign in", biasValue: 1, isBest: false },
-            { text: "Reply to the email to ask whether it's real", biasValue: 0.5, isBest: false },
-            { text: "Open the IT portal from your bookmarks and change it there", biasValue: 0, isBest: true }
+            { text: "Reply to the email to ask whether it's real", biasValue: 0.5, isBest: false }
         ]
     },
     {
@@ -1383,9 +1383,9 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Halo Effect",
         bookRef: "Thinking, Fast and Slow - Chapter 7",
         options: [
-            { text: "Mostly on the vendor's reputation", biasValue: 1, isBest: false },
+            { text: "Mostly on the penetration test", biasValue: 0, isBest: true },
             { text: "Equally", biasValue: 0.5, isBest: false },
-            { text: "Mostly on the penetration test", biasValue: 0, isBest: true }
+            { text: "Mostly on the vendor's reputation", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1399,8 +1399,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Law of Small Numbers",
         bookRef: "Thinking, Fast and Slow - Chapter 10",
         options: [
-            { text: "Legal is better at spotting phishing than engineering", biasValue: 1, isBest: false },
-            { text: "There isn't enough data to tell", biasValue: 0, isBest: true }
+            { text: "There isn't enough data to tell", biasValue: 0, isBest: true },
+            { text: "Legal is better at spotting phishing than engineering", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1429,8 +1429,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Outcome Bias",
         bookRef: "Thinking, Fast and Slow - Chapter 19",
         options: [
-            { text: "Admin A", biasValue: 1, isBest: false },
-            { text: "Admin B", biasValue: 0, isBest: true }
+            { text: "Admin B", biasValue: 0, isBest: true },
+            { text: "Admin A", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1493,6 +1493,30 @@ export const STANDALONE_SCENARIOS = [
         ]
     },
     {
+        // Only used as a retest, so a player who missed the first inbox gets a fresh one
+        id: "se-phishing-inbox-home",
+        retestOnly: true,
+        biasType: "PHISHING",
+        title: "Sort Your Home Inbox",
+        scenarioText: "You bank with Northbridge Bank (northbridgebank.com), subscribe to StreamBox (streambox.com), and yesterday ordered a lamp from Hearthline (hearthline.com). Your friend Sam said they'd email you the photos from Saturday's hike. Sort these six emails: report the phishing ones, and keep the real ones.",
+        inbox: [
+            { from: "Northbridge Bank", address: "alerts@northbridgebank.com", subject: "Your October statement is ready", preview: "Your statement is available. Sign in to online banking to view it.", phish: false, why: "A routine notice from your bank's real domain that asks nothing unusual." },
+            { from: "Parcelwise Delivery", address: "tracking@parcelwise-redelivery.info", subject: "We couldn't deliver your package", preview: "A $1.99 redelivery fee is due. Pay within 48 hours or your package will be returned.", phish: true, why: "A small \"fee\" from an unfamiliar courier's odd domain, timed to look like your order. It's after your card details." },
+            { from: "Hearthline", address: "orders@hearthline.com", subject: "Your order has shipped", preview: "Your Arlo table lamp is on its way. Track it on hearthline.com.", phish: false, why: "You ordered the lamp yesterday, and this comes from the real hearthline.com." },
+            { from: "Northbridge Security", address: "security@northbridge-bank-alerts.com", subject: "Unusual sign-in blocked", preview: "We blocked a sign-in from a new device. Confirm your identity within 12 hours to keep your account open.", phish: true, why: "Your bank's name on a different domain, northbridge-bank-alerts.com, with a deadline and a threat." },
+            { from: "Sam Rivera", address: "sam.rivera@gmail.com", subject: "Photos from Saturday", preview: "Here are the hiking photos! Album link below.", phish: false, why: "Sam said they'd send these, and it's from Sam's usual address." },
+            { from: "StreamBox", address: "billing@streambox.com.account-update.net", subject: "Payment declined: update your card", preview: "We couldn't process your payment. Update your card today to keep watching.", phish: true, why: "The address ends in account-update.net, not streambox.com; the real name at the start is the disguise." }
+        ],
+        bestAnswer: "Report emails 2, 4 and 6; keep emails 1, 3 and 5",
+        reasoning: "The phishing emails each fail a basic check: the real sender domain (not just the name), whether you expected the message, and what it asks you to do. The real ones pass: they come from the right domains, you expected them or they're routine, and they ask nothing risky. When in doubt, go to the company's site or app yourself instead of using the email's link.",
+        biasName: "Spotting Phishing",
+        bookRef: "Security awareness research (sender, expectation, and request checks)",
+        options: [
+            { text: "Every email sorted correctly", biasValue: 0, isBest: true },
+            { text: "Some emails sorted incorrectly", biasValue: 1, isBest: false }
+        ]
+    },
+    {
         id: "se-ceo-wire",
         short: true,
         biasType: "AUTHORITY_PRESSURE",
@@ -1518,9 +1542,9 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Authority & Impersonation",
         bookRef: "Influence research (Cialdini 1984)",
         options: [
+            { text: "Call her back on the number in the company directory before resetting anything", biasValue: 0, isBest: true },
             { text: "Reset it; she knows her employee ID", biasValue: 1, isBest: false },
-            { text: "Ask her security question first", biasValue: 0.5, isBest: false },
-            { text: "Call her back on the number in the company directory before resetting anything", biasValue: 0, isBest: true }
+            { text: "Ask her security question first", biasValue: 0.5, isBest: false }
         ]
     },
     {
@@ -1594,9 +1618,9 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Thinking, Fast and Slow - Chapter 5 (cognitive ease)",
         options: [
             { text: "northbridgebank.com.account-review.net/login", biasValue: 1, isBest: false },
+            { text: "northbridgebank.com/login", biasValue: 0, isBest: true },
             { text: "secure-northbridgebank.com/login", biasValue: 1, isBest: false },
-            { text: "northbrídgebank.com/login", biasValue: 1, isBest: false },
-            { text: "northbridgebank.com/login", biasValue: 0, isBest: true }
+            { text: "northbrídgebank.com/login", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1610,8 +1634,8 @@ export const STANDALONE_SCENARIOS = [
         bookRef: "Thinking, Fast and Slow - Chapter 5 (cognitive ease)",
         options: [
             { text: "Run the script as written", biasValue: 1, isBest: false },
-            { text: "Install \"requets\" and check whether it works", biasValue: 1, isBest: false },
-            { text: "Install \"requests\" instead and tell your teammate", biasValue: 0, isBest: true }
+            { text: "Install \"requests\" instead and tell your teammate", biasValue: 0, isBest: true },
+            { text: "Install \"requets\" and check whether it works", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1730,8 +1754,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Fear & Curiosity Bait",
         bookRef: "Thinking, Fast and Slow - Chapter 7 (What You See Is All There Is)",
         options: [
-            { text: "They hacked your computer and have a video", biasValue: 1, isBest: false },
-            { text: "The password came from an old data breach, and the threat is a bluff", biasValue: 0, isBest: true }
+            { text: "The password came from an old data breach, and the threat is a bluff", biasValue: 0, isBest: true },
+            { text: "They hacked your computer and have a video", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1744,9 +1768,9 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Fear & Curiosity Bait",
         bookRef: "Social engineering research (Tischer et al. 2016)",
         options: [
+            { text: "Hand it to IT or security without plugging it in", biasValue: 0, isBest: true },
             { text: "Plug it into your work laptop to find the owner", biasValue: 1, isBest: false },
-            { text: "Plug it into a personal computer instead", biasValue: 1, isBest: false },
-            { text: "Hand it to IT or security without plugging it in", biasValue: 0, isBest: true }
+            { text: "Plug it into a personal computer instead", biasValue: 1, isBest: false }
         ]
     },
 
@@ -1846,8 +1870,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Loss Aversion",
         bookRef: "Thinking, Fast and Slow - Chapters 26 & 31",
         options: [
-            { text: "Run the promotion", biasValue: 0, isBest: true },
-            { text: "Skip the promotion", biasValue: 1, isBest: false }
+            { text: "Skip the promotion", biasValue: 1, isBest: false },
+            { text: "Run the promotion", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -1892,9 +1916,9 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Narrow Framing",
         bookRef: "Thinking, Fast and Slow - Chapter 31",
         options: [
-            { text: "Buy the protection on every package", biasValue: 1, isBest: false },
+            { text: "Skip the protection on every package", biasValue: 0, isBest: true },
             { text: "Decide package by package", biasValue: 0.5, isBest: false },
-            { text: "Skip the protection on every package", biasValue: 0, isBest: true }
+            { text: "Buy the protection on every package", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -1986,8 +2010,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Manufactured Urgency",
         bookRef: "Dark patterns research (Mathur et al. 2019)",
         options: [
-            { text: "The price really will go up soon", biasValue: 1, isBest: false },
-            { text: "The timer probably isn't real", biasValue: 0, isBest: true }
+            { text: "The timer probably isn't real", biasValue: 0, isBest: true },
+            { text: "The price really will go up soon", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -2064,8 +2088,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Hard-to-Cancel Subscriptions",
         bookRef: "Dark patterns research (Brignull; FTC v. Amazon 2023)",
         options: [
-            { text: "Join this gym", biasValue: 1, isBest: false },
-            { text: "Look for a gym you can cancel online", biasValue: 0, isBest: true }
+            { text: "Look for a gym you can cancel online", biasValue: 0, isBest: true },
+            { text: "Join this gym", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -2111,8 +2135,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Availability Heuristic",
         bookRef: "Thinking, Fast and Slow - Chapters 12 & 13",
         options: [
-            { text: "Laptop locks and theft prevention", biasValue: 1, isBest: false },
-            { text: "Phishing defenses", biasValue: 0, isBest: true }
+            { text: "Phishing defenses", biasValue: 0, isBest: true },
+            { text: "Laptop locks and theft prevention", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -2157,8 +2181,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Law of Small Numbers",
         bookRef: "Thinking, Fast and Slow - Chapter 10",
         options: [
-            { text: "Tester A", biasValue: 1, isBest: false },
-            { text: "Tester B", biasValue: 0, isBest: true }
+            { text: "Tester B", biasValue: 0, isBest: true },
+            { text: "Tester A", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -2203,8 +2227,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Assuming the Past Predicts Attacks",
         bookRef: "Thinking, Fast and Slow - Chapter 22",
         options: [
-            { text: "Yes", biasValue: 1, isBest: false },
-            { text: "No, expect it to catch less", biasValue: 0, isBest: true }
+            { text: "No, expect it to catch less", biasValue: 0, isBest: true },
+            { text: "Yes", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -2242,14 +2266,28 @@ export const STANDALONE_SCENARIOS = [
         practiceOnly: true,
         biasType: "LOOKALIKES",
         title: "Payment Service Sender",
-        scenarioText: "Your payment account is with PayStream, at paystream.com. An email from support@paystream-help.com says your account is on hold. Does that sender belong to PayStream?",
-        bestAnswer: "No; paystream-help.com is a different domain",
-        reasoning: "paystream-help.com and paystream.com are separate domains, and anyone can register the first. A familiar name inside an address is exactly what lookalike domains rely on.",
+        scenarioText: "You pay your bills through PayStream (paystream.com). This email arrives. What do you do?",
+        mockScreen: {
+            kind: "email",
+            from: "PayStream Support",
+            address: "support@paystream-help.com",
+            to: "you@example.com",
+            subject: "Your account is on hold",
+            body: [
+                "Hi,",
+                "We noticed unusual activity on your PayStream account, so we've placed it on hold. Please review your account to restore access.",
+                "PayStream Support"
+            ],
+            button: "Review my account",
+            linkPreview: "https://paystream-help.com/account/review"
+        },
+        bestAnswer: "Check your account in the PayStream app or at paystream.com",
+        reasoning: "The email comes from paystream-help.com, not paystream.com. Those are different domains, and anyone can register the first one. A familiar name inside an address is exactly what lookalike domains rely on. Checking through the app or a site you type yourself is safe whether the email is real or not.",
         biasName: "Lookalikes & Hidden Links",
         bookRef: "Thinking, Fast and Slow - Chapter 5 (cognitive ease)",
         options: [
-            { text: "Yes; it has PayStream's name in it", biasValue: 1, isBest: false },
-            { text: "No; paystream-help.com is a different domain", biasValue: 0, isBest: true }
+            { text: "Click \"Review my account\" to restore access", biasValue: 1, isBest: false },
+            { text: "Check your account in the PayStream app or at paystream.com", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -2263,8 +2301,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Warning & Prompt Fatigue",
         bookRef: "Usable security research (Akhawe & Felt 2013)",
         options: [
-            { text: "Yes", biasValue: 1, isBest: false },
-            { text: "No", biasValue: 0, isBest: true }
+            { text: "No", biasValue: 0, isBest: true },
+            { text: "Yes", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -2399,9 +2437,9 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Second-Guessing the Obvious",
         bookRef: "Thinking, Fast and Slow - Chapters 22 & 23",
         options: [
+            { text: "About 6 weeks", biasValue: 1, isBest: false },
             { text: "About 8 weeks", biasValue: 0, isBest: true },
-            { text: "About 12 weeks", biasValue: 1, isBest: false },
-            { text: "About 6 weeks", biasValue: 1, isBest: false }
+            { text: "About 12 weeks", biasValue: 1, isBest: false }
         ]
     },
     {
@@ -2415,8 +2453,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Second-Guessing the Obvious",
         bookRef: "Thinking, Fast and Slow - Chapter 22",
         options: [
-            { text: "The 24 oz (710 mL) coffee", biasValue: 0, isBest: true },
-            { text: "The 12 oz (355 mL) coffee", biasValue: 1, isBest: false }
+            { text: "The 12 oz (355 mL) coffee", biasValue: 1, isBest: false },
+            { text: "The 24 oz (710 mL) coffee", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -2445,8 +2483,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Second-Guessing the Obvious",
         bookRef: "Thinking, Fast and Slow - Chapter 22",
         options: [
-            { text: "Book now", biasValue: 0, isBest: true },
-            { text: "Wait and compare more", biasValue: 1, isBest: false }
+            { text: "Wait and compare more", biasValue: 1, isBest: false },
+            { text: "Book now", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -2460,8 +2498,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Second-Guessing the Obvious",
         bookRef: "Consumer protection research (unit pricing)",
         options: [
-            { text: "The 40 oz (1.13 kg) family size", biasValue: 0, isBest: true },
             { text: "The 20 oz (567 g) jar", biasValue: 1, isBest: false },
+            { text: "The 40 oz (1.13 kg) family size", biasValue: 0, isBest: true },
             { text: "They're the same", biasValue: 1, isBest: false }
         ]
     },
@@ -2491,8 +2529,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Second-Guessing the Obvious",
         bookRef: "Thinking, Fast and Slow - Chapters 7 & 22",
         options: [
-            { text: "Surgeon A", biasValue: 0, isBest: true },
-            { text: "Surgeon B", biasValue: 1, isBest: false }
+            { text: "Surgeon B", biasValue: 1, isBest: false },
+            { text: "Surgeon A", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -2521,8 +2559,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Second-Guessing the Obvious",
         bookRef: "Statistics literacy (Huff, How to Lie with Statistics 1954)",
         options: [
-            { text: "Yes", biasValue: 0, isBest: true },
-            { text: "No", biasValue: 1, isBest: false }
+            { text: "No", biasValue: 1, isBest: false },
+            { text: "Yes", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -2551,8 +2589,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Second-Guessing the Obvious",
         bookRef: "Thinking, Fast and Slow - Chapters 22 & 29",
         options: [
-            { text: "Buy the insurance", biasValue: 0, isBest: true },
-            { text: "Skip the insurance", biasValue: 1, isBest: false }
+            { text: "Skip the insurance", biasValue: 1, isBest: false },
+            { text: "Buy the insurance", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -2581,8 +2619,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Second-Guessing the Obvious",
         bookRef: "Thinking, Fast and Slow - Chapters 22 & 34",
         options: [
-            { text: "Stay enrolled", biasValue: 0, isBest: true },
-            { text: "Opt out", biasValue: 1, isBest: false }
+            { text: "Opt out", biasValue: 1, isBest: false },
+            { text: "Stay enrolled", biasValue: 0, isBest: true }
         ]
     },
     {
@@ -2646,8 +2684,8 @@ export const STANDALONE_SCENARIOS = [
         biasName: "Second-Guessing the Obvious",
         bookRef: "Thinking, Fast and Slow - Chapter 22",
         options: [
-            { text: "Yes, use it", biasValue: 0, isBest: true },
-            { text: "No, report it as phishing", biasValue: 1, isBest: false }
+            { text: "No, report it as phishing", biasValue: 1, isBest: false },
+            { text: "Yes, use it", biasValue: 0, isBest: true }
         ]
     }
 ];
@@ -3281,7 +3319,7 @@ export class ScenarioBank {
 
     // The regular (scored, non-filler) questions in a version
     static mainQuestions(version = 'full') {
-        return MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.filler && !s.retired && (version !== 'short' || s.short));
+        return MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.retestOnly && !s.filler && !s.retired && (version !== 'short' || s.short));
     }
 
     // About how many questions a fresh session of this version has
@@ -3347,7 +3385,9 @@ export class ScenarioBank {
         const candidates = shuffle(STANDALONE_SCENARIOS.filter(s =>
             s.biasType === biasType && !s.retired && !excludeIds.has(s.id)
         ));
-        return candidates.find(s => !askedIds.has(s.id) && !missedIds.has(s.id))
+        // A retest-only backup (e.g. the second inbox) is used first while it's unseen
+        return candidates.find(s => s.retestOnly && !askedIds.has(s.id))
+            || candidates.find(s => !askedIds.has(s.id) && !missedIds.has(s.id))
             || candidates.find(s => !askedIds.has(s.id))
             || candidates.find(s => !missedIds.has(s.id))
             || candidates[0]
@@ -3365,6 +3405,8 @@ export class ScenarioBank {
     static pickPracticeScenario(biasType, { seenIds = new Set(), excludeIds = new Set() } = {}) {
         const candidates = shuffle(STANDALONE_SCENARIOS.filter(s =>
             s.biasType === biasType && !s.retired && !excludeIds.has(s.id)
+            // An unseen retest-only backup is kept for the retest
+            && !(s.retestOnly && !seenIds.has(s.id))
         ));
         return candidates.find(s => s.practiceOnly && !seenIds.has(s.id))
             || candidates.find(s => seenIds.has(s.id))

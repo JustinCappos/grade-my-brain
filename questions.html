@@ -321,6 +321,7 @@ details.topic summary { cursor: pointer; font-size: 0.88rem; color: var(--muted)
             <option value="standalone">Standalone</option>
             <option value="pair">Paired</option>
             <option value="practice">Practice only</option>
+            <option value="retest">Retest backup</option>
             <option value="filler">Straightforward (obvious answer is right)</option>
         </select>
         <select id="f-version" aria-label="Version">
@@ -368,7 +369,7 @@ const KIND_LABEL = { deceptive: 'Deceptive', good: 'Better practice', example: '
 const items = [
     ...STANDALONE_SCENARIOS.filter(s => !s.retired).map(s => ({
         key: s.id,
-        kind: s.filler ? 'filler' : (s.practiceOnly ? 'practice' : 'standalone'),
+        kind: s.filler ? 'filler' : (s.practiceOnly ? 'practice' : (s.retestOnly ? 'retest' : 'standalone')),
         biasType: s.biasType,
         title: s.title,
         bookRef: s.bookRef,
@@ -534,7 +535,7 @@ function cardBodyHtml(item) {
 function renderCards() {
     cardsEl.innerHTML = items.map(item => {
         const c = BIAS_CATEGORIES[item.biasType];
-        const kindChip = { standalone: 'Standalone', pair: 'Paired', practice: 'Practice only', filler: 'Straightforward' }[item.kind];
+        const kindChip = { standalone: 'Standalone', pair: 'Paired', practice: 'Practice only', retest: 'Retest backup', filler: 'Straightforward' }[item.kind];
         return `
             <article class="card" data-key="${esc(item.key)}">
                 <div class="card-meta">
