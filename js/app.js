@@ -1323,8 +1323,13 @@ class GradeMyBrainApp {
                     : 'You unchecked the consent box and found that the greyed-out Continue button still worked.'
             }[policyStatus],
             detail: `
-                <p>The policy you agreed to granted us naming rights to your firstborn child, shared your data with a raccoon
-                    named Gerald, and settled disputes by rock-paper-scissors by mail. Section 3.2 said the Continue button only
+                <figure class="gerald">
+                    <img src="images/gerald.svg" alt="Gerald, a raccoon in a bandit mask, clutching a folder labelled Your Data" width="150" height="163">
+                    <figcaption><strong>Meet Gerald.</strong> He's the raccoon the privacy policy said we'd share your data with.
+                        ${policyStatus === 'pass' ? 'Thanks to you, he got nothing.' : 'He says thanks!'}</figcaption>
+                </figure>
+                <p>The policy you agreed to granted us naming rights to your firstborn child, shared your data with Gerald,
+                    and settled disputes by rock-paper-scissors by mail. Section 3.2 said the Continue button only
                     <em>looked</em> disabled when the box was unchecked.</p>
                 <ul class="policy-debrief-list">
                     <li><strong>The box was checked for you.</strong> Most people keep whatever is pre-selected. In 2019 the EU's top court ruled that a pre-ticked box is not valid consent for cookies.</li>

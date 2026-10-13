@@ -524,7 +524,7 @@ const server = createStaticServer().listen(PORT, async () => {
         checkProgress();
         checkAuditLists();
 
-        browser = await puppeteer.launch({ executablePath: BRAVE_PATH, headless: 'new' });
+        browser = await puppeteer.launch({ executablePath: BRAVE_PATH, headless: 'new', args: ['--mute-audio'] });
         const { first, second } = await runBrowserChecks(browser);
         console.log(`PASS: ${MASTER_SCENARIOS.length} scenarios checked; session 1 had ${first.queue.length} questions ` +
             `(${first.added} retests added), session 2 had ${second.queue.length}; ` +
