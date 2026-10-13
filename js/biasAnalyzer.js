@@ -1,6 +1,6 @@
 /**
  * Grade My Brain - Cognitive Bias Analyzer
- * Evaluates player choice telemetry to generate a stealth Cognitive Audit & Bias Profile.
+ * Evaluates player choice telemetry to generate a Cognitive Audit & Bias Profile.
  */
 
 import { BIAS_CATEGORIES } from './scenarioBank.js';

@@ -1,5 +1,5 @@
 /**
- * Grade My Brain - Stealth Scenario Bank
+ * Grade My Brain - Scenario Bank
  * Grounded in "Thinking, Fast and Slow" (excluding Ch 3 & 4), plus behavioral
  * economics and deceptive-advertising research.
  * Each scenario provides clear operational requirements, best answers, reasoning, and book citations.

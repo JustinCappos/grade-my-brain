@@ -1,5 +1,5 @@
 /**
- * Grade My Brain - Stealth Cognitive Diagnostic App Controller
+ * Grade My Brain - App Controller
  * Compatible with Brave, Chrome, Safari, Firefox, and Edge.
  *
  * Flow: the player enters an ID code, then works through every question
