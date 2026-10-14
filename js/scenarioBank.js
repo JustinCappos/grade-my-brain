@@ -1499,6 +1499,8 @@ export const STANDALONE_SCENARIOS = [
         // Only used as a retest, so a player who missed the first inbox gets a fresh one
         id: "se-phishing-inbox-home",
         retestOnly: true,
+        // Preferred as the retest when the player missed this question
+        retestFor: "se-phishing-inbox",
         biasType: "PHISHING",
         title: "Sort Your Home Inbox",
         scenarioText: "You bank with Northbridge Bank (northbridgebank.com), subscribe to StreamBox (streambox.com), and yesterday ordered a lamp from Hearthline (hearthline.com). Your friend Sam said they'd email you the photos from Saturday's hike. Sort these six emails: report the phishing ones, and keep the real ones.",
@@ -2690,6 +2692,1276 @@ export const STANDALONE_SCENARIOS = [
             { text: "No, report it as phishing", biasValue: 1, isBest: false },
             { text: "Yes, use it", biasValue: 0, isBest: true }
         ]
+    },
+
+    // -------------------------------------------------------------
+    // RETEST-ONLY QUESTIONS: never planned or used for practice, so a
+    // topic the player missed gets a question they haven't seen
+    // -------------------------------------------------------------
+    {
+        id: "retest-phishing-1",
+        retestOnly: true,
+        biasType: "PHISHING",
+        title: "Manager's Org Chart Email",
+        scenarioText: "You work at Larkwood, whose email addresses all end in @larkwood.com. Your manager is Mara Chen. You weren't expecting anything from her today, and this email arrives. What do you do?",
+        mockScreen: {
+            kind: "email",
+            from: "Mara Chen",
+            address: "mara.chen.larkwood@outlook.com",
+            to: "you@larkwood.com",
+            subject: "Updated org chart (please review before Friday)",
+            body: [
+                "Hi,",
+                "I've shared the updated org chart with a few people on the team. Please sign in to view it and let me know if anything looks wrong before it goes out on Friday.",
+                "Thanks,\nMara"
+            ],
+            button: "View document",
+            linkPreview: "https://docshare-viewer.net/larkwood/orgchart"
+        },
+        bestAnswer: "Report it as phishing",
+        reasoning: "The email fails two of the three basic checks: it comes from a personal outlook.com address rather than larkwood.com, and it wasn't expected. What it asks, signing in on an unfamiliar document site, is how passwords get stolen. Replying goes to whoever controls that outlook.com address, so it can't tell you whether Mara sent it. Reporting it lets your security team warn the others who probably got the same message.",
+        biasName: "Spotting Phishing",
+        bookRef: "Security awareness research (sender, expectation, and request checks)",
+        options: [
+            { text: "Click \"View document\" and sign in", biasValue: 1, isBest: false },
+            { text: "Reply and ask Mara whether she sent it", biasValue: 0.5, isBest: false },
+            { text: "Report it as phishing", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-authority-pressure-1",
+        retestOnly: true,
+        biasType: "AUTHORITY_PRESSURE",
+        title: "Security Chief Chat Request",
+        scenarioText: "A direct message arrives in Larkwood's team chat from an account named \"Rafael Ortiz, Chief Security Officer.\" It says: \"We're in the middle of a compliance audit and I need your API token for the billing service in the next 10 minutes. Don't mention this in public channels.\" You've never talked with Rafael before. What do you do?",
+        bestAnswer: "Contact the security team through the channel listed on the intranet",
+        reasoning: "A senior title, a short deadline, and a request for secrecy are the classic levers for getting someone to skip checks. Anyone can set a chat display name, and a compromised or guest account can look like an internal one. Asking the account to prove itself just lets the person behind it answer. Checking through a channel you already trust confirms who is asking, and a real audit will survive the delay.",
+        biasName: "Authority & Impersonation",
+        bookRef: "Influence research (Cialdini 1984)",
+        options: [
+            { text: "Contact the security team through the channel listed on the intranet", biasValue: 0, isBest: true },
+            { text: "Ask him in the chat to confirm who he is, then send it", biasValue: 0.5, isBest: false },
+            { text: "Send the token", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-authority-pressure-2",
+        retestOnly: true,
+        biasType: "AUTHORITY_PRESSURE",
+        title: "General Counsel Data Request",
+        scenarioText: "You manage Larkwood's customer database. An email from the general counsel's usual larkwood.com address says: \"We're facing urgent litigation. Export the full customer list with emails and phone numbers and send it to our outside lawyer at k.marsh.legal@gmail.com by end of day. This is privileged; don't discuss it with anyone.\" What do you do?",
+        bestAnswer: "Call the general counsel on a number you already have before sending anything",
+        reasoning: "The right sender address doesn't prove much, since mailboxes get taken over. Everything else here, the authority, the deadline, the secrecy, and an outside personal address for sensitive data, is what an impersonator would write. Protecting the file with a password still hands the data to whoever is asking. A short call on a number from your own records settles it, and a real lawyer will understand.",
+        biasName: "Authority & Impersonation",
+        bookRef: "Influence research (Cialdini 1984)",
+        options: [
+            { text: "Send the export as asked", biasValue: 1, isBest: false },
+            { text: "Call the general counsel on a number you already have before sending anything", biasValue: 0, isBest: true },
+            { text: "Send the export as a password-protected file", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-lookalikes-1",
+        retestOnly: true,
+        biasType: "LOOKALIKES",
+        title: "VPN Guide Link in Chat",
+        scenarioText: "In a busy team chat channel, someone you don't know posts: \"New VPN setup steps for everyone: https://docs.larkwood.com/vpn-setup\". When you hover over the link, your browser's status bar shows https://larkwood-docs.pages-share.net/vpn-setup. What do you do?",
+        bestAnswer: "Open docs.larkwood.com yourself and look for the VPN guide",
+        reasoning: "The text of a link and where it goes are separate, and only the destination counts. larkwood-docs.pages-share.net belongs to pages-share.net, not Larkwood, even though the visible text names the real site. System 1 reads the familiar words and moves on. Going to the documentation site yourself gets you the real guide if it exists, without trusting the link at all.",
+        biasName: "Lookalikes & Hidden Links",
+        bookRef: "Thinking, Fast and Slow - Chapter 5 (cognitive ease)",
+        options: [
+            { text: "Open docs.larkwood.com yourself and look for the VPN guide", biasValue: 0, isBest: true },
+            { text: "Click the link", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-lookalikes-2",
+        retestOnly: true,
+        biasType: "LOOKALIKES",
+        title: "Dependency Source Change",
+        scenarioText: "You're reviewing a pull request titled \"Bump auth library to 2.4.1.\" Besides the version number, the diff changes the library's source from github.com/larkwood/auth-lib to github.com/1arkwood/auth-lib. All the automated tests pass. What do you do?",
+        bestAnswer: "Hold the pull request and ask the author about the source",
+        reasoning: "1arkwood starts with the digit one, not the letter l, so it's a different account that anyone could create. A copy of the library there could pass every test and still contain a backdoor. Passing tests show the code works, not who wrote it. Cognitive ease makes a familiar-looking name feel checked when it hasn't been; reading it letter by letter is the check.",
+        biasName: "Lookalikes & Hidden Links",
+        bookRef: "Thinking, Fast and Slow - Chapter 5 (cognitive ease)",
+        options: [
+            { text: "Approve it, since the tests pass", biasValue: 1, isBest: false },
+            { text: "Hold the pull request and ask the author about the source", biasValue: 0, isBest: true },
+            { text: "Approve it and review the library's code next sprint", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-habituation-1",
+        retestOnly: true,
+        biasType: "HABITUATION",
+        title: "Password Manager Won't Fill",
+        scenarioText: "Your password manager normally fills in your Larkwood sign-in automatically. Every few weeks it glitches, and you copy and paste the password by hand. Today you click a link in an email about a benefits survey. The sign-in page looks exactly like Larkwood's, but the password manager doesn't offer your saved login. What do you do?",
+        bestAnswer: "Close the page and find the survey through the HR portal",
+        reasoning: "Password managers match logins to the exact domain, so a manager that stays quiet on a familiar-looking page is often a sign the page isn't the real site. Because the glitch has happened before, pasting the password feels routine, and that habit is what turns the warning into noise. Going to the HR portal yourself works whether the survey is real or not.",
+        biasName: "Warning & Prompt Fatigue",
+        bookRef: "Usable security research (Akhawe & Felt 2013)",
+        options: [
+            { text: "Copy the password from the manager and paste it in", biasValue: 1, isBest: false },
+            { text: "Close the page and find the survey through the HR portal", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-habituation-2",
+        retestOnly: true,
+        biasType: "HABITUATION",
+        title: "Changed Server Fingerprint",
+        scenarioText: "Your team rebuilds its test servers often, so you've seen SSH's warning that a server's host key has changed many times. Usually you delete the old key and reconnect. Today you're on hotel Wi-Fi, connecting to the production database server, and you get the same warning. Nobody has announced any work on that server. What do you do?",
+        bestAnswer: "Disconnect and check with the team that runs the server",
+        reasoning: "A changed host key means the machine answering isn't the one you connected to before. On test servers that's usually a rebuild, which is why the warning has become background noise. On a production server with no announced work, over a network you don't control, it's exactly what an interception attack looks like. Connecting and then changing your password would already have handed over your credentials.",
+        biasName: "Warning & Prompt Fatigue",
+        bookRef: "Usable security research (Akhawe & Felt 2013)",
+        options: [
+            { text: "Disconnect and check with the team that runs the server", biasValue: 0, isBest: true },
+            { text: "Delete the old key and reconnect", biasValue: 1, isBest: false },
+            { text: "Connect, then change your password afterward", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-bait-1",
+        retestOnly: true,
+        biasType: "BAIT",
+        title: "Copyright Complaint Attachment",
+        scenarioText: "Larkwood's general contact inbox, which you monitor, receives an email from a photographer: \"Your website uses my photos without a license. I will file a lawsuit within 72 hours unless this is resolved. The images and proof of ownership are in the attached file, Evidence_Photos.zip.\" What do you do?",
+        bestAnswer: "Forward it to IT or security without opening the attachment",
+        reasoning: "Fake legal threats with an evidence file attached are a common way to deliver malware: fear of a lawsuit makes people open the file to see what they did wrong. Nothing in the email is evidence until someone checks it safely. Replying confirms the inbox is watched and starts a conversation on the sender's terms. IT can examine the attachment safely, and legal can handle any real complaint.",
+        biasName: "Fear & Curiosity Bait",
+        bookRef: "Social engineering research (fear appeals; Tischer et al. 2016)",
+        options: [
+            { text: "Open the file to see which photos they mean", biasValue: 1, isBest: false },
+            { text: "Reply and ask which photos they mean", biasValue: 0.5, isBest: false },
+            { text: "Forward it to IT or security without opening the attachment", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-bait-2",
+        retestOnly: true,
+        biasType: "BAIT",
+        title: "Take-Home Coding Test",
+        scenarioText: "A recruiter from a company you've never heard of messages you about a remote job paying far more than you make now. The next step is a take-home test: clone their repository, then run npm install and npm start, and send them the output today. You only have your work laptop and your personal laptop with you. What do you do?",
+        bestAnswer: "Don't run their code on either laptop",
+        reasoning: "Fake job offers with a coding test are a known way to get developers to run malicious code: installing a project's packages can run whatever scripts it contains. A tempting salary and a same-day deadline are there to make you skip that thought. A personal laptop isn't a safe place either, since it holds your own passwords and accounts. A real employer can offer a test that doesn't require running their code on your machine.",
+        biasName: "Fear & Curiosity Bait",
+        bookRef: "Social engineering research (fear appeals; Tischer et al. 2016)",
+        options: [
+            { text: "Run it on your work laptop", biasValue: 1, isBest: false },
+            { text: "Run it on your personal laptop", biasValue: 1, isBest: false },
+            { text: "Don't run their code on either laptop", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-adaptive-adversary-1",
+        retestOnly: true,
+        biasType: "ADAPTIVE_ADVERSARY",
+        title: "Attack Origin Allowlist",
+        scenarioText: "Over the past year, every automated password-guessing attack on your login page came from IP addresses in three countries. A colleague proposes blocking those three countries and turning off rate limiting and bot detection for traffic from everywhere else. Is that a good plan?",
+        bestAnswer: "No",
+        reasoning: "The history shows where attackers came from while those routes worked. Attackers can rent servers and home internet connections in almost any country, and once three are blocked they will simply move. Turning off the other checks would leave nothing in place when they do. Past data is a fine baseline for something like server load, which isn't trying to beat you; for attacks it describes yesterday's tactics, not tomorrow's.",
+        biasName: "Assuming the Past Predicts Attacks",
+        bookRef: "Thinking, Fast and Slow - Chapter 22",
+        options: [
+            { text: "No", biasValue: 0, isBest: true },
+            { text: "Yes", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-adaptive-adversary-2",
+        retestOnly: true,
+        biasType: "ADAPTIVE_ADVERSARY",
+        title: "Which Forecast to Trust",
+        scenarioText: "You have last year's numbers for two things in your company's data center, and nothing major about either has changed: the share of hard drives that failed (same drive models, similar ages), and the share of phishing emails that got past your email filter. Which is last year's number more likely to predict well for next year?",
+        bestAnswer: "The hard drive failure rate",
+        reasoning: "Hard drives fail through wear, and wear doesn't study your defenses, so a stable fleet's past failure rate is a good forecast. Phishers do study filters: they watch what gets blocked and change their messages until they get through, so last year's pass-through rate is a baseline, not a forecast. Kahneman's point is that past experience predicts well only in a regular environment, and an opponent who adapts makes the environment irregular.",
+        biasName: "Assuming the Past Predicts Attacks",
+        bookRef: "Thinking, Fast and Slow - Chapter 22",
+        options: [
+            { text: "The hard drive failure rate", biasValue: 0, isBest: true },
+            { text: "The phishing pass-through rate", biasValue: 1, isBest: false },
+            { text: "Both about equally", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-roach-motel-1",
+        retestOnly: true,
+        biasType: "ROACH_MOTEL",
+        title: "Cloud Storage Exit Chat",
+        scenarioText: "You've moved all your files from CloudVault, which costs $12 a month, to another service and want to close the account. CloudVault has no cancel button; you have to chat with an agent. After 20 minutes, the agent offers 40% off if you sign up for another year, and warns that closing deletes your files permanently. What do you do?",
+        bestAnswer: "Tell the agent to close the account now",
+        reasoning: "Your files are already somewhere else, so the warning about deletion changes nothing. The discount would still cost about $86 for a year of a service you won't use. Forcing a long chat, then offering a deal and a scary warning, is designed to wear you down until staying feels easier. Once you've decided, the retention offer is an obstacle, not new information.",
+        biasName: "Hard-to-Cancel Subscriptions",
+        bookRef: "Dark patterns research (Brignull; FTC v. Amazon 2023)",
+        options: [
+            { text: "Accept the 40% off for another year", biasValue: 1, isBest: false },
+            { text: "Tell the agent to close the account now", biasValue: 0, isBest: true },
+            { text: "Leave the chat and cancel another day", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-roach-motel-2",
+        retestOnly: true,
+        biasType: "ROACH_MOTEL",
+        title: "Domain Transfer Phone Call",
+        scenarioText: "Your company keeps 10 domains at a registrar that charges $40 per domain each year. Another reputable registrar charges $12. To move them, you need transfer codes, which your current registrar gives out only by phone. After a 40-minute hold, the agent offers to lower your price to $30 per domain if you stay. What do you do?",
+        bestAnswer: "Get the transfer codes and move the domains",
+        reasoning: "Staying at $30 costs $300 a year; moving costs $120, so you save $180 every year after the one-time hassle. The phone-only codes and long hold are there to make leaving feel harder than it is, and the discount is timed for the moment you're most tired of waiting. A price cut that still leaves you paying more than twice as much isn't a reason to stay.",
+        biasName: "Hard-to-Cancel Subscriptions",
+        bookRef: "Dark patterns research (Brignull; FTC v. Amazon 2023)",
+        options: [
+            { text: "Accept the $30 price and stay", biasValue: 1, isBest: false },
+            { text: "Get the transfer codes and move the domains", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-defaults-1",
+        retestOnly: true,
+        biasType: "DEFAULTS",
+        title: "Laptop Update Policy",
+        scenarioText: "You manage 2,000 company laptops and must pick an update policy. Policy A installs security updates automatically overnight; users can postpone one if they choose. Policy B shows a notice when an update is ready, and users install it when they choose. Everything else is the same. Under which policy will more laptops have the latest security update a month later?",
+        bestAnswer: "Policy A",
+        reasoning: "Both policies let users do either thing; they differ only in what happens if a user does nothing, and most users do nothing. Under Policy A doing nothing means patched, and under Policy B it means unpatched until someone gets around to it. Kahneman describes the same effect with organ donation: an opt-out default produces far higher participation than an opt-in one.",
+        biasName: "Default Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 34",
+        options: [
+            { text: "Policy A", biasValue: 0, isBest: true },
+            { text: "Policy B", biasValue: 1, isBest: false },
+            { text: "About the same", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-defaults-2",
+        retestOnly: true,
+        biasType: "DEFAULTS",
+        title: "Crash Reporter Settings",
+        scenarioText: "You're adding a crash-reporting library to your company's mobile app. You only need crash reports. The library's standard configuration, which the setup guide tells you to copy, also sends each user's device ID and location to the library maker's advertising partners. Your app's privacy policy says you don't share data with advertisers. What do you do?",
+        bestAnswer: "Turn off the partner sharing in the configuration before shipping",
+        reasoning: "The standard configuration reflects what the library maker wants, not what your app needs. Shipping it unchanged would share users' data with advertisers and break your own privacy policy, and rewriting the policy to match would only disclose the sharing, not stop it. Defaults get copied as-is far more often than they get read, which is why it pays to check what they turn on.",
+        biasName: "Default Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 34",
+        options: [
+            { text: "Ship with the standard configuration", biasValue: 1, isBest: false },
+            { text: "Ship with the standard configuration and update the privacy policy", biasValue: 0.5, isBest: false },
+            { text: "Turn off the partner sharing in the configuration before shipping", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-fake-urgency-1",
+        retestOnly: true,
+        biasType: "FAKE_URGENCY",
+        title: "Password Manager Checkout",
+        scenarioText: "You're choosing a password manager for your family and found one with good reviews. Its checkout page shows \"68% off ends in 09:57\" with a ticking timer, and \"Only 4 discounted plans left today.\" You haven't compared it with any other password manager yet. What do you do?",
+        bestAnswer: "Compare it with other password managers first",
+        reasoning: "You can't check the timer or the count, and studies of shopping sites have found many such timers and stock claims were fake. A password manager is something you'll use for years, so a few minutes of comparison matters more than a discount that may well still be there tomorrow. The countdown exists to make you decide before you think it through.",
+        biasName: "Manufactured Urgency",
+        bookRef: "Dark patterns research (Mathur et al. 2019)",
+        options: [
+            { text: "Buy it before the timer runs out", biasValue: 1, isBest: false },
+            { text: "Compare it with other password managers first", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-fake-urgency-2",
+        retestOnly: true,
+        biasType: "FAKE_URGENCY",
+        title: "Code Host Suspension Notice",
+        scenarioText: "You keep your open-source projects on CodeHarbor (codeharbor.com). This email arrives. What do you do?",
+        mockScreen: {
+            kind: "email",
+            from: "CodeHarbor Trust & Safety",
+            address: "trust@codeharbor.com",
+            to: "you@example.com",
+            subject: "Your account will be suspended in 2 hours",
+            body: [
+                "Hello,",
+                "A repository on your account was reported for a policy violation. Unless you file an appeal within 2 hours, your account and all its repositories will be suspended.",
+                "CodeHarbor Trust & Safety"
+            ],
+            button: "File an appeal",
+            linkPreview: "https://codeharbor-appeals.com/case/88214"
+        },
+        bestAnswer: "Sign in to CodeHarbor yourself and check for notices",
+        reasoning: "The two-hour deadline and the threat to everything you've built are there to make you click before you look. Sender addresses are easy to fake, and the button goes to codeharbor-appeals.com, not codeharbor.com. A real violation will show up when you sign in to the site yourself, so checking there costs a minute and is safe whether the email is real or not. Replying could reach the attacker.",
+        biasName: "Manufactured Urgency",
+        bookRef: "Dark patterns research (Mathur et al. 2019)",
+        options: [
+            { text: "Click \"File an appeal\" right away", biasValue: 1, isBest: false },
+            { text: "Reply to the email asking for details", biasValue: 0.5, isBest: false },
+            { text: "Sign in to CodeHarbor yourself and check for notices", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-base-rate-1",
+        retestOnly: true,
+        biasType: "BASE_RATE",
+        title: "Sign-In Risk Flag",
+        scenarioText: "Your sign-in risk system scores every login. About 1 in 100 sign-ins comes from an attacker using a stolen password. The system flags 90% of attacker sign-ins, and it wrongly flags 8% of legitimate ones. A sign-in has just been flagged. About how likely is it that an attacker is behind it?",
+        bestAnswer: "About 10%",
+        reasoning: "The system errs both ways: it misses 1 in 10 attackers and flags 8% of real users. Picture 1,000 sign-ins: 10 are attackers, and 9 of them get flagged while 1 slips through. Of the 990 legitimate sign-ins, about 79 get flagged too. That's about 88 flags, and only 9 are attackers: about 10%. The 1-in-100 rate is a baseline from history, and attackers can push it up, but even doubling it would leave most flags false.",
+        biasName: "Base Rate Neglect",
+        bookRef: "Thinking, Fast and Slow - Chapter 16",
+        options: [
+            { text: "About 10%", biasValue: 0, isBest: true },
+            { text: "About 50%", biasValue: 0.5, isBest: false },
+            { text: "About 90%", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-base-rate-2",
+        retestOnly: true,
+        biasType: "BASE_RATE",
+        title: "Reported Phishing Email",
+        scenarioText: "Employees can click a Report Phishing button on any email. About 2% of the email reaching inboxes is phishing. Employees report about 70% of the phishing emails they get, and they mistakenly report about 5% of legitimate emails. An email has just been reported. About how likely is it that it's actually phishing?",
+        bestAnswer: "About 20%",
+        reasoning: "Reporting errs both ways: people miss some phishing and flag some real mail. Picture 1,000 emails: 20 are phishing, and 14 of those get reported while 6 are missed. Of the 980 legitimate emails, about 49 get reported by mistake. That's about 63 reports, and only 14 are phishing: roughly 20%. The 2% phishing rate is a baseline that attackers can change, but even doubling it would leave most reports harmless.",
+        biasName: "Base Rate Neglect",
+        bookRef: "Thinking, Fast and Slow - Chapter 16",
+        options: [
+            { text: "About 5%", biasValue: 0.5, isBest: false },
+            { text: "About 20%", biasValue: 0, isBest: true },
+            { text: "About 70%", biasValue: 1, isBest: false },
+            { text: "About 95%", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-small-numbers-1",
+        retestOnly: true,
+        biasType: "SMALL_NUMBERS",
+        title: "Alert Sample Review",
+        scenarioText: "A new detection rule fired 4,000 times last month. To check it, an analyst reviewed 5 of those alerts, picked at random. All 5 were false alarms. A manager says the rule is pure noise and wants it deleted today. What's the best next step?",
+        bestAnswer: "Review a larger random sample of its alerts",
+        reasoning: "Five alerts out of 4,000 is a tiny sample. Even if 1 in 4 of the rule's alerts were real, you'd see five false alarms in a row about a quarter of the time, so this can't show the rule is pure noise. Reviewing a few dozen more alerts is cheap and would pin down how noisy the rule really is before you throw away something that may be catching attacks.",
+        biasName: "Law of Small Numbers",
+        bookRef: "Thinking, Fast and Slow - Chapter 10",
+        options: [
+            { text: "Delete the rule", biasValue: 1, isBest: false },
+            { text: "Keep the rule unchanged", biasValue: 0.5, isBest: false },
+            { text: "Turn the rule off for a month", biasValue: 1, isBest: false },
+            { text: "Review a larger random sample of its alerts", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-small-numbers-2",
+        retestOnly: true,
+        biasType: "SMALL_NUMBERS",
+        title: "Two Support Queues",
+        scenarioText: "Your company has two support queues. The main queue handles about 400 tickets a day, and the regional queue handles about 40. In both, about 10% of tickets are marked urgent, and urgent tickets arrive at random. Over a year, which queue will log more days on which over 20% of its tickets were urgent?",
+        bestAnswer: "The regional queue",
+        reasoning: "Small samples swing more. For the regional queue, a day over 20% urgent means 9 or more urgent tickets when about 4 are typical, which happens by chance on a handful of days a year. For the main queue, it means over 80 urgent tickets when about 40 are typical, which essentially never happens. The underlying rate is the same; only the sample size differs.",
+        biasName: "Law of Small Numbers",
+        bookRef: "Thinking, Fast and Slow - Chapter 10",
+        options: [
+            { text: "The main queue", biasValue: 1, isBest: false },
+            { text: "About the same", biasValue: 1, isBest: false },
+            { text: "The regional queue", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-regression-1",
+        retestOnly: true,
+        biasType: "REGRESSION",
+        title: "Best Team Next Quarter",
+        scenarioText: "Of your company's 30 teams, the Payments team had the lowest phishing-simulation click rate last quarter: 2%. The company average was 8%. Nothing about the teams or the simulations is changing. What is the best prediction for the Payments team's click rate next quarter?",
+        bestAnswer: "Between 2% and 8%",
+        reasoning: "The lowest score out of 30 teams is partly skill and partly luck, and the luck part won't repeat on schedule. So the best forecast moves toward the average: probably still better than typical, but not as extreme as 2%. Predicting another 2% assumes last quarter was all skill.",
+        biasName: "Regression to the Mean",
+        bookRef: "Thinking, Fast and Slow - Chapter 18",
+        options: [
+            { text: "About 2%", biasValue: 1, isBest: false },
+            { text: "Between 2% and 8%", biasValue: 0, isBest: true },
+            { text: "About 8%", biasValue: 0.5, isBest: false },
+            { text: "Above 8%", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-regression-2",
+        retestOnly: true,
+        biasType: "REGRESSION",
+        title: "Worst Services Review",
+        scenarioText: "Each week, the three services with the most errors out of your 50 get a mandatory engineering review. Services almost always have fewer errors the week after their review. A director wants to expand the program on the strength of this. What would best show whether the reviews actually help?",
+        bestAnswer: "Compare them with services that had similar bad weeks but no review",
+        reasoning: "A service picked for its worst week will usually look better the next week anyway, because unusually bad weeks are partly bad luck. So the improvement after a review is expected even if the review does nothing. Only a comparison with similar bad-week services that weren't reviewed separates the review's effect from regression to the mean.",
+        biasName: "Regression to the Mean",
+        bookRef: "Thinking, Fast and Slow - Chapter 17",
+        options: [
+            { text: "Measure how much the reviewed services improve", biasValue: 1, isBest: false },
+            { text: "Ask the reviewed teams whether the review helped", biasValue: 1, isBest: false },
+            { text: "Compare them with services that had similar bad weeks but no review", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-wysiati-1",
+        retestOnly: true,
+        biasType: "WYSIATI",
+        title: "Two-App Pen Test",
+        scenarioText: "An outside penetration test of two of your company's web apps found no critical issues. The company runs 14 internet-facing apps, and the testers only had access to those two. The CEO is drafting a slide for the board. Which statement does the evidence support?",
+        bestAnswer: "The two tested apps had no critical findings",
+        reasoning: "The test says nothing about the 12 apps nobody looked at, and even for the two it covered, no findings is not proof of no flaws. A clean report feels like a verdict on everything, but it only covers what was in scope. The board should hear exactly what was tested and what wasn't.",
+        biasName: "What You See Is All There Is",
+        bookRef: "Thinking, Fast and Slow - Chapter 7",
+        options: [
+            { text: "Our internet-facing apps are secure", biasValue: 1, isBest: false },
+            { text: "Most of our apps are probably secure", biasValue: 0.5, isBest: false },
+            { text: "The two tested apps had no critical findings", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-wysiati-2",
+        retestOnly: true,
+        biasType: "WYSIATI",
+        title: "Training Feedback Survey",
+        scenarioText: "After this year's security awareness training, an optional feedback survey went to all 1,200 employees. 60 people replied, and 94% of them rated the training useful. What does this tell you about how employees overall rate the training?",
+        bestAnswer: "Very little",
+        reasoning: "Only 5% of employees answered, and they chose themselves. People who liked the training are often the most willing to say so, while people who found it a waste of time may simply ignore the survey. The 94% describes those 60 people, not the 1,140 you didn't hear from.",
+        biasName: "What You See Is All There Is",
+        bookRef: "Thinking, Fast and Slow - Chapter 7",
+        options: [
+            { text: "Nearly all of them find it useful", biasValue: 1, isBest: false },
+            { text: "Very little", biasValue: 0, isBest: true },
+            { text: "Most of them find it useful", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-availability-1",
+        retestOnly: true,
+        biasType: "AVAILABILITY",
+        title: "Database Failover Scare",
+        scenarioText: "Last week a database failover went badly at 3 a.m., paging half the team, and it's all anyone talks about. Your postmortems from the past year list 31 outages caused by bad configuration changes and 2 caused by database failures, with outages of similar length either way. Configuration-change outages are still happening most weeks. Where should next quarter's reliability work go first?",
+        bestAnswer: "Safer configuration changes",
+        reasoning: "The failover is fresh and dramatic, so it feels like the big risk. The records say configuration changes cause about 15 times as many outages of similar size, and they're still happening. System failures like these aren't an adversary changing tactics, so last year's pattern is a fair guide to next quarter.",
+        biasName: "Availability Heuristic",
+        bookRef: "Thinking, Fast and Slow - Chapters 12 & 13",
+        options: [
+            { text: "Database failover", biasValue: 1, isBest: false },
+            { text: "Split evenly between the two", biasValue: 0.5, isBest: false },
+            { text: "Safer configuration changes", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-availability-2",
+        retestOnly: true,
+        biasType: "AVAILABILITY",
+        title: "Conference Attack Demo",
+        scenarioText: "At a conference, your team watched a dramatic live demo: the speaker froze a laptop's memory chips and read its encryption keys. The attack needs physical access to a running laptop. In the past three years your company had no physical attacks on laptops, and 27 incidents that began with stolen passwords on cloud apps that don't require multi-factor authentication. Those break-ins are still arriving. Where should most of next year's effort go?",
+        bestAnswer: "Requiring multi-factor authentication on cloud apps",
+        reasoning: "A live demo is vivid and memorable, which makes the attack feel likely. Your own records show where attackers are actually getting in, and they still are. Attackers do adapt, so history is a baseline rather than a forecast, but an attack that needs hands on a running laptop is unlikely to overtake one that works from anywhere.",
+        biasName: "Availability Heuristic",
+        bookRef: "Thinking, Fast and Slow - Chapters 12 & 13",
+        options: [
+            { text: "Requiring multi-factor authentication on cloud apps", biasValue: 0, isBest: true },
+            { text: "Defenses against the memory attack", biasValue: 1, isBest: false },
+            { text: "Split evenly between the two", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-halo-1",
+        retestOnly: true,
+        biasType: "HALO",
+        title: "Star Engineer Pull Request",
+        scenarioText: "Priya is your team's star engineer: she built the company's most popular feature, and the CEO praises her at every all-hands. She opens a pull request that changes how the login service checks passwords. Changes to authentication code are a common source of serious security bugs. How should her pull request be reviewed?",
+        bestAnswer: "The usual full review",
+        reasoning: "Priya's success on features says little about whether this particular change to password checking is correct. Skilled engineers still write security bugs, and authentication mistakes are costly. Letting her reputation lighten the review is the halo effect: one impressive trait coloring the judgment of everything else.",
+        biasName: "Halo Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 7",
+        options: [
+            { text: "A lighter review than usual", biasValue: 1, isBest: false },
+            { text: "The usual full review", biasValue: 0, isBest: true },
+            { text: "Let her merge it without review", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-halo-2",
+        retestOnly: true,
+        biasType: "HALO",
+        title: "Analyst Annual Review",
+        scenarioText: "Marcus, a security analyst, handled one high-profile incident brilliantly last spring, explaining it calmly to the CEO in a crisis meeting. At review time, the two leads who read his incident write-ups from the rest of the year both rated them below average. How would you rate his documentation?",
+        bestAnswer: "Below average",
+        reasoning: "One memorable success in front of the CEO creates a glow that spreads to everything else. But his documentation was judged directly, by two people, across the year. Rate each skill on its own evidence: he may be excellent under pressure and still need to improve his write-ups.",
+        biasName: "Halo Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 7",
+        options: [
+            { text: "Below average", biasValue: 0, isBest: true },
+            { text: "Average", biasValue: 0.5, isBest: false },
+            { text: "Above average", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-anchoring-1",
+        retestOnly: true,
+        biasType: "ANCHORING",
+        title: "Bug Bounty Haggle",
+        scenarioText: "Your bug bounty program publishes its payouts: $500 to $2,000 for medium-severity bugs, about what similar programs pay. A researcher reports a bug your team confirms is medium severity. They ask for $40,000, pointing to a famous payout elsewhere for a critical bug. When you decline, they offer to settle at $15,000. What do you pay?",
+        bestAnswer: "An amount in your published range",
+        reasoning: "The $40,000 opening is tied to a different, critical bug, so it carries no information about this one. The $15,000 only looks reasonable next to it. Your published range and what similar programs pay are the real reference points, and paying far outside them would also be unfair to every other researcher.",
+        biasName: "Anchoring Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 11",
+        options: [
+            { text: "An amount in your published range", biasValue: 0, isBest: true },
+            { text: "$5,000", biasValue: 0.5, isBest: false },
+            { text: "$15,000", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-anchoring-2",
+        retestOnly: true,
+        biasType: "ANCHORING",
+        title: "Security Review Timeline",
+        scenarioText: "Your sales team told a client that the security review of their integration would take about 3 days. Your team's last eight reviews of similar scope took 16, 17, 18, 19, 20, 21, 22, and 24 days, and nothing about this one is different. What timeline should you give the client?",
+        bestAnswer: "About 3 weeks",
+        reasoning: "The 3-day figure came from sales, not from any look at the work, so it carries no information. Starting from it and adjusting upward still lands too low. Your own track record on eight similar reviews, averaging about 20 days, is the real evidence, and a realistic estimate now beats a missed deadline later.",
+        biasName: "Anchoring Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 11",
+        options: [
+            { text: "3 days", biasValue: 1, isBest: false },
+            { text: "About 1 week", biasValue: 1, isBest: false },
+            { text: "About 2 weeks", biasValue: 0.5, isBest: false },
+            { text: "About 3 weeks", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-misleading-charts-1",
+        retestOnly: true,
+        biasType: "MISLEADING_CHARTS",
+        title: "Total Users Chart",
+        scenarioText: "A password manager startup's investor update shows a chart of total users ever registered. The line climbs every quarter under the heading Strong Growth. A footnote lists new sign-ups for the last four quarters: 40,000, then 31,000, then 22,000, then 14,000. How are new sign-ups trending?",
+        bestAnswer: "Falling",
+        reasoning: "A running total can only go up, so a cumulative chart climbs even when the business is slowing. The footnote shows new sign-ups falling every quarter, to about a third of where they started. The rising line hides that; the quarterly numbers reveal it.",
+        biasName: "Misleading Charts",
+        bookRef: "Statistics literacy (Huff, How to Lie with Statistics 1954)",
+        options: [
+            { text: "Falling", biasValue: 0, isBest: true },
+            { text: "Roughly flat", biasValue: 0.5, isBest: false },
+            { text: "Rising", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-misleading-charts-2",
+        retestOnly: true,
+        biasType: "MISLEADING_CHARTS",
+        title: "Response Time Chart",
+        scenarioText: "A vendor's bar chart compares response times for two services. The vertical axis has gridlines at 1, 10, 100, and 1,000 milliseconds, evenly spaced. Service A's bar reaches the 10 line and Service B's bar reaches the 1,000 line, so B's bar looks about three times as tall. How many times slower is Service B?",
+        bestAnswer: "About 100 times",
+        reasoning: "Evenly spaced gridlines that jump by a factor of 10 mean a logarithmic axis: each step up is ten times more, not a fixed amount more. Service B takes 1,000 milliseconds and Service A takes 10, so B is about 100 times slower. On this kind of axis, bar heights hide the size of the gap.",
+        biasName: "Misleading Charts",
+        bookRef: "Statistics literacy (Huff, How to Lie with Statistics 1954)",
+        options: [
+            { text: "About 3 times", biasValue: 1, isBest: false },
+            { text: "About 10 times", biasValue: 0.5, isBest: false },
+            { text: "About 30 times", biasValue: 0.5, isBest: false },
+            { text: "About 100 times", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-fine-print-1",
+        retestOnly: true,
+        biasType: "FINE_PRINT",
+        title: "VPN Subscription Offer",
+        scenarioText: "An ad reads: \"Shieldway VPN, just $2.49/mo!*\" The fine print says: \"*$89.64 billed for the first 36 months. Renews at $119.99 per year.\" About how much would four years of Shieldway cost?",
+        bestAnswer: "About $210",
+        reasoning: "The $2.49 only holds if you pay three years upfront: $89.64 on day one. In year four the plan renews at $119.99, so four years cost about $89.64 plus $119.99, or roughly $210. The headline number suggests about $120 for four years and hides both the upfront bill and the renewal price.",
+        biasName: "Hidden Fine Print",
+        bookRef: "Consumer protection guidance (FTC, clear and conspicuous disclosures)",
+        options: [
+            { text: "About $120", biasValue: 1, isBest: false },
+            { text: "About $210", biasValue: 0, isBest: true },
+            { text: "About $480", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-fine-print-2",
+        retestOnly: true,
+        biasType: "FINE_PRINT",
+        title: "Backup App Free Trial",
+        scenarioText: "A backup app's sign-up page says: \"Try CloudKeep free for 30 days!*\" The fine print says: \"*Card required. Plan renews at $14.99/month unless cancelled at least 7 days before the trial ends.\" You start the trial on June 1 and cancel on June 28. What happens?",
+        bestAnswer: "You're charged $14.99",
+        reasoning: "The trial ends on June 30, but the fine print moves the real cancellation deadline to June 23. Cancelling on June 28 is too late, so the card on file is charged for the first month. The headline promises 30 free days; the conditions give you only 23 to decide.",
+        biasName: "Hidden Fine Print",
+        bookRef: "Consumer protection guidance (FTC, clear and conspicuous disclosures)",
+        options: [
+            { text: "Nothing; the trial was free", biasValue: 1, isBest: false },
+            { text: "You pay for part of a month", biasValue: 0.5, isBest: false },
+            { text: "You're charged $14.99", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-drip-pricing-1",
+        retestOnly: true,
+        biasType: "DRIP_PRICING",
+        title: "Web Hosting Checkout",
+        scenarioText: "A web host advertises: \"Hosting from $4/month!\" After you create an account and enter your card, checkout adds a required $40 setup fee and a required SSL security add-on at $4/month. Another host of similar quality advertises: \"$9/month, SSL included, no setup fee.\" For one year, which is cheaper?",
+        bestAnswer: "The $9 host",
+        reasoning: "Add up every required charge. The first host costs $48 for hosting, plus $40 setup, plus $48 for SSL: $136 for the year. The second costs $108. The low headline price and the effort already spent signing up make the first host feel cheaper, but it costs about 25% more.",
+        biasName: "Drip Pricing",
+        bookRef: "Marketing research (Santana, Dallas & Morwitz 2020; FTC)",
+        options: [
+            { text: "The $4 host", biasValue: 1, isBest: false },
+            { text: "They cost about the same", biasValue: 0.5, isBest: false },
+            { text: "The $9 host", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-drip-pricing-2",
+        retestOnly: true,
+        biasType: "DRIP_PRICING",
+        title: "Exam Voucher Checkout",
+        scenarioText: "You're buying a cloud certification exam voucher. Provider A lists it at \"$399.\" At the last checkout step, after you've entered your details, it adds a $29 booking fee, a $59 proctoring fee, and a $35 digital certificate fee, all required. Provider B, also authorized, sells the same voucher for \"$460, all fees included.\" What do you do?",
+        bestAnswer: "Buy from Provider B",
+        reasoning: "Provider A's real price is $399 plus $123 in fees: $522, or $62 more than Provider B. Fees revealed at the last step work because you're already committed to the first price and the time spent on checkout. That time is gone either way; only the totals matter.",
+        biasName: "Drip Pricing",
+        bookRef: "Marketing research (Santana, Dallas & Morwitz 2020; FTC)",
+        options: [
+            { text: "Finish buying from Provider A", biasValue: 1, isBest: false },
+            { text: "Buy from Provider B", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-outcome-bias-1",
+        retestOnly: true,
+        biasType: "OUTCOME_BIAS",
+        title: "Middle-of-the-Night Rollback",
+        scenarioText: "Your runbook says to roll back a release if login errors stay above 5% for five minutes. At 2 a.m., the on-call engineer saw login errors at 12% for eight minutes, and a second dashboard agreed, so she rolled back. That took the app offline for 20 minutes. The next day, the team found the release was fine: a faulty monitoring agent had reported errors that weren't happening. Was her rollback a good decision?",
+        bestAnswer: "Yes",
+        reasoning: "With what she could see, errors well above the threshold on two dashboards, the runbook called for a rollback, and she followed it. The faulty agent was only found afterward. Judging her by the needless downtime is outcome bias, and punishing it teaches on-call engineers to hesitate the next time the alarm is real. The fix belongs in the monitoring, not in her review.",
+        biasName: "Outcome Bias",
+        bookRef: "Thinking, Fast and Slow - Chapter 19",
+        options: [
+            { text: "Yes", biasValue: 0, isBest: true },
+            { text: "No", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-outcome-bias-2",
+        retestOnly: true,
+        biasType: "OUTCOME_BIAS",
+        title: "Unreviewed Sign-In Fix",
+        scenarioText: "Policy requires a second reviewer for any change to your sign-in code. A developer found a bug that showed the wrong time zone on the sign-in page. A reviewer was free within the hour, but she pushed her fix straight to production without review. It worked, and nothing broke. How should the team lead respond?",
+        bestAnswer: "Remind her that the change needed a review",
+        reasoning: "The bug was cosmetic and a reviewer was an hour away, so skipping review on security-critical code took on real risk for almost no benefit. That nothing broke is luck, not evidence the call was sound. Rewarding a risky choice because it turned out well is outcome bias, and in security it teaches people that shortcuts are fine until the one that isn't.",
+        biasName: "Outcome Bias",
+        bookRef: "Thinking, Fast and Slow - Chapter 19",
+        options: [
+            { text: "Praise her for the quick fix", biasValue: 1, isBest: false },
+            { text: "Let developers skip review for sign-in fixes like this", biasValue: 1, isBest: false },
+            { text: "Remind her that the change needed a review", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-intuition-vs-formula-1",
+        retestOnly: true,
+        biasType: "INTUITION_VS_FORMULA",
+        title: "Replacing Drives Before They Fail",
+        scenarioText: "Your data center has 2,000 hard drives, and this quarter's budget covers replacing 50 before they fail. A simple model ranks every drive by its own health counters (bad sectors, read errors, age), and it has matched which of your drives actually failed over the past four years. Your senior technicians would rather pick the 50 that seem off to them from their noise and how they behaved during maintenance. Which list should you use?",
+        bestAnswer: "The model's ranking",
+        reasoning: "Drive failure is a stable problem with plenty of feedback and no one trying to fool you, which is exactly where a consistent formula does best. The model weighs the same evidence the same way for all 2,000 drives; people can only listen to a few and are swayed by whatever they noticed last. Chapter 21's lesson is to let the score set the list and treat the technicians' observations as extra input, not a veto.",
+        biasName: "Intuition vs. Formulas",
+        bookRef: "Thinking, Fast and Slow - Chapter 21",
+        options: [
+            { text: "The technicians' picks", biasValue: 1, isBest: false },
+            { text: "The model's ranking", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-intuition-vs-formula-2",
+        retestOnly: true,
+        biasType: "INTUITION_VS_FORMULA",
+        title: "Choosing Vendors to Audit",
+        scenarioText: "Your company uses 120 software vendors and has time to audit 15 this year. A checklist scores every vendor the same way on six factors, such as what data it can reach, whether it requires multifactor sign-in, and how quickly it patches. Most of your past vendor incidents involved vendors the checklist would have ranked high. The procurement lead would rather audit the vendors that seemed least solid on sales calls. Which should pick the 15?",
+        bestAnswer: "The checklist score",
+        reasoning: "A checklist applied the same way to all 120 vendors beats impressions from sales calls, which mostly measure how polished the salesperson was. Past incidents are a baseline, not a forecast: attackers shift to whichever vendors are weakest now, so the scores should be refreshed regularly. Within that, Chapter 21's advice holds: score first, then add judgment.",
+        biasName: "Intuition vs. Formulas",
+        bookRef: "Thinking, Fast and Slow - Chapter 21",
+        options: [
+            { text: "The checklist score", biasValue: 0, isBest: true },
+            { text: "The procurement lead's impressions", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-planning-1",
+        retestOnly: true,
+        biasType: "PLANNING",
+        title: "Data Retention Feature Estimate",
+        scenarioText: "Your team estimates a new data-retention feature will take 3 sprints. You look up the team's last ten features: on average they took about 1.8 times their estimate, and only one finished on time. The product manager asks how many sprints to plan for. What do you say?",
+        bestAnswer: "5 to 6 sprints",
+        reasoning: "The team's own history is the reference class: 3 sprints times 1.8 is about 5.4. The 3-sprint estimate is the inside view, which pictures the work going smoothly, and nine of the last ten features show it rarely does. Start from the outside view and adjust only for real differences in this project.",
+        biasName: "Planning Fallacy",
+        bookRef: "Thinking, Fast and Slow - Chapter 23",
+        options: [
+            { text: "3 sprints", biasValue: 1, isBest: false },
+            { text: "4 sprints", biasValue: 0.5, isBest: false },
+            { text: "5 to 6 sprints", biasValue: 0, isBest: true },
+            { text: "10 sprints", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-planning-2",
+        retestOnly: true,
+        biasType: "PLANNING",
+        title: "Badge Reader Upgrade Budget",
+        scenarioText: "Facilities quotes $40,000 to replace the office badge readers with ones that accept phone badges. Your last three security hardware projects: cameras were estimated at $50,000 and cost $85,000; alarm panels were estimated at $30,000 and cost $52,000; door locks were estimated at $60,000 and cost $100,000. How much should you budget?",
+        bestAnswer: "About $70,000",
+        reasoning: "Every comparable project ran about 70% over its estimate, so the outside view puts this one near $68,000. The $40,000 quote is the inside view, which assumes nothing goes wrong. Budgeting from the reference class leaves room for the surprises that past projects show keep coming.",
+        biasName: "Planning Fallacy",
+        bookRef: "Thinking, Fast and Slow - Chapter 23",
+        options: [
+            { text: "About $40,000", biasValue: 1, isBest: false },
+            { text: "About $50,000", biasValue: 0.5, isBest: false },
+            { text: "About $70,000", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-sunk-cost-1",
+        retestOnly: true,
+        biasType: "SUNK_COST",
+        title: "Flawed Hardware Sign-In Keys",
+        scenarioText: "Your company spent $8,000, nonrefundable, on 200 hardware sign-in keys for staff. Before rollout, security testing found that this model can be copied by anyone who holds a key for a few minutes. A different model without the flaw would cost $9,000 for everyone. The keys will protect access to your payment systems. What do you do?",
+        bestAnswer: "Buy the keys without the flaw",
+        reasoning: "The $8,000 is gone whichever way you choose. Looking only forward, the choice is between keys that can be copied and keys that can't, guarding your payment systems, for $9,000. Rolling out the flawed keys to avoid wasting the first purchase is the sunk cost talking.",
+        biasName: "Sunk Cost Fallacy",
+        bookRef: "Thinking, Fast and Slow - Chapter 32",
+        options: [
+            { text: "Roll out the keys you already bought", biasValue: 1, isBest: false },
+            { text: "Buy the keys without the flaw", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-sunk-cost-2",
+        retestOnly: true,
+        biasType: "SUNK_COST",
+        title: "Stuck in the Build Queue",
+        scenarioText: "Your build has been waiting 45 minutes in the shared build queue. The queue estimates another 30 minutes before it starts, then 10 minutes to run. A teammate points out that a faster build machine just freed up, but moving there means starting over: about 15 minutes in total. You need the build as soon as possible. What do you do?",
+        bestAnswer: "Move to the faster machine",
+        reasoning: "From here, staying takes about 40 more minutes and moving takes about 15. The 45 minutes already spent are gone either way and don't make the queue any faster. Giving up your place feels like wasting that wait, which is the sunk cost talking.",
+        biasName: "Sunk Cost Fallacy",
+        bookRef: "Thinking, Fast and Slow - Chapter 32",
+        options: [
+            { text: "Stay in the queue", biasValue: 1, isBest: false },
+            { text: "Wait 10 more minutes, then decide", biasValue: 0.5, isBest: false },
+            { text: "Move to the faster machine", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-framing-1",
+        retestOnly: true,
+        biasType: "FRAMING",
+        title: "Hosting Uptime Promises",
+        scenarioText: "You're choosing a hosting provider for a customer-facing app. Larkwood Cloud advertises \"99% uptime, guaranteed.\" Fernhill Hosting's contract promises no more than 2 hours of downtime per month. Prices and features are otherwise the same. Which provider promises less downtime?",
+        bestAnswer: "Fernhill Hosting",
+        reasoning: "99% uptime allows 1% downtime: about 7 hours in a 30-day month, more than three times Fernhill's 2 hours. A high percentage framed as success sounds close to perfect, so the missing 1% feels like nothing. Restating it as hours of downtime shows the real gap.",
+        biasName: "Framing Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 34",
+        options: [
+            { text: "Larkwood Cloud", biasValue: 1, isBest: false },
+            { text: "Fernhill Hosting", biasValue: 0, isBest: true },
+            { text: "They promise about the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-framing-2",
+        retestOnly: true,
+        biasType: "FRAMING",
+        title: "Two Account-Security Upgrades",
+        scenarioText: "You can fund one of two upgrades for your 10,000 customer accounts, and both cost the same. Upgrade A cuts password-reuse takeovers by a third. Upgrade B cuts SIM-swap takeovers in half. Last year you had about 90 password-reuse takeovers and about 20 SIM-swap takeovers. Which upgrade would likely prevent more takeovers?",
+        bestAnswer: "Upgrade A",
+        reasoning: "A third of about 90 is about 30 takeovers prevented; half of about 20 is about 10. Cutting something in half sounds bigger than cutting it by a third, but a percentage of a small number is still small, so turn relative claims into counts before comparing. Last year's numbers are a baseline, not a forecast, since attackers shift tactics, but a gap this wide is unlikely to flip.",
+        biasName: "Framing Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 34",
+        options: [
+            { text: "Upgrade A", biasValue: 0, isBest: true },
+            { text: "Upgrade B", biasValue: 1, isBest: false },
+            { text: "They would prevent about the same number", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-zero-price-1",
+        retestOnly: true,
+        biasType: "ZERO_PRICE",
+        title: "Free VPN for Cafe Wi-Fi",
+        scenarioText: "You want a VPN so that people on cafe Wi-Fi can't see which sites you visit. VPN A is free; its privacy policy says it records the sites you visit and shares them with advertising partners. VPN B costs $4 a month and keeps no browsing records, which an independent audit confirmed. Which better protects what you're trying to keep private?",
+        bestAnswer: "VPN B",
+        reasoning: "Your goal is keeping your browsing private, and VPN A hands exactly that information to advertisers; you'd trade the cafe's view for the VPN company's and its partners'. A price of zero feels like it removes all downside, so the cost buried in the privacy policy gets ignored. When a product is free, ask what it's paid for with.",
+        biasName: "Zero-Price Effect",
+        bookRef: "Behavioral Economics (Shampanier, Mazar & Ariely 2007)",
+        options: [
+            { text: "VPN A", biasValue: 1, isBest: false },
+            { text: "VPN B", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-zero-price-2",
+        retestOnly: true,
+        biasType: "ZERO_PRICE",
+        title: "Zero-Down Laptop Plan",
+        scenarioText: "You need a new laptop for work, and you can afford either payment option. Plan A: pay $0 today, then $49 a month for 24 months. Plan B: pay $950 today. It's the same laptop with the same warranty. Which costs less overall?",
+        bestAnswer: "Plan B",
+        reasoning: "Plan A adds up to $1,176, about $226 more than paying $950 up front. \"$0 today\" draws attention to the one moment that costs nothing and away from the 24 payments that follow. Add up the full cost before letting a zero decide.",
+        biasName: "Zero-Price Effect",
+        bookRef: "Behavioral Economics (Shampanier, Mazar & Ariely 2007)",
+        options: [
+            { text: "Plan A", biasValue: 1, isBest: false },
+            { text: "Plan B", biasValue: 0, isBest: true },
+            { text: "They cost about the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-representativeness-1",
+        retestOnly: true,
+        biasType: "REPRESENTATIVENESS",
+        title: "Who Took Over the Mailbox",
+        scenarioText: "An attacker signed in to an employee's email at 3 a.m. with her correct password and quietly set a rule forwarding invoices to an outside address. Your team hasn't yet found out who did it or how they got the password. Which is most probable?",
+        bestAnswer: "The attacker is part of an organized fraud group",
+        reasoning: "Every organized fraud group that phished the password, and every one of those based overseas, is still an organized fraud group, so the shortest statement can never be less probable than the longer ones. The extra details fit the familiar story of invoice fraud, which makes them feel likelier, but each added condition can only lower the probability. This is the same conjunction fallacy as the Linda problem.",
+        biasName: "Representativeness & Conjunction Fallacy",
+        bookRef: "Thinking, Fast and Slow - Chapter 15",
+        options: [
+            { text: "The attacker is part of an organized fraud group and got the password from a phishing email", biasValue: 1, isBest: false },
+            { text: "The attacker is part of an organized fraud group, got the password from a phishing email, and is based overseas", biasValue: 1, isBest: false },
+            { text: "The attacker is part of an organized fraud group", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-representativeness-2",
+        retestOnly: true,
+        biasType: "REPRESENTATIVENESS",
+        title: "Esports Final Prediction",
+        scenarioText: "Team Vireo, the heavy favorite, plays a much weaker team in a best-of-five esports final. Which is more probable?",
+        bestAnswer: "Vireo loses the first game",
+        reasoning: "Every way Vireo can lose the first game and still win the final is also a way of losing the first game, so the longer statement can never be more probable. The comeback fits the story of a strong favorite, which makes it feel likelier, but adding a detail can only lower the probability. This is the conjunction fallacy from the Linda problem.",
+        biasName: "Representativeness & Conjunction Fallacy",
+        bookRef: "Thinking, Fast and Slow - Chapter 15",
+        options: [
+            { text: "Vireo loses the first game but wins the final", biasValue: 1, isBest: false },
+            { text: "They are equally probable", biasValue: 0.5, isBest: false },
+            { text: "Vireo loses the first game", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-less-is-more-1",
+        retestOnly: true,
+        biasType: "LESS_IS_MORE",
+        title: "Two Test Reports",
+        scenarioText: "Two teams test the same payment service. Team A ran 200 tests, and every one passed. Team B ran those same 200 tests, which all passed, plus 50 new tests of refund handling, 8 of which failed. Which team's testing tells you more about whether the service works?",
+        bestAnswer: "Team B's",
+        reasoning: "Team B's results include everything Team A's do, plus 50 more checks that found 8 refund bugs, which are there whether or not anyone tests for them. A 100% pass rate looks better than 96%, but the average hides that Team B simply looked further. Compare what each set contains in full, not its pass rate.",
+        biasName: "Less Is More (Separate Evaluation)",
+        bookRef: "Thinking, Fast and Slow - Chapters 15 & 33",
+        options: [
+            { text: "Team A's", biasValue: 1, isBest: false },
+            { text: "Team B's", biasValue: 0, isBest: true },
+            { text: "They tell you about the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-less-is-more-2",
+        retestOnly: true,
+        biasType: "LESS_IS_MORE",
+        title: "Two Security Engineer Applicants",
+        scenarioText: "Two people apply for a security engineer role. Applicant A led a company-wide move to hardware sign-in keys, built an incident-response runbook, and kept the team's internal wiki up to date for two years. Applicant B led a company-wide move to hardware sign-in keys and built an incident-response runbook. Judging only on experience, who has more?",
+        bestAnswer: "Applicant A",
+        reasoning: "Applicant A has done everything Applicant B has, plus two years of extra work, so A's experience can't be smaller. Judged as a whole, B's shorter list can feel stronger because every item is impressive, while the routine wiki work drags down the average impression of A. Compare what each record contains, not how impressive it feels on average.",
+        biasName: "Less Is More (Separate Evaluation)",
+        bookRef: "Thinking, Fast and Slow - Chapters 15 & 33",
+        options: [
+            { text: "Applicant A", biasValue: 0, isBest: true },
+            { text: "Applicant B", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-loss-aversion-1",
+        retestOnly: true,
+        biasType: "LOSS_AVERSION",
+        title: "Consulting Bake-Off Bid",
+        scenarioText: "A client invites your consulting firm to a two-week bake-off against one rival firm that you judge to be evenly matched with yours. Preparing will cost about $10,000 in staff time. The winner gets a contract worth $25,000 in profit. Your firm enters several bids like this a year and can easily absorb the $10,000. Do you enter?",
+        bestAnswer: "Enter the bake-off",
+        reasoning: "Half the time you net about $15,000 and half the time you lose $10,000, so on average a bid like this earns about $2,500. The firm can afford the loss and makes many such bids, so over a year the wins more than cover the losses. Turning it down because a $10,000 loss feels worse than a $15,000 gain feels good is loss aversion.",
+        biasName: "Loss Aversion",
+        bookRef: "Thinking, Fast and Slow - Chapters 26 & 31",
+        options: [
+            { text: "Enter the bake-off", biasValue: 0, isBest: true },
+            { text: "Skip it", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-loss-aversion-2",
+        retestOnly: true,
+        biasType: "LOSS_AVERSION",
+        title: "Freelance Fee Offer",
+        scenarioText: "You're a freelance designer who takes on about 20 projects a year and has comfortable savings. A regular client offers to change your fee from a flat $5,000 per project to $4,000 plus a $3,000 bonus whenever the project's launch hits its sales goal. This client's launches have hit their goals about half the time, and your work doesn't change that. Which do you choose?",
+        bestAnswer: "Take the base plus bonus",
+        reasoning: "Compared with the flat fee, each project either pays $2,000 more or $1,000 less at roughly even odds, so on average the new deal pays about $5,500 per project. Over 20 projects a year the good and bad outcomes even out, and your savings cover any dry spell. The $1,000 shortfall looming larger than the $2,000 bonus is loss aversion.",
+        biasName: "Loss Aversion",
+        bookRef: "Thinking, Fast and Slow - Chapters 26 & 31",
+        options: [
+            { text: "Take the base plus bonus", biasValue: 0, isBest: true },
+            { text: "Keep the flat $5,000", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-endowment-1",
+        retestOnly: true,
+        biasType: "ENDOWMENT",
+        title: "Bonus Token Buyback",
+        scenarioText: "Imagine you hold a Bonus Token. At your next review it pays 40 Brain Points with a 50% chance, and nothing otherwise. Before the review, you're offered a sure 28 Brain Points for it. Do you sell?",
+        bestAnswer: "Sell it for 28 points",
+        reasoning: "On average the token is worth 20 points (a 50% chance of 40), so 28 sure points beats keeping it. If you wouldn't pay 28 points to buy this token, you shouldn't refuse 28 points to give it up. Holding on means valuing the token more simply because it is already yours.",
+        biasName: "Endowment Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 27",
+        options: [
+            { text: "Keep the token", biasValue: 1, isBest: false },
+            { text: "Sell it for 28 points", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-endowment-2",
+        retestOnly: true,
+        biasType: "ENDOWMENT",
+        title: "Abandoned Domain Offer",
+        scenarioText: "Years ago you registered a domain name for a side project you have since abandoned, and you pay $15 a year to renew it. You have no plans to use it. Similar names sell for about $200 on domain marketplaces. A startup emails offering you $900 for it. Do you sell?",
+        bestAnswer: "Sell it for $900",
+        reasoning: "Ask what you would pay for this domain if you didn't own it: with no plans for it, probably nothing, and certainly not $900 when similar names go for about $200. Turning the offer down means valuing the name far more than you ever would as a buyer, only because it is yours. That gap between selling and buying prices is the endowment effect.",
+        biasName: "Endowment Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 27",
+        options: [
+            { text: "Sell it for $900", biasValue: 0, isBest: true },
+            { text: "Keep it", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-endowment-3",
+        retestOnly: true,
+        biasType: "ENDOWMENT",
+        title: "Unused Diagramming Seat",
+        scenarioText: "Six months ago your company gave you a seat for a premium diagramming tool that costs $40 a month. You have opened it twice; the free tool you use every day covers everything you need. Finance announces that each seat given back adds $40 a month to that team's own budget, to spend however the team likes. What do you do?",
+        bestAnswer: "Give the seat back",
+        reasoning: "If you were offered this seat today for $40 a month out of your team's budget, you wouldn't buy it: you've barely used it in six months. Keeping it costs exactly that $40 a month. Holding on, or putting off the decision, treats the seat as worth more just because it was given to you.",
+        biasName: "Endowment Effect",
+        bookRef: "Thinking, Fast and Slow - Chapter 27",
+        options: [
+            { text: "Keep the seat", biasValue: 1, isBest: false },
+            { text: "Keep it one more quarter, then decide", biasValue: 0.5, isBest: false },
+            { text: "Give the seat back", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-fourfold-1",
+        retestOnly: true,
+        biasType: "FOURFOLD",
+        title: "Disputed Invoice Buyout",
+        scenarioText: "A client owes your company $100,000 and is disputing the invoice. Your lawyer estimates a 95% chance of collecting the full amount within three months, at about $3,000 in legal fees. A collections firm offers to buy the debt from you today for $70,000. Your company has plenty of cash and handles many invoices like this. What do you do?",
+        bestAnswer: "Pursue the full amount",
+        reasoning: "Pursuing the debt is worth about $92,000 on average (95% of $100,000, minus $3,000 in fees), far more than the $70,000 offer. With plenty of cash and many similar invoices, the company can easily absorb the occasional loss. Giving up $22,000 to remove a 5% risk is the certainty effect: a sure thing gets extra weight when the odds are already high.",
+        biasName: "Certainty Effect (Fourfold Pattern)",
+        bookRef: "Thinking, Fast and Slow - Chapter 29",
+        options: [
+            { text: "Sell the debt for $70,000", biasValue: 1, isBest: false },
+            { text: "Pursue the full amount", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-fourfold-2",
+        retestOnly: true,
+        biasType: "FOURFOLD",
+        title: "Over-Budget Migration Finish",
+        scenarioText: "A data migration is already $40,000 over budget, and you must choose how to finish it. Plan A: bring in a contractor for a fixed $20,000. Plan B: have the team try an untested shortcut. It has a 25% chance of finishing at no extra cost and a 75% chance of failing, after which you'd still need the contractor plus $40,000 of cleanup. Which do you choose?",
+        bestAnswer: "Plan A: the $20,000 contractor",
+        reasoning: "Plan B's failure costs $60,000 (the contractor plus cleanup), so on average it adds about $45,000, more than twice Plan A's $20,000. When you are already behind, a sure loss feels unbearable and a gamble that might erase it feels attractive. That is risk seeking in losses, the fourfold pattern's most expensive corner.",
+        biasName: "Risk Seeking in Losses (Fourfold Pattern)",
+        bookRef: "Thinking, Fast and Slow - Chapter 29",
+        options: [
+            { text: "Plan A: the $20,000 contractor", biasValue: 0, isBest: true },
+            { text: "Plan B: the untested shortcut", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-denominator-1",
+        retestOnly: true,
+        biasType: "DENOMINATOR",
+        title: "Drive Failure Reports",
+        scenarioText: "Two vendors report yearly failure rates for comparable hard drives. Vendor A: 312 of every 10,000 drives fail each year. Vendor B: 4% of drives fail each year. Which vendor's drives are more reliable?",
+        bestAnswer: "Vendor A's drives",
+        reasoning: "312 of every 10,000 is 3.12%, lower than Vendor B's 4%. A count of failed drives is easy to picture and feels worse than an abstract percentage, so Vendor A can seem riskier. Converting both to the same rate shows Vendor A's drives fail less often.",
+        biasName: "Denominator Neglect",
+        bookRef: "Thinking, Fast and Slow - Chapter 30",
+        options: [
+            { text: "Vendor A's drives", biasValue: 0, isBest: true },
+            { text: "Vendor B's drives", biasValue: 1, isBest: false },
+            { text: "About the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-denominator-2",
+        retestOnly: true,
+        biasType: "DENOMINATOR",
+        title: "Flaky Test Runners",
+        scenarioText: "A flaky test sometimes fails on your two CI runners. On Runner A, it failed 6 of its last 40 runs. On Runner B, it failed 30 of its last 200 runs. Which runner has the higher failure rate for this test?",
+        bestAnswer: "They fail at the same rate",
+        reasoning: "6 of 40 and 30 of 200 are both 15%. Runner B's 30 failures stand out, but it also ran five times as often. Comparing counts instead of rates would send you chasing a problem on Runner B that isn't there.",
+        biasName: "Denominator Neglect",
+        bookRef: "Thinking, Fast and Slow - Chapter 30",
+        options: [
+            { text: "Runner A", biasValue: 0.5, isBest: false },
+            { text: "Runner B", biasValue: 1, isBest: false },
+            { text: "They fail at the same rate", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-narrow-framing-1",
+        retestOnly: true,
+        biasType: "NARROW_FRAMING",
+        title: "Pricing Experiment Program",
+        scenarioText: "Your growth team runs about 30 small pricing experiments a year. Each costs $5,000. Three years of results show about 4 in 10 succeed and add around $20,000 in profit; the rest add nothing. Nobody can tell in advance which will work, and results are independent. The last two experiments failed, and a manager proposes pausing the program. What policy do you set?",
+        bestAnswer: "Keep running every experiment",
+        reasoning: "Each experiment returns about $8,000 on average for a $5,000 cost, so 30 a year add roughly $90,000. Two failures in a row are expected often in a program where most experiments fail, and they say nothing about the next one. Judging each experiment by itself makes every likely loss sting; judging the program as a portfolio shows it clearly pays.",
+        biasName: "Narrow Framing",
+        bookRef: "Thinking, Fast and Slow - Chapter 31",
+        options: [
+            { text: "Pause the program", biasValue: 1, isBest: false },
+            { text: "Keep running every experiment", biasValue: 0, isBest: true },
+            { text: "Run a few more as a trial, then decide", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-narrow-framing-2",
+        retestOnly: true,
+        biasType: "NARROW_FRAMING",
+        title: "Laptop Insurance Deductible",
+        scenarioText: "Your company insures its 40 laptops. Each year about 1 in 10 needs a repair, which typically costs $400. You can choose a $500 deductible or a $100 deductible; the $100 deductible costs $70 more per laptop per year. The company can easily absorb repair costs. Which do you choose?",
+        bestAnswer: "The $500 deductible for every laptop",
+        reasoning: "The lower deductible saves $300 on a repaired laptop ($400 versus $100 out of pocket), but only about 1 in 10 laptops needs one, so it saves about $30 per laptop a year for $70 extra. Across 40 laptops that is roughly $2,800 a year in extra premiums to save about $1,200 in repairs. Seen one laptop at a time, a $400 bill feels worth avoiding; seen as a fleet, the low deductible clearly loses money.",
+        biasName: "Narrow Framing",
+        bookRef: "Thinking, Fast and Slow - Chapter 31",
+        options: [
+            { text: "The $100 deductible for every laptop", biasValue: 1, isBest: false },
+            { text: "Decide each year based on last year's repairs", biasValue: 0.5, isBest: false },
+            { text: "The $500 deductible for every laptop", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-peak-end-1",
+        retestOnly: true,
+        biasType: "PEAK_END",
+        title: "On-Call Week Comparison",
+        scenarioText: "Your manager asks which of your last two on-call weeks was heavier, to decide where to add a second responder. Week A: four quiet nights, then two 1-hour pages, then a 3-hour outage on the final night. Week B: a 2-hour incident on the first night, then a 1-hour page on each of the next five nights, and a quiet last night. Which week was heavier?",
+        bestAnswer: "Week B",
+        reasoning: "Week A took 5 hours of pages; Week B took 7 hours and interrupted six nights instead of three. Week A feels worse in memory because its worst moment came at the very end. Memory leans on the peak and the ending and largely ignores duration, so a staffing decision should use the totals.",
+        biasName: "Peak-End Rule & Duration Neglect",
+        bookRef: "Thinking, Fast and Slow - Chapter 35",
+        options: [
+            { text: "Week A", biasValue: 1, isBest: false },
+            { text: "Week B", biasValue: 0, isBest: true },
+            { text: "About the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-peak-end-2",
+        retestOnly: true,
+        biasType: "PEAK_END",
+        title: "Checkout Flow Frustration",
+        scenarioText: "In a usability test, people tried two checkout flows. Flow A: 3 minutes of confusing steps, then done. Flow B: the same 3 minutes of confusing steps, followed by 1 more minute of a slightly less confusing confirmation step. Afterward, more people said they'd rather use Flow B again. Which flow put people through more total frustration?",
+        bestAnswer: "Flow B",
+        reasoning: "Flow B contains everything in Flow A plus another minute of mild frustration, so its total is larger. People still remember it more fondly because it ends on a less unpleasant note. This is the same pattern as Kahneman's cold-water experiment: an extra, milder stretch at the end improves the memory while adding to the actual discomfort.",
+        biasName: "Peak-End Rule & Duration Neglect",
+        bookRef: "Thinking, Fast and Slow - Chapter 35",
+        options: [
+            { text: "Flow B", biasValue: 0, isBest: true },
+            { text: "Flow A", biasValue: 1, isBest: false },
+            { text: "About the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-compromise-1",
+        retestOnly: true,
+        biasType: "COMPROMISE",
+        title: "Office Wi-Fi Plan",
+        scenarioText: "Your office is choosing a managed Wi-Fi plan. You have 140 staff, each with a laptop, a phone and a tablet on the network, plus about 150 printers, cameras and sensors. Small supports up to 200 devices ($40/mo). Medium supports up to 500 devices ($95/mo). Large supports up to 2,000 devices ($260/mo). Which plan fits your needs?",
+        bestAnswer: "Large: up to 2,000 devices ($260/mo)",
+        reasoning: "140 staff with three devices each is 420, plus about 150 other devices makes roughly 570, which is more than Medium supports. Large is the only plan that covers the office. The middle option feels like the safe, sensible choice, but sensible means meeting the actual need, wherever that option sits in the lineup.",
+        biasName: "Compromise Effect",
+        bookRef: "Behavioral Economics (Simonson 1989)",
+        options: [
+            { text: "Small: up to 200 devices ($40/mo)", biasValue: 0.5, isBest: false },
+            { text: "Medium: up to 500 devices ($95/mo)", biasValue: 1, isBest: false },
+            { text: "Large: up to 2,000 devices ($260/mo)", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-compromise-2",
+        retestOnly: true,
+        biasType: "COMPROMISE",
+        title: "Team Password Manager Plan",
+        scenarioText: "Your 6-person team needs a password manager with shared vaults. You don't use single sign-on and don't need admin reports or dedicated support. Plans, per user per month: Starter ($3) has shared vaults for up to 10 users. Business ($6) adds single sign-on and admin reports. Enterprise ($12) adds dedicated support and audit logs. Which plan do you choose?",
+        bestAnswer: "Starter ($3 per user)",
+        reasoning: "Starter covers everything the team needs: shared vaults for up to 10 users. Business costs twice as much for features you've said you don't use. With an expensive top tier in the lineup, the middle plan looks like the balanced choice, but the right plan is the cheapest one that meets your needs.",
+        biasName: "Compromise Effect",
+        bookRef: "Behavioral Economics (Simonson 1989)",
+        options: [
+            { text: "Starter ($3 per user)", biasValue: 0, isBest: true },
+            { text: "Business ($6 per user)", biasValue: 1, isBest: false },
+            { text: "Enterprise ($12 per user)", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-decoy-1",
+        retestOnly: true,
+        biasType: "DECOY",
+        title: "Consultant Laptop Purchase",
+        scenarioText: "A consultant who carries her laptop all day needs a new one. Her apps never use more than 12 GB of memory, and weight matters most to her. Model 1: 32 GB, 2.0 kg, $1,500. Model 2: 16 GB, 1.1 kg, $1,300. Model 3: 32 GB, 2.1 kg, $1,650. Which should she buy?",
+        bestAnswer: "Model 2: 16 GB, 1.1 kg ($1,300)",
+        reasoning: "Model 2 has more memory than she needs, weighs about half as much as the others, and costs the least. Model 3 is worse than Model 1 in every way, and that makes Model 1 look like a smart buy. Remove Model 3 and the comparison is clear: the extra memory she will never use doesn't justify nearly a kilogram more to carry and $200 more.",
+        biasName: "Decoy Effect",
+        bookRef: "Behavioral Economics (Huber et al. 1982)",
+        options: [
+            { text: "Model 1: 32 GB, 2.0 kg ($1,500)", biasValue: 1, isBest: false },
+            { text: "Model 2: 16 GB, 1.1 kg ($1,300)", biasValue: 0, isBest: true },
+            { text: "Model 3: 32 GB, 2.1 kg ($1,650)", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-decoy-2",
+        retestOnly: true,
+        biasType: "DECOY",
+        title: "Conference Pass Choice",
+        scenarioText: "You can only get away for the first day of a three-day conference, and the day-one talks are what you want to see. The workshops don't interest you. Passes: three-day pass with workshops, $900; three-day pass without workshops, $880; day-one pass, $300. Which do you buy?",
+        bestAnswer: "Day-one pass ($300)",
+        reasoning: "You can attend only day one, so the day-one pass gives you everything you'll use for a third of the price. The $880 pass exists mainly to make the $900 pass look like a bargain: workshops for just $20 more. A small extra that seems nearly free is still worthless if you can't or won't use it.",
+        biasName: "Decoy Effect",
+        bookRef: "Behavioral Economics (Huber et al. 1982)",
+        options: [
+            { text: "Three-day pass with workshops ($900)", biasValue: 1, isBest: false },
+            { text: "Three-day pass without workshops ($880)", biasValue: 0.5, isBest: false },
+            { text: "Day-one pass ($300)", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-salience-rarity-1",
+        retestOnly: true,
+        biasType: "SALIENCE_RARITY",
+        title: "Sales Lead Tiers",
+        scenarioText: "Your sales team can work through one batch of 100 leads this quarter, all from a single tier, and each tier takes the same effort. Past results: Platinum leads close 5% of the time at $40,000 each. Gold leads close 20% of the time at $12,000. Standard leads close 50% of the time at $6,000. Which batch should bring in the most revenue?",
+        bestAnswer: "Standard batch",
+        reasoning: "From 100 leads, Platinum brings about 5 deals worth $200,000, Gold about 20 deals worth $240,000, and Standard about 50 deals worth $300,000. The Platinum label and the big deal size draw attention, but the close rate matters just as much. Multiply the chance by the payoff before trusting a tier name.",
+        biasName: "Salience & Rarity Bias",
+        bookRef: "Behavioral Economics (Salience & Heuristic Valuation)",
+        options: [
+            { text: "Platinum batch", biasValue: 1, isBest: false },
+            { text: "Gold batch", biasValue: 0.5, isBest: false },
+            { text: "Standard batch", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-salience-rarity-2",
+        retestOnly: true,
+        biasType: "SALIENCE_RARITY",
+        title: "Wellness Points Draw",
+        scenarioText: "Your company's wellness app lets you spend 500 points on one prize draw. Gold Draw: a 25% chance of a $150 gift card. Bronze Draw: an 80% chance of a $60 gift card. Diamond Draw: a 2% chance of a $1,500 laptop. Which draw gives you the most value on average?",
+        bestAnswer: "Bronze Draw",
+        reasoning: "On average the Bronze Draw is worth $48 (80% of $60), the Gold Draw $37.50, and the Diamond Draw only $30 (2% of $1,500). The laptop and the Diamond name are vivid, while the plain Bronze label sounds like the consolation prize. The numbers, not the label, tell you what each draw is worth.",
+        biasName: "Salience & Rarity Bias",
+        bookRef: "Behavioral Economics (Salience & Heuristic Valuation)",
+        options: [
+            { text: "Gold Draw", biasValue: 0.5, isBest: false },
+            { text: "Bronze Draw", biasValue: 0, isBest: true },
+            { text: "Diamond Draw", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-relative-risk-1",
+        retestOnly: true,
+        biasType: "RELATIVE_RISK",
+        title: "Ransomware Filter Claim",
+        scenarioText: "A vendor says its email filter cuts your chance of a successful ransomware attack by 60%. For companies your size, the yearly chance of one is about 5 in 1,000. Out of 1,000 companies like yours using the filter for a year, about how many fewer would be hit?",
+        bestAnswer: "About 3",
+        reasoning: "60% of 5 in 1,000 is 3 in 1,000: about 5 companies would be hit without the filter and about 2 with it. \"Cuts the chance by 60%\" sounds dramatic, but the absolute change is 3 companies per 1,000 per year, which is what to weigh against the filter's price. Past attack rates are also only a baseline, since attackers adapt to popular defenses.",
+        biasName: "Relative vs. Absolute Risk",
+        bookRef: "Risk communication (Gigerenzer, Risk Savvy 2014)",
+        options: [
+            { text: "About 3", biasValue: 0, isBest: true },
+            { text: "About 30", biasValue: 0.5, isBest: false },
+            { text: "About 60", biasValue: 1, isBest: false },
+            { text: "About 600", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-relative-risk-2",
+        retestOnly: true,
+        biasType: "RELATIVE_RISK",
+        title: "Painkiller Side Effect Risk",
+        scenarioText: "You need a painkiller for a few months, and two work equally well. For people like you, the yearly risk of a stomach bleed is about 2 in 1,000 without either drug. Drug A adds about 4 extra cases per 1,000 users. Drug B raises the risk by 50%. Which drug carries the lower risk of a stomach bleed?",
+        bestAnswer: "Drug B",
+        reasoning: "A 50% rise from 2 in 1,000 is 1 extra case, for a total of 3 in 1,000. Drug A adds 4 extra cases, for 6 in 1,000, twice Drug B's risk. \"50%\" sounds alarming next to a plain count of 4, but only the absolute numbers can be compared directly.",
+        biasName: "Relative vs. Absolute Risk",
+        bookRef: "Risk communication (Gigerenzer, Risk Savvy 2014)",
+        options: [
+            { text: "Drug A", biasValue: 1, isBest: false },
+            { text: "Drug B", biasValue: 0, isBest: true },
+            { text: "About the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-price-framing-1",
+        retestOnly: true,
+        biasType: "PRICE_FRAMING",
+        title: "Hourly Server Pricing",
+        scenarioText: "You need a server running around the clock. Host A charges $0.15 an hour. Host B charges $95 a month for the same server. Which costs less?",
+        bestAnswer: "Host B",
+        reasoning: "A month has about 720 hours, so Host A costs about $108 a month, roughly $13 more than Host B. Fifteen cents sounds trivial because it's compared with tiny everyday amounts, not with the monthly bill. Convert both prices to the same period before comparing.",
+        biasName: "Price Framing",
+        bookRef: "Marketing research (Gourville 1998, \"pennies-a-day\")",
+        options: [
+            { text: "Host A", biasValue: 1, isBest: false },
+            { text: "Host B", biasValue: 0, isBest: true },
+            { text: "About the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-price-framing-2",
+        retestOnly: true,
+        biasType: "PRICE_FRAMING",
+        title: "Stacked Monitor Discount",
+        scenarioText: "You want a monitor that lists for $200 at two stores. Store A offers 50% off. Store B offers 30% off, plus an extra 20% off the sale price at checkout. Which store is cheaper?",
+        bestAnswer: "Store A",
+        reasoning: "Store A's price is $100. Store B takes 30% off to reach $140, then 20% off $140 to reach $112. Stacked discounts feel like they add up to 50%, but the second one applies to a smaller price, so together they come to 44%.",
+        biasName: "Price Framing",
+        bookRef: "Marketing research (price promotion framing)",
+        options: [
+            { text: "Store A", biasValue: 0, isBest: true },
+            { text: "Store B", biasValue: 1, isBest: false },
+            { text: "Same price", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-unit-price-1",
+        retestOnly: true,
+        biasType: "UNIT_PRICE",
+        title: "Battery Value Pack",
+        scenarioText: "A 4-pack of AA batteries costs $5.49. Next to it, a 24-pack of the same batteries labeled \"Value Pack\" costs $36.99. Which is cheaper per battery?",
+        bestAnswer: "The 4-pack",
+        reasoning: "The 4-pack works out to about $1.37 per battery; the Value Pack is about $1.54. Bigger packages are usually assumed to be cheaper per unit, and a label like Value Pack reinforces that, but neither is guaranteed. The unit price is the only fair comparison.",
+        biasName: "Size & Unit Price Illusions",
+        bookRef: "Consumer protection research (unit pricing & shrinkflation)",
+        options: [
+            { text: "The 4-pack", biasValue: 0, isBest: true },
+            { text: "The 24-pack Value Pack", biasValue: 1, isBest: false },
+            { text: "They're the same", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-unit-price-2",
+        retestOnly: true,
+        biasType: "UNIT_PRICE",
+        title: "Redesigned Coffee Bag",
+        scenarioText: "Your usual coffee was $8.99 for a 12 oz (340 g) bag. The redesigned bag, labeled \"New look, same great taste,\" is $8.49 for 10.5 oz (298 g). Compared with before, the price per ounce (or per gram) has:",
+        bestAnswer: "Gone up",
+        reasoning: "The old bag cost about 75 cents an ounce; the new one costs about 81 cents. The lower shelf price draws attention away from the smaller bag. When a package is redesigned, check the size and the unit price, not just the sticker.",
+        biasName: "Size & Unit Price Illusions",
+        bookRef: "Consumer protection research (unit pricing & shrinkflation)",
+        options: [
+            { text: "Gone down", biasValue: 1, isBest: false },
+            { text: "Stayed about the same", biasValue: 0.5, isBest: false },
+            { text: "Gone up", biasValue: 0, isBest: true }
+        ]
     }
 ];
 
@@ -3405,8 +4677,10 @@ export class ScenarioBank {
         const candidates = shuffle(STANDALONE_SCENARIOS.filter(s =>
             s.biasType === biasType && !s.retired && !excludeIds.has(s.id)
         ));
-        // A retest-only backup (e.g. the second inbox) is used first while it's unseen
-        return candidates.find(s => s.retestOnly && !askedIds.has(s.id))
+        // A retest-only question is used first while it's unseen, preferring
+        // one written as the follow-up to a question the player missed
+        return candidates.find(s => s.retestOnly && !askedIds.has(s.id) && missedIds.has(s.retestFor))
+            || candidates.find(s => s.retestOnly && !askedIds.has(s.id))
             || candidates.find(s => !askedIds.has(s.id) && !missedIds.has(s.id))
             || candidates.find(s => !askedIds.has(s.id))
             || candidates.find(s => !missedIds.has(s.id))
