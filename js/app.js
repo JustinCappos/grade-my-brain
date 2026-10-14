@@ -71,6 +71,22 @@ function gradeCheer(accuracy) {
     return 'Welcome to the club: these questions are designed to fool fast thinking, and they fool almost everyone at first. Every trick you review makes you harder to fool.';
 }
 
+// Work inboxes tag mail from outside the company. The domain is compared in
+// its ASCII (punycode) form, so a lookalike with a Cyrillic letter is external.
+function isExternalSender(sc, mail) {
+    if (!sc.internalDomain) return false;
+    const domain = mail.address.split('@')[1] || '';
+    try {
+        return new URL(`http://${domain}`).hostname !== sc.internalDomain;
+    } catch (err) {
+        return true;
+    }
+}
+
+function externalTag(sc, mail) {
+    return isExternalSender(sc, mail) ? '<span class="inbox-external">External</span>' : '';
+}
+
 function sessionStorageGet(key) {
     try { return sessionStorage.getItem(key); } catch (err) { return null; }
 }
@@ -997,7 +1013,7 @@ class GradeMyBrainApp {
                     <div class="inbox-bar">Inbox · ${n} unread</div>
                     ${sc.inbox.map((mail, i) => `
                         <div class="inbox-row" data-row="${i}">
-                            <p class="inbox-from"><strong>${esc(mail.from)}</strong> <span class="inbox-address">&lt;${esc(mail.address)}&gt;</span></p>
+                            <p class="inbox-from">${externalTag(sc, mail)}<strong>${esc(mail.from)}</strong> <span class="inbox-address">&lt;${esc(mail.address)}&gt;</span></p>
                             <p class="inbox-subject">${esc(mail.subject)}</p>
                             <p class="inbox-preview">${esc(mail.preview)}</p>
                             <div class="inbox-actions">
@@ -1043,7 +1059,7 @@ class GradeMyBrainApp {
                     const ok = yours === right;
                     return `
                         <div class="inbox-result ${yours ? (ok ? 'inbox-ok' : 'inbox-wrong') : ''}">
-                            <p class="inbox-from"><strong>${i + 1}. ${esc(mail.from)}</strong> <span class="inbox-address">&lt;${esc(mail.address)}&gt;</span></p>
+                            <p class="inbox-from">${externalTag(sc, mail)}<strong>${i + 1}. ${esc(mail.from)}</strong> <span class="inbox-address">&lt;${esc(mail.address)}&gt;</span></p>
                             ${mail.realAddress ? `<p class="inbox-real-address">Really: <span class="inbox-address">${esc(mail.realAddress)}</span></p>` : ''}
                             <p class="inbox-subject">${esc(mail.subject)}</p>
                             <p class="inbox-verdict">${yours ? `${ok ? '✓' : '✗'} You chose ${yours === 'report' ? 'Report' : 'Keep'}. ` : ''}${mail.phish ? 'Phishing' : 'Real'}: ${esc(mail.why)}</p>

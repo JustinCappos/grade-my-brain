@@ -140,6 +140,11 @@ function checkSessionBuilder() {
         assert.notEqual(domainToASCII(domain), domain, `${mail.address} should contain a lookalike character`);
     }
 
+    // In the work inbox, the outside senders (including the Cyrillic lookalike) are the external ones
+    const workInbox = ScenarioBank.getScenario('se-phishing-inbox');
+    const external = workInbox.inbox.map((m, i) => domainToASCII(m.address.split('@')[1]) !== workInbox.internalDomain ? i + 1 : null).filter(Boolean);
+    assert.deepEqual(external, [1, 3, 5], 'Emails 1, 3 and 5 should come from outside larkwood.com');
+
     // A missed phishing topic is retested with the backup inbox, which is never planned or used for practice
     const backup = ScenarioBank.pickRetestScenario('PHISHING', { askedIds: new Set(['se-phishing-inbox']), missedIds: new Set(['se-phishing-inbox']) });
     assert.equal(backup.id, 'se-phishing-inbox-home', 'A phishing retest should use the backup inbox first');
@@ -329,6 +334,10 @@ async function playSession(page, label) {
             // Mark every email "Keep", then submit
             const keeps = await page.$$('#options-container .inbox-choice[data-inbox-choice="keep"]');
             assert.equal(keeps.length, scenario.inbox.length, `${label}: inbox should list every email`);
+            const tagged = await page.$$eval('#options-container .inbox-row', rows => rows.map(r => Boolean(r.querySelector('.inbox-external'))));
+            const expectedTags = scenario.inbox.map(m => Boolean(scenario.internalDomain)
+                && domainToASCII(m.address.split('@')[1]) !== scenario.internalDomain);
+            assert.deepEqual(tagged, expectedTags, `${label}: only mail from outside the company should be tagged External`);
             for (const keep of keeps) await keep.click();
             await page.click('#inbox-submit');
         } else {

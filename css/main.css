@@ -1823,6 +1823,21 @@ body.intro-mode .main-container {
     border-top: 1px solid #e5e7eb;
 }
 
+.inbox-external {
+    display: inline-block;
+    margin-right: 6px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    vertical-align: 1px;
+    color: #92400e;
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+}
+
 .inbox-from {
     font-size: 0.9rem;
     overflow-wrap: anywhere;
