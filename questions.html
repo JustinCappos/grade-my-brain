@@ -302,7 +302,8 @@ details.topic summary { cursor: pointer; font-size: 0.88rem; color: var(--muted)
         <p>
             Every question the game can ask, with its answers, explanation and source. Mark each one
             <strong>Keep</strong>, <strong>Unsure</strong> or <strong>Cut</strong>, and add a note on anything that
-            should change. Paired questions are shown together because they are scored together.
+            should change. Paired questions are shown together because they are scored together. Retest backups are only
+            asked when a player missed that topic, so a retest is never a question they've already seen.
         </p>
         <div class="storage-note">
             <span id="storage-mode">Connecting…</span>
@@ -494,7 +495,7 @@ function cardBodyHtml(item) {
     if (item.kind === 'pair') {
         const p = item.pair;
         return `
-            <p class="rule">${esc(RULE_TEXT[p.isConsistent.name] || 'Custom consistency rule.')} The two versions are asked at least 8 questions apart.</p>
+            <p class="rule">${esc(RULE_TEXT[p.isConsistent.name] || 'Custom consistency rule.')} The two versions are asked at least 8 questions apart.${p.diagnose ? ' The review also explains the player\'s own two answers.' : ''}</p>
             <div class="versions">${p.versions.map(v => `
                 <section class="version">
                     <span class="version-label">${esc(v.label)} · <span class="qid">${esc(v.id)}</span></span>
@@ -513,9 +514,11 @@ function cardBodyHtml(item) {
     }
     const s = item.scenario;
     const inbox = s.inbox ? `
-        <ul class="options">${s.inbox.map((m, i) => `<li class="${m.phish ? '' : 'best'}"><span class="opt-mark">${m.phish ? 'phish' : 'real'}</span><span><strong>${i + 1}. ${esc(m.from)}</strong> &lt;${esc(m.address)}&gt;: ${esc(m.subject)}. <em>${esc(m.why)}</em></span></li>`).join('')}</ul>` : '';
-    const mock = s.mockScreen ? `
-        <p class="rule">Players see a mock ${esc(s.mockScreen.kind || 'app')} screen${s.mockScreen.brand ? ` for ${esc(s.mockScreen.brand)}` : ''}: "${esc(s.mockScreen.heading)}" ${esc(s.mockScreen.body)}${s.options.every(o => o.ui) ? ` The choices below are its buttons and links, labeled as they appear: ${s.options.map(o => `${esc(o.ui)} "${esc(o.label)}"`).join('; ')}.` : ''}</p>` : '';
+        <ul class="options">${s.inbox.map((m, i) => `<li class="${m.phish ? '' : 'best'}"><span class="opt-mark">${m.phish ? 'phish' : 'real'}</span><span><strong>${i + 1}. ${esc(m.from)}</strong> &lt;${esc(m.address)}&gt;${m.realAddress ? ` (really ${esc(m.realAddress)})` : ''}: ${esc(m.subject)}. <em>${esc(m.why)}</em></span></li>`).join('')}</ul>` : '';
+    const ms = s.mockScreen;
+    const mock = !ms ? '' : ms.kind === 'email' ? `
+        <p class="rule">Players see a mock email from <strong>${esc(ms.from)}</strong> &lt;${esc(ms.address)}&gt;, subject "${esc(ms.subject)}": ${esc([].concat(ms.body).join(' '))}${ms.button ? ` Button: "${esc(ms.button)}", linking to ${esc(ms.linkPreview)}.` : ''}</p>` : `
+        <p class="rule">Players see a mock ${esc(ms.kind || 'app')} screen${ms.brand ? ` for ${esc(ms.brand)}` : ''}: "${esc(ms.heading)}" ${esc([].concat(ms.body || []).join(' '))}${s.options.every(o => o.ui) ? ` The choices below are its buttons and links, labeled as they appear: ${s.options.map(o => `${esc(o.ui)} "${esc(o.label)}"`).join('; ')}.` : ''}</p>`;
     const image = s.image ? `
         <a class="ad-link" href="${esc(s.image.src)}" target="_blank" rel="noopener"><img class="ad-image" src="${esc(s.image.src)}" alt="${esc(s.image.alt)}" width="640" height="400" loading="lazy"></a>` : '';
     return `
