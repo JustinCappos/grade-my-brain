@@ -2716,6 +2716,21 @@ const sellNotAboveBuy = (sellPrice, buyPrice) => sellPrice <= buyPrice + 5;
 // Bonus Token terms, used by the token questions and the game's payouts
 export const BONUS_TOKEN = { payout: 40, chance: 0.5, maxDrawnPrice: 40 };
 
+// Explains a player's own Bonus Token prices in the review
+function diagnoseTokenPrices(sell, buy) {
+    const average = BONUS_TOKEN.payout * BONUS_TOKEN.chance;
+    const gap = sell - buy;
+    if (gap > 5) {
+        return `You'd sell your token for no less than ${sell} points, but you'd pay no more than ${buy} points for the same token: a gap of ${gap} points. `
+            + `The token pays the same either way, ${average} points on average. Once it was yours, giving it up felt like a loss, so you asked more for it. `
+            + `For any drawn price between ${buy} and ${sell}, you'd have refused to sell your token and also refused to buy one at that same price.`;
+    }
+    if (gap < -5) {
+        return `You'd pay up to ${buy} points for a token but sell yours for ${sell}. Owning it didn't make you value it more, so this isn't the endowment effect.`;
+    }
+    return `Your selling price (${sell}) and buying price (${buy}) were within 5 points of each other: owning the token didn't change what it was worth to you.`;
+}
+
 export const PAIRED_TESTS = {
     surgery: {
         biasType: "FRAMING",
@@ -2979,6 +2994,8 @@ export const PAIRED_TESTS = {
         biasName: "Endowment Effect",
         bookRef: "Thinking, Fast and Slow - Chapter 27",
         isConsistent: sellNotAboveBuy,
+        // Gets the answers' values in version order, like isConsistent
+        diagnose: diagnoseTokenPrices,
         versions: [
             {
                 id: "endowment-token-sell",

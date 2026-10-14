@@ -140,6 +140,12 @@ function checkSessionBuilder() {
         assert.notEqual(domainToASCII(domain), domain, `${mail.address} should contain a lookalike character`);
     }
 
+    // The Bonus Token review explains the player's own prices
+    const diagnose = PAIRED_TESTS.bonusToken.diagnose;
+    assert.match(diagnose(30, 15), /gap of 15 points/);
+    assert.match(diagnose(20, 20), /within 5 points/);
+    assert.equal(PAIRED_TESTS.bonusToken.isConsistent(30, 15), false);
+
     // In the work inbox, the outside senders (including the Cyrillic lookalike) are the external ones
     const workInbox = ScenarioBank.getScenario('se-phishing-inbox');
     const external = workInbox.inbox.map((m, i) => domainToASCII(m.address.split('@')[1]) !== workInbox.internalDomain ? i + 1 : null).filter(Boolean);

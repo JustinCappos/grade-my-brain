@@ -615,8 +615,8 @@ class GradeMyBrainApp {
             biasValue: correct ? 0 : 1,
             retest: entry.retest || earlier.retest,
             answers: [
-                { scenarioId: earlier.scenarioId, answer: earlier.answer },
-                { scenarioId: sc.id, answer: selectedOpt.text }
+                { scenarioId: earlier.scenarioId, answer: earlier.answer, value: earlier.value },
+                { scenarioId: sc.id, answer: selectedOpt.text, value: selectedOpt.value }
             ]
         });
     }
@@ -1106,6 +1106,11 @@ class GradeMyBrainApp {
                     </div>`;
             }).join('');
             ({ bestAnswer, reasoning, biasName, bookRef } = pair);
+            // A pair can explain the player's own answers (older saves have no values)
+            const values = pair.versions.map(v => (item.answers.find(a => a.scenarioId === v.id) || {}).value);
+            if (pair.diagnose && values.every(v => v !== undefined)) {
+                body += `<p class="answer-row answer-diagnosis"><span class="answer-label">What happened</span><span>${esc(pair.diagnose(...values))}</span></p>`;
+            }
         } else {
             const sc = ScenarioBank.getScenario(item.scenarioId);
             title = sc.title;

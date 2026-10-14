@@ -1171,6 +1171,14 @@ body.intro-mode .main-container {
     min-width: 110px;
 }
 
+.answer-diagnosis {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(56, 189, 248, 0.08);
+    line-height: 1.5;
+    color: #e2e8f0;
+}
+
 .answer-yours {
     color: #f8fafc;
     font-weight: 600;
