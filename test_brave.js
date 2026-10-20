@@ -101,7 +101,7 @@ function checkSessionBuilder() {
     const mainIds = MAIN_POOL.map(s => s.id).sort();
     for (let i = 0; i < 200; i++) {
         const { queue, plannedLength } = ScenarioBank.buildSession();
-        assert.equal(queue.length % REVIEW_BLOCK, 0, 'A session should be a whole number of review blocks');
+        assert.ok(queue.every(e => !e.pad), 'A first session needs no padding');
         assert.deepEqual(queue.filter(e => !isFiller(e.id)).map(e => e.id).sort(), mainIds,
             'A first session should ask every regular question once');
         assert.ok(queue.every(e => !e.retest), 'A first session should start with no retests');
@@ -113,19 +113,19 @@ function checkSessionBuilder() {
     // The short version covers exactly the short-version questions
     for (let i = 0; i < 50; i++) {
         const { queue } = ScenarioBank.buildSession({ version: 'short' });
-        assert.equal(queue.length % REVIEW_BLOCK, 0, 'A short session should be whole review blocks');
+        assert.ok(queue.every(e => !e.pad), 'A short session needs no padding');
         assert.deepEqual(queue.filter(e => !isFiller(e.id)).map(e => e.id).sort(),
             ScenarioBank.mainQuestions('short').map(s => s.id).sort(), 'Short session should hold the short-version questions');
         checkQueue(queue, 'short session');
     }
     assert.equal(ScenarioBank.sessionLengthEstimate('short'), ScenarioBank.buildSession({ version: 'short' }).queue.length);
 
-    // A few questions unseen: those come first, then one retest per missed topic, padded to a full block
+    // A few questions unseen: those come first, then one retest per missed topic, with one straightforward question mixed in
     const unseen = new Set(['anchoring-1', 'ads-truncated-axis']);
     const seenIds = new Set(MAIN_POOL.map(s => s.id).filter(id => !unseen.has(id)));
     const retestTypes = ['BASE_RATE', 'SUNK_COST', 'HALO'];
     const { queue } = ScenarioBank.buildSession({ seenIds, retestTypes, missedIds: new Set(['baserate-1']) });
-    assert.equal(queue.length % REVIEW_BLOCK, 0, 'A retest session should be padded to a full block');
+    assert.equal(queue.filter(e => e.pad).length, 1, 'Three retests should get one straightforward question');
     assert.deepEqual(queue.filter(e => !e.retest && !isFiller(e.id)).map(e => e.id).sort(), [...unseen].sort());
     const retests = queue.filter(e => e.retest).map(e => ScenarioBank.getScenario(e.id));
     assert.deepEqual(retests.map(s => s.biasType).sort(), [...retestTypes].sort(), 'One retest per missed topic');
@@ -149,7 +149,7 @@ function checkSessionBuilder() {
     // The office version: only office questions, and the standard versions never use office-only ones
     const officeMain = ScenarioBank.mainQuestions('office');
     assert.ok(officeMain.every(s => s.office), 'Office sessions use office questions only');
-    assert.equal(ScenarioBank.sessionLengthEstimate('office'), 20, 'The office version should be about 20 questions');
+    assert.ok(ScenarioBank.sessionLengthEstimate('office') <= 20, 'The office version should be about 20 questions or fewer');
     assert.ok(!ScenarioBank.mainQuestions('full').some(s => s.officeOnly), 'Office-only questions stay out of the standard versions');
     for (const type of new Set(officeMain.map(s => s.biasType))) {
         const retests = STANDALONE_SCENARIOS.filter(s => s.retestOnly && s.office && s.biasType === type);
@@ -185,7 +185,7 @@ function checkSessionBuilder() {
         ...fillerIds.slice(0, 10).map(id => ({ id, retest: false, pad: true }))
     ];
     ScenarioBank.padTail(tail, { tailStart: 0 });
-    assert.equal(tail.length, 10, 'Extra padding should be removed to reach a block boundary');
+    assert.equal(tail.length, 4, 'Three retests should keep only one straightforward question');
     assert.equal(tail.filter(e => e.retest).length, 3, 'Retests should never be removed');
 
     // Retests and practice never reuse a question already in the session
@@ -340,6 +340,7 @@ async function playSession(page, label) {
             bonusClaimed = true;
         }
 
+        const totalBeforeAnswer = (await sessionState()).queue.length;
         const scenario = scenariosByTitle.get(await text(page, '#scenario-title'));
         assert.ok(scenario, `${label}: unknown scenario on round ${round}`);
         played.push(scenario.id);
@@ -379,10 +380,14 @@ async function playSession(page, label) {
             await page.click('#options-container [data-option-index="0"]');
         }
 
-        const total = (await sessionState()).queue.length;
-        const atReview = round % CHECKPOINT_EVERY === 0 || round === total;
+        // The length before this answer: a review may add retests afterwards
+        const atReview = round % CHECKPOINT_EVERY === 0 || round === totalBeforeAnswer;
         if (!atReview) {
-            await page.waitForFunction(p => window.brainApp.session.position === p && !document.getElementById('scenario-stage').hidden, {}, round);
+            await page.waitForFunction(p => window.brainApp.session.position === p && !document.getElementById('scenario-stage').hidden, {}, round)
+                .catch(async err => {
+                    const st = await sessionState();
+                    throw new Error(`${label}: stuck after round ${round} (position ${st.position}, phase ${st.phase}, ${st.queue.length} queued, scenario ${scenario.id}): ${err.message}`);
+                });
             continue;
         }
 
@@ -444,7 +449,9 @@ async function playSession(page, label) {
     const finalState = await sessionState();
     const finalQueue = finalState.queue;
     const plannedLength = finalState.plannedLength;
-    assert.equal(finalQueue.length % REVIEW_BLOCK, 0, `${label}: session should end on a full review block`);
+    const tailRetests = finalQueue.slice(finalState.plannedLength).filter(e => e.retest).length;
+    const tailPads = finalQueue.slice(finalState.plannedLength).filter(e => e.pad).length;
+    assert.ok(tailPads <= Math.max(1, Math.ceil(tailRetests / 2)), `${label}: ${tailPads} straightforward questions for ${tailRetests} retests is too many`);
     assert.deepEqual(finalQueue.slice(0, plannedLength), startingQueue.slice(0, plannedLength), `${label}: planned questions changed`);
     const tailEntries = finalQueue.slice(plannedLength);
     assert.ok(tailEntries.every(e => e.retest || (e.pad && isFiller(e.id))), `${label}: the tail should hold only retests and padding`);
@@ -521,7 +528,8 @@ async function runBrowserChecks(browser) {
     const secondPlanned = secondStart.filter(e => !e.retest && !isFiller(e.id)).map(e => e.id).sort();
     assert.deepEqual(secondPlanned, MAIN_POOL.map(s => s.id).filter(id => !shortIds.includes(id)).sort(),
         'The full version should cover every question the short version skipped');
-    assert.equal(secondStart.length % REVIEW_BLOCK, 0, 'Session 2 should be padded to a full block');
+    assert.equal(secondStart.filter(e => e.pad).length, Math.ceil(secondStart.filter(e => e.retest).length / 4),
+        'Session 2 should mix in one straightforward question per four retests');
 
     // A reload resumes the same question
     const firstTitle = await text(page, '#scenario-title');
@@ -548,7 +556,8 @@ async function runBrowserChecks(browser) {
     assert.ok(thirdStart.length > 0 && thirdStart.every(e => e.retest || (e.pad && isFiller(e.id))),
         'Session 3 should be retests plus padding');
     assert.ok(thirdStart.filter(e => e.retest).length <= stillWrong.length, 'Session 3 should retest each weak topic once');
-    assert.equal(thirdStart.length % REVIEW_BLOCK, 0, 'Session 3 should be padded to a full block');
+    assert.equal(thirdStart.filter(e => e.pad).length, Math.ceil(thirdStart.filter(e => e.retest).length / 4),
+        'A retest-only session should mix in one straightforward question per four retests');
 
     // Switch ID returns to the ID screen; a new ID starts fresh
     await page.evaluate(() => window.scrollTo(0, 0));
@@ -565,7 +574,7 @@ async function runBrowserChecks(browser) {
     assert.equal(guestStart.version, 'short', 'A new player should start with the short version');
     assert.deepEqual(guestStart.queue.filter(e => !isFiller(e.id)).map(e => e.id).sort(), ScenarioBank.mainQuestions('short').map(s => s.id).sort(),
         'The short version should cover every short question');
-    assert.equal(guestStart.queue.length % REVIEW_BLOCK, 0, 'The short version should be whole review blocks');
+    assert.equal(guestStart.queue.length, ScenarioBank.sessionLengthEstimate('short'), 'The short version should be its estimated length');
 
     // Switching to another blank ID starts over instead of resuming the last guest
     await answerCurrent(page);
@@ -644,7 +653,7 @@ const server = createStaticServer().listen(PORT, async () => {
             `(${first.added} retests added), session 2 had ${second.queue.length}, the office session had ${office.queue.length}; ` +
             `${first.practiceAnswered + second.practiceAnswered} practice questions answered`);
     } catch (e) {
-        console.error('FAIL:', e.message);
+        console.error('FAIL:', e.message); if (process.env.DEBUG) console.error(e.stack);
         process.exitCode = 1;
     } finally {
         if (browser) await browser.close();

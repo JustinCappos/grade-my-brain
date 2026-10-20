@@ -720,11 +720,10 @@ class GradeMyBrainApp {
         const missedIds = this.progress.missedIds();
         const addedRetests = [];
         // The short and office versions stop adding retests at their length caps
-        const nonPadding = () => session.queue.filter((e, i) => !e.pad || i < session.position).length;
         const sessionMax = { short: SHORT_SESSION_MAX, office: OFFICE_SESSION_MAX }[session.version];
         for (const biasType of missedTypes) {
             if ((session.retestCounts[biasType] || 0) >= MAX_RETESTS_PER_TOPIC) continue;
-            if (sessionMax && nonPadding() >= sessionMax) break;
+            if (sessionMax && session.queue.length >= sessionMax) break;
             const sc = ScenarioBank.pickRetestScenario(biasType, { excludeIds: unavailable, missedIds, askedIds, version: session.version });
             if (!sc) continue;
             unavailable.add(sc.id);
@@ -732,13 +731,17 @@ class GradeMyBrainApp {
             session.retestCounts[biasType] = (session.retestCounts[biasType] || 0) + 1;
             addedRetests.push(biasType);
         }
-        // Keep the session a whole number of review blocks long
+        // Mix a few straightforward questions in with the new retests
         if (addedRetests.length > 0) {
             ScenarioBank.padTail(session.queue, {
                 tailStart: Math.max(session.position, session.plannedLength || 0),
                 seenIds: this.progress.seenIds,
                 version: session.version
             });
+            // Padding never pushes a session past its cap
+            for (let i = session.queue.length - 1; sessionMax && session.queue.length > sessionMax && i >= session.position; i--) {
+                if (session.queue[i].pad) session.queue.splice(i, 1);
+            }
         }
 
         session.checkpoint = {

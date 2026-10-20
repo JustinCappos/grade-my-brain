@@ -4990,6 +4990,8 @@ function fitsVersion(s, version) {
 // About one straightforward question (where the obvious answer is right) is
 // scattered into every this-many regular questions
 const QUESTIONS_PER_SCATTERED_FILLER = 9;
+// Retest rounds get one straightforward question for about this many retests
+const RETESTS_PER_PAD = 4;
 
 function shuffle(arr) {
     const a = [...arr];
@@ -5056,8 +5058,8 @@ export class ScenarioBank {
      * question the player has not seen, with pairs laid out inside review
      * blocks and about one straightforward question per block scattered in.
      * The tail holds one retest for each of `retestTypes` (bias types whose
-     * latest answer was wrong) plus padding questions, so the session length
-     * is a multiple of REVIEW_BLOCK. The game adds retests to the tail as the
+     * latest answer was wrong) plus a few straightforward questions mixed in
+     * (see padTail). The game adds retests to the tail as the
      * player misses questions and re-pads it (see padTail).
      * `version` 'short' limits the planned part to the short version's
      * questions (tech, security, and dark patterns); 'office' uses only the
@@ -5094,8 +5096,7 @@ export class ScenarioBank {
     // About how many questions a fresh session of this version has
     static sessionLengthEstimate(version = 'full') {
         const regular = ScenarioBank.mainQuestions(version).length;
-        const withFillers = regular + Math.ceil(regular / QUESTIONS_PER_SCATTERED_FILLER);
-        return Math.ceil(withFillers / REVIEW_BLOCK) * REVIEW_BLOCK;
+        return regular + Math.ceil(regular / QUESTIONS_PER_SCATTERED_FILLER);
     }
 
     /**
@@ -5115,27 +5116,26 @@ export class ScenarioBank {
     }
 
     /**
-     * Keeps a session a whole number of review blocks long by adding or
-     * removing padding questions in its tail (entries from `tailStart` on,
-     * which never include pairs), then shuffles the tail so padding and
-     * retests mix. `removable` padding entries are dropped first when the
-     * tail has grown. Changes `queue` in place.
+     * Mixes straightforward questions into a session's tail of retests
+     * (entries from `tailStart` on, which never include pairs): about one for
+     * every RETESTS_PER_PAD retests, so a retest round stays short and isn't
+     * all trick questions. Unplayed padding is dropped first when there's too
+     * much, and the tail is shuffled so padding and retests mix. Changes
+     * `queue` in place.
      */
     static padTail(queue, { tailStart, seenIds = new Set(), version = 'full' }) {
-        const surplus = queue.length % REVIEW_BLOCK;
-        if (surplus !== 0) {
-            // Drop unplayed padding if that reaches a block boundary, else add more
-            const pads = queue.map((e, i) => (e.pad && i >= tailStart ? i : -1)).filter(i => i !== -1);
-            if (pads.length >= surplus && queue.length - surplus > tailStart) {
-                pads.slice(-surplus).reverse().forEach(i => queue.splice(i, 1));
-            } else {
-                const inQueue = new Set(queue.map(e => e.id));
-                const upcoming = new Set(queue.slice(tailStart).map(e => e.id));
-                const played = new Set(queue.slice(0, tailStart).map(e => e.id).filter(id => !upcoming.has(id)));
-                const needed = REVIEW_BLOCK - surplus;
-                ScenarioBank.pickFillers(needed, { excludeIds: inQueue, seenIds, reusableIds: played, version })
-                    .forEach(s => queue.push({ id: s.id, retest: false, pad: true }));
-            }
+        const tailIndexes = () => queue.map((e, i) => i).filter(i => i >= tailStart);
+        const retests = tailIndexes().filter(i => !queue[i].pad).length;
+        const wanted = Math.ceil(retests / RETESTS_PER_PAD);
+        const pads = tailIndexes().filter(i => queue[i].pad);
+        if (pads.length > wanted) {
+            pads.slice(wanted).reverse().forEach(i => queue.splice(i, 1));
+        } else if (pads.length < wanted) {
+            const inQueue = new Set(queue.map(e => e.id));
+            const upcoming = new Set(queue.slice(tailStart).map(e => e.id));
+            const played = new Set(queue.slice(0, tailStart).map(e => e.id).filter(id => !upcoming.has(id)));
+            ScenarioBank.pickFillers(wanted - pads.length, { excludeIds: inQueue, seenIds, reusableIds: played, version })
+                .forEach(sc => queue.push({ id: sc.id, retest: false, pad: true }));
         }
         const tail = shuffle(queue.slice(tailStart));
         queue.splice(tailStart, tail.length, ...tail);
