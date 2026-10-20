@@ -286,9 +286,9 @@ async function startOver(page) {
 
 // Answers the current question: the first option, or "Keep" for every email in an inbox
 async function answerCurrent(page) {
-    if (await page.$('#inbox-submit')) {
+    if (await page.$('#options-container #inbox-submit')) {
         for (const keep of await page.$$('#options-container .inbox-choice[data-inbox-choice="keep"]')) await keep.click();
-        await page.click('#inbox-submit');
+        await page.click('#options-container #inbox-submit');
     } else {
         await page.click('#options-container [data-option-index="0"]');
     }
@@ -376,7 +376,7 @@ async function playSession(page, label) {
                 && domainToASCII(m.address.split('@')[1]) !== scenario.internalDomain);
             assert.deepEqual(tagged, expectedTags, `${label}: only mail from outside the company should be tagged External`);
             for (const keep of keeps) await keep.click();
-            await page.click('#inbox-submit');
+            await page.click('#options-container #inbox-submit');
         } else {
             // Choices are option cards, or the buttons of a mock screen; pick the first option
             const cards = await page.$$('#options-container [data-option-index]');
@@ -426,6 +426,8 @@ async function playSession(page, label) {
         await page.click('#checkpoint-continue-btn');
         if (round < queueLength) {
             await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
+            // The hidden review is cleared, so none of its buttons (like a practice inbox's) linger
+            assert.equal(await page.$eval('#checkpoint-view', el => el.children.length), 0, `${label}: the review should be cleared once the next question shows`);
         } else {
             break;
         }

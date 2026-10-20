@@ -286,6 +286,8 @@ class GradeMyBrainApp {
         }
         if (this.sessionTimeEl) this.renderSessionTime();
         this.introViewEl.hidden = view !== 'intro';
+        // A hidden review keeps no stale buttons around (a practice inbox has its own Done button)
+        if (view !== 'checkpoint') this.checkpointEl.innerHTML = '';
         document.body.classList.toggle('intro-mode', view === 'intro');
         this.scenarioStageEl.hidden = view !== 'question';
         this.checkpointEl.hidden = view !== 'checkpoint';
