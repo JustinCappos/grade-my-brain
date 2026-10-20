@@ -4982,7 +4982,7 @@ export const SHORT_SESSION_MAX = 40;
 export const OFFICE_SESSION_MAX = 30;
 
 // Which questions a version may use. The office version, for people who
-// don't work in tech or security, uses only questions marked office; the
+// aren't on a security or IT team, uses only questions marked office; the
 // other versions skip questions written only for it (officeOnly).
 function fitsVersion(s, version) {
     return version === 'office' ? Boolean(s.office) : !s.officeOnly;
