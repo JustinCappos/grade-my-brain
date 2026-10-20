@@ -829,6 +829,63 @@ body.intro-mode .main-container {
     font-size: 0.82rem;
 }
 
+.mode-choice {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mode-choice legend {
+    margin-bottom: 8px;
+    padding: 0;
+}
+
+.mode-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+}
+
+.mode-option:has(input:checked) {
+    border-color: rgba(56, 189, 248, 0.6);
+    background: rgba(56, 189, 248, 0.08);
+}
+
+.mode-option input {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin: 2px 0 0;
+    accent-color: var(--primary-cyan);
+    cursor: pointer;
+}
+
+.mode-option > span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.mode-title {
+    font-weight: 600;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+}
+
+.mode-detail {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
 .consent-row {
     display: flex;
     align-items: center;

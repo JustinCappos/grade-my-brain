@@ -304,6 +304,7 @@ details.topic summary { cursor: pointer; font-size: 0.88rem; color: var(--muted)
             <strong>Keep</strong>, <strong>Unsure</strong> or <strong>Cut</strong>, and add a note on anything that
             should change. Paired questions are shown together because they are scored together. Retest backups are only
             asked when a player missed that topic, so a retest is never a question they've already seen.
+            The office version, for people who don't work in tech, uses only the questions marked Office.
         </p>
         <div class="storage-note">
             <span id="storage-mode">Connecting…</span>
@@ -329,6 +330,8 @@ details.topic summary { cursor: pointer; font-size: 0.88rem; color: var(--muted)
             <option value="">Short and full versions</option>
             <option value="short">In the short version</option>
             <option value="full">Full version only</option>
+            <option value="office">In the office version</option>
+            <option value="office-only">Written for the office version</option>
         </select>
         <select id="f-source" aria-label="Source">
             <option value="">All sources</option>
@@ -392,6 +395,8 @@ const items = [
 items.forEach((item, idx) => {
     item.order = idx;
     item.isShort = Boolean(item.kind === 'pair' ? item.pair.short : item.scenario.short);
+    item.isOffice = Boolean(item.scenario && item.scenario.office);
+    item.isOfficeOnly = Boolean(item.scenario && item.scenario.officeOnly);
     item.isBook = /Thinking, Fast and Slow/.test(item.bookRef);
     item.searchText = item.searchText.toLowerCase();
 });
@@ -547,6 +552,7 @@ function renderCards() {
                     <span class="chip">${kindChip}</span>
                     <span class="chip">${item.isBook ? 'Book' : 'Other research'}</span>
                     ${item.isShort ? '<span class="chip chip-bias">Short version</span>' : ''}
+                    ${item.isOffice ? `<span class="chip chip-bias">${item.isOfficeOnly ? 'Office only' : 'Office version'}</span>` : ''}
                 </div>
                 <h2>${esc(item.title)}</h2>
                 ${cardBodyHtml(item)}
@@ -690,7 +696,9 @@ function applyFilters() {
             && (!bias || item.biasType === bias)
             && (!kind || item.kind === kind)
             && (!source || (source === 'book') === item.isBook)
-            && (!version || (version === 'short') === item.isShort)
+            && (!version || (version === 'office' ? item.isOffice
+                : version === 'office-only' ? item.isOfficeOnly
+                : (version === 'short') === item.isShort && !item.isOfficeOnly))
             && (!unmarked || !(state.mine[item.key] && state.mine[item.key].verdict));
         card.hidden = !visible;
         cardsEl.appendChild(card);

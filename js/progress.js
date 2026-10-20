@@ -49,6 +49,8 @@ function freshData() {
     return {
         version: DATA_VERSION,
         consent: { checked: false, openedPolicy: false },
+        // 'short' (tech and security) or 'office' (non-technical staff)
+        mode: 'short',
         seen: {},
         // { scenarioId, biasType, correct, kind: 'main' | 'retest' | 'practice', at }
         results: [],
@@ -106,11 +108,11 @@ export class Progress {
         } catch (err) { /* storage full or blocked; progress lasts for this page only */ }
     }
 
-    // Starts the question pool over, keeping consent and past session results
+    // Starts the question pool over, keeping consent, mode and past session results
     reset() {
-        const { consent, pastSessions, sessionsCompleted } = this.data;
+        const { consent, mode, pastSessions, sessionsCompleted } = this.data;
         this.data = freshData();
-        Object.assign(this.data, { consent, pastSessions, sessionsCompleted });
+        Object.assign(this.data, { consent, mode: mode || 'short', pastSessions, sessionsCompleted });
         this.save();
     }
 

@@ -19,7 +19,7 @@ import { domainToASCII } from 'url';
 import { createStaticServer } from './serve.js';
 import {
     MASTER_SCENARIOS, STANDALONE_SCENARIOS, PAIRED_TESTS, BIAS_CATEGORIES,
-    MIN_PAIR_GAP, REVIEW_BLOCK, SHORT_SESSION_MAX, ScenarioBank
+    MIN_PAIR_GAP, REVIEW_BLOCK, SHORT_SESSION_MAX, OFFICE_SESSION_MAX, ScenarioBank
 } from './js/scenarioBank.js';
 import { BiasAnalyzer } from './js/biasAnalyzer.js';
 import { Progress, normalizeId, displayId, newGuestId, isGuestId } from './js/progress.js';
@@ -28,7 +28,7 @@ const PORT = 8088;
 const BRAVE_PATH = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser';
 const CHECKPOINT_EVERY = REVIEW_BLOCK;
 
-const MAIN_POOL = MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.retestOnly && !s.filler && !s.retired);
+const MAIN_POOL = MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.retestOnly && !s.officeOnly && !s.filler && !s.retired);
 const isFiller = id => Boolean(ScenarioBank.getScenario(id).filler);
 const scenariosByTitle = new Map(MASTER_SCENARIOS.map(s => [s.title, s]));
 
@@ -146,6 +146,21 @@ function checkSessionBuilder() {
     assert.match(diagnose(20, 20), /within 5 points/);
     assert.equal(PAIRED_TESTS.bonusToken.isConsistent(30, 15), false);
 
+    // The office version: only office questions, and the standard versions never use office-only ones
+    const officeMain = ScenarioBank.mainQuestions('office');
+    assert.ok(officeMain.every(s => s.office), 'Office sessions use office questions only');
+    assert.equal(ScenarioBank.sessionLengthEstimate('office'), 20, 'The office version should be about 20 questions');
+    assert.ok(!ScenarioBank.mainQuestions('full').some(s => s.officeOnly), 'Office-only questions stay out of the standard versions');
+    for (const type of new Set(officeMain.map(s => s.biasType))) {
+        const retests = STANDALONE_SCENARIOS.filter(s => s.retestOnly && s.office && s.biasType === type);
+        assert.ok(retests.length >= 2, `${type} needs at least two office makeup questions`);
+        const practice = ScenarioBank.pickPracticeScenario(type, { version: 'office' });
+        assert.ok(practice && practice.office, `${type} needs an office practice question`);
+        assert.ok(ScenarioBank.pickRetestScenario(type, { version: 'office' }).office, `${type} office retests should be office questions`);
+    }
+    const officeSession = ScenarioBank.buildSession({ version: 'office' }).queue;
+    assert.ok(officeSession.every(e => ScenarioBank.getScenario(e.id).office), 'Office padding should use office questions');
+
     // In the work inbox, the outside senders (including the Cyrillic lookalike) are the external ones
     const workInbox = ScenarioBank.getScenario('se-phishing-inbox');
     const external = workInbox.inbox.map((m, i) => domainToASCII(m.address.split('@')[1]) !== workInbox.internalDomain ? i + 1 : null).filter(Boolean);
@@ -241,9 +256,10 @@ const settle = () => new Promise(r => setTimeout(r, 400));
 const text = (page, selector) => page.$eval(selector, el => el.textContent.trim());
 const isHidden = (page, selector) => page.$eval(selector, el => el.hidden);
 
-async function enterId(page, id, { checkConsent }) {
+async function enterId(page, id, { checkConsent, mode }) {
     assert.equal(await isHidden(page, '#intro-view'), false, 'ID screen should show first');
     await page.type('#id-code-input', id);
+    if (mode) await page.click(`input[name="mode"][value="${mode}"]`);
     const looksDisabled = () => page.$eval('#intro-continue-btn', el => el.classList.contains('looks-disabled'));
     assert.equal(await page.$eval('#privacy-consent', el => el.checked), false, 'The consent box should start unchecked');
     assert.ok(await looksDisabled(), 'Continue should look disabled until consent is checked');
@@ -262,6 +278,16 @@ async function enterId(page, id, { checkConsent }) {
     }
     await page.click('#intro-continue-btn');
     await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
+}
+
+// Answers the current question: the first option, or "Keep" for every email in an inbox
+async function answerCurrent(page) {
+    if (await page.$('#inbox-submit')) {
+        for (const keep of await page.$$('#options-container .inbox-choice[data-inbox-choice="keep"]')) await keep.click();
+        await page.click('#inbox-submit');
+    } else {
+        await page.click('#options-container [data-option-index="0"]');
+    }
 }
 
 // Answers practice questions (first option) and checks they give feedback right away
@@ -476,7 +502,8 @@ async function runBrowserChecks(browser) {
     // Retests use questions the player hasn't seen, never a repeat
     const firstRetests = first.queue.filter(e => e.retest).map(e => e.id);
     assert.ok(firstRetests.length > 0, 'Session 1 should add retests');
-    assert.ok(firstRetests.every(id => ScenarioBank.getScenario(id).retestOnly), 'Session 1 retests should all be retest-only questions');
+    // (a missed straightforward question is retested with another straightforward one)
+    assert.deepEqual(firstRetests.filter(id => !ScenarioBank.getScenario(id).retestOnly && !isFiller(id)), [], 'Session 1 retests should all be retest-only questions');
     assert.equal(new Set(first.queue.map(e => e.id)).size, first.queue.length, 'No question should appear twice in a session');
     assert.ok(first.queue.length <= SHORT_SESSION_MAX, `The short version ran to ${first.queue.length} questions, over the ${SHORT_SESSION_MAX} limit`);
     assert.equal(await isHidden(page, '#full-version-cta'), false, 'The final screen should invite the player to the full version');
@@ -541,7 +568,7 @@ async function runBrowserChecks(browser) {
     assert.equal(guestStart.queue.length % REVIEW_BLOCK, 0, 'The short version should be whole review blocks');
 
     // Switching to another blank ID starts over instead of resuming the last guest
-    await page.click('#options-container [data-option-index="0"]');
+    await answerCurrent(page);
     await page.waitForFunction(() => window.brainApp.session.position === 1);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.click('#switch-id-btn');
@@ -553,6 +580,31 @@ async function runBrowserChecks(browser) {
     // Reloading the tab resumes the current guest
     await page.reload({ waitUntil: 'networkidle0' });
     assert.equal(await isHidden(page, '#scenario-stage'), false, 'Reloading should resume the current guest');
+
+    // The office version: a shorter session of plain-language office questions, with
+    // makeup rounds drawn only from office questions
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.click('#switch-id-btn');
+    await enterId(page, 'Office-Player', { checkConsent: true, mode: 'office' });
+    const officeStart = await page.evaluate(() => window.brainApp.session);
+    assert.equal(officeStart.version, 'office', 'Choosing the office version should start an office session');
+    assert.deepEqual(officeStart.queue.filter(e => !isFiller(e.id)).map(e => e.id).sort(), ScenarioBank.mainQuestions('office').map(s => s.id).sort(),
+        'The office session should ask every office question');
+    const office = await playSession(page, 'office session');
+    const officeIds = office.queue.map(e => e.id);
+    assert.deepEqual(officeIds.filter(id => !ScenarioBank.getScenario(id).office), [], 'The office session should only use office questions');
+    assert.ok(office.queue.length <= OFFICE_SESSION_MAX, `The office session ran to ${office.queue.length} questions`);
+    assert.equal(await isHidden(page, '#full-version-cta'), true, 'The office version should not offer the full version');
+    if (await page.evaluate(() => window.brainApp.progress.retestTypes().length) > 0) {
+        assert.match(await text(page, '#play-again-btn'), /makeup round/, 'The office version should offer a makeup round');
+        await page.click('#play-again-btn');
+        await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
+        const makeup = await page.evaluate(() => window.brainApp.session);
+        assert.equal(makeup.version, 'office', 'The makeup round should stay in the office version');
+        assert.deepEqual(makeup.queue.map(e => e.id).filter(id => !ScenarioBank.getScenario(id).office), [],
+            'The makeup round should only use office questions');
+        assert.ok(makeup.queue.filter(e => e.retest).length > 0, 'The makeup round should retest the missed topics');
+    }
 
     // The privacy policy loads, mentions that the greyed-out button still works, and has no picture of Gerald
     await page.goto(`http://localhost:${PORT}/privacy.html`, { waitUntil: 'networkidle0' });
@@ -575,7 +627,7 @@ async function runBrowserChecks(browser) {
     assert.equal(reviewCards, STANDALONE_SCENARIOS.filter(s => !s.retired).length + Object.keys(PAIRED_TESTS).length, 'Review page card count');
 
     assert.deepEqual(pageErrors, [], 'Page threw errors');
-    return { first, second };
+    return { first, second, office };
 }
 
 const server = createStaticServer().listen(PORT, async () => {
@@ -587,9 +639,9 @@ const server = createStaticServer().listen(PORT, async () => {
         checkAuditLists();
 
         browser = await puppeteer.launch({ executablePath: BRAVE_PATH, headless: 'new', args: ['--mute-audio'] });
-        const { first, second } = await runBrowserChecks(browser);
+        const { first, second, office } = await runBrowserChecks(browser);
         console.log(`PASS: ${MASTER_SCENARIOS.length} scenarios checked; session 1 had ${first.queue.length} questions ` +
-            `(${first.added} retests added), session 2 had ${second.queue.length}; ` +
+            `(${first.added} retests added), session 2 had ${second.queue.length}, the office session had ${office.queue.length}; ` +
             `${first.practiceAnswered + second.practiceAnswered} practice questions answered`);
     } catch (e) {
         console.error('FAIL:', e.message);

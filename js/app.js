@@ -12,7 +12,7 @@
  */
 
 import { sound } from './audio.js';
-import { ScenarioBank, PAIRED_TESTS, BIAS_CATEGORIES, REVIEW_BLOCK, BONUS_TOKEN, SHORT_SESSION_MAX } from './scenarioBank.js';
+import { ScenarioBank, PAIRED_TESTS, BIAS_CATEGORIES, REVIEW_BLOCK, BONUS_TOKEN, SHORT_SESSION_MAX, OFFICE_SESSION_MAX } from './scenarioBank.js';
 import { BiasAnalyzer } from './biasAnalyzer.js';
 import { BrainChart } from './chart.js';
 import { Progress, normalizeId, displayId, newGuestId, isGuestId } from './progress.js';
@@ -219,7 +219,7 @@ class GradeMyBrainApp {
         this.playAgainBtn.onclick = () => {
             playSafely(() => sound.playClick());
             this.hideSummaryModal();
-            this.startSession('full');
+            this.startSession(this.nextVersion());
         };
         document.getElementById('full-version-cta-btn').onclick = () => this.playAgainBtn.onclick();
         document.getElementById('exit-btn').onclick = () => {
@@ -261,6 +261,11 @@ class GradeMyBrainApp {
         this.idInputEl.value = '';
         this.consentEl.checked = false;
         this.introContinueBtn.classList.add('looks-disabled');
+        // A link ending in ?mode=office preselects the office version
+        const linkMode = new URLSearchParams(location.search).get('mode') === 'office' ? 'office' : 'short';
+        document.querySelector(`input[name="mode"][value="${linkMode}"]`).checked = true;
+        document.getElementById('short-count').textContent = ScenarioBank.sessionLengthEstimate('short');
+        document.getElementById('office-count').textContent = ScenarioBank.sessionLengthEstimate('office');
         this.updateHeaderUI();
         this.chart.updateHistory([{ round: 0, score: STARTING_SCORE }]);
     }
@@ -279,6 +284,11 @@ class GradeMyBrainApp {
             checked: this.consentEl.checked,
             openedPolicy: this.openedPolicy || this.progress.data.consent.openedPolicy
         };
+        // The chosen version applies unless a session is still in progress
+        const saved = this.progress.data.session;
+        if (!saved || saved.phase === 'complete') {
+            this.progress.data.mode = document.querySelector('input[name="mode"]:checked').value === 'office' ? 'office' : 'short';
+        }
         this.progress.save();
         sessionStorageSet(ACTIVE_ID_KEY, id);
         this.enterGame();
@@ -291,7 +301,7 @@ class GradeMyBrainApp {
         // Sessions saved before padding existed: treat their whole queue as planned
         if (queueValid && session.plannedLength === undefined) session.plannedLength = session.queue.length;
         if (!queueValid) {
-            this.startSession('short');
+            this.startSession(this.firstVersion());
         } else if (session.phase === 'checkpoint') {
             this.renderCheckpoint();
         } else if (session.phase === 'complete') {
@@ -306,6 +316,17 @@ class GradeMyBrainApp {
 
     // `version` is 'short' (the default first session: security, technology
     // and dark patterns) or 'full' (everything not yet seen, plus retests)
+    // The version a new player's first session uses
+    firstVersion() {
+        return this.progress.data.mode === 'office' ? 'office' : 'short';
+    }
+
+    // The version of the session after a completed one: the office version
+    // keeps to its own questions; the short version goes on to the full one
+    nextVersion() {
+        return this.session && this.session.version === 'office' ? 'office' : 'full';
+    }
+
     startSession(version = 'full') {
         // A session finished before archiving existed is saved before it's replaced
         const previous = this.session;
@@ -680,7 +701,7 @@ class GradeMyBrainApp {
         const excluded = new Set([...upcoming, ...items.map(i => i.scenarioId), ...reservedForFull]);
         const missedTypes = [...new Set(items.filter(i => !i.correct).map(i => i.biasType))];
         const practice = missedTypes.slice(0, MAX_PRACTICE_PER_REVIEW).map(biasType => {
-            const sc = ScenarioBank.pickPracticeScenario(biasType, { seenIds: this.progress.seenIds, excludeIds: excluded });
+            const sc = ScenarioBank.pickPracticeScenario(biasType, { seenIds: this.progress.seenIds, excludeIds: excluded, version: session.version });
             if (sc) excluded.add(sc.id);
             return { biasType, scenarioId: sc ? sc.id : null, answer: null };
         });
@@ -698,12 +719,13 @@ class GradeMyBrainApp {
         const askedIds = new Set([...this.progress.seenIds, ...session.queue.slice(0, session.position).map(e => e.id)]);
         const missedIds = this.progress.missedIds();
         const addedRetests = [];
-        // The short version stops adding retests once it would pass SHORT_SESSION_MAX
+        // The short and office versions stop adding retests at their length caps
         const nonPadding = () => session.queue.filter((e, i) => !e.pad || i < session.position).length;
+        const sessionMax = { short: SHORT_SESSION_MAX, office: OFFICE_SESSION_MAX }[session.version];
         for (const biasType of missedTypes) {
             if ((session.retestCounts[biasType] || 0) >= MAX_RETESTS_PER_TOPIC) continue;
-            if (session.version === 'short' && nonPadding() >= SHORT_SESSION_MAX) break;
-            const sc = ScenarioBank.pickRetestScenario(biasType, { excludeIds: unavailable, missedIds, askedIds });
+            if (sessionMax && nonPadding() >= sessionMax) break;
+            const sc = ScenarioBank.pickRetestScenario(biasType, { excludeIds: unavailable, missedIds, askedIds, version: session.version });
             if (!sc) continue;
             unavailable.add(sc.id);
             session.queue.push({ id: sc.id, retest: true });
@@ -714,7 +736,8 @@ class GradeMyBrainApp {
         if (addedRetests.length > 0) {
             ScenarioBank.padTail(session.queue, {
                 tailStart: Math.max(session.position, session.plannedLength || 0),
-                seenIds: this.progress.seenIds
+                seenIds: this.progress.seenIds,
+                version: session.version
             });
         }
 
@@ -1234,7 +1257,7 @@ class GradeMyBrainApp {
     renderAllDone() {
         this.showView('checkpoint');
         this.updateHeaderUI();
-        const total = ScenarioBank.getAllScenarios().filter(sc => !sc.practiceOnly && !sc.retestOnly).length;
+        const total = ScenarioBank.mainQuestions(this.firstVersion() === 'office' ? 'office' : 'full').length;
         this.checkpointEl.innerHTML = `
             <div class="checkpoint-head">
                 <div>
@@ -1251,7 +1274,7 @@ class GradeMyBrainApp {
         this.checkpointEl.querySelector('#start-over-btn').onclick = () => {
             playSafely(() => sound.playClick());
             this.progress.reset();
-            this.startSession('short');
+            this.startSession(this.firstVersion());
         };
     }
 
@@ -1321,7 +1344,10 @@ class GradeMyBrainApp {
         this.sys1ValEl.textContent = `${audit.system1Score}% Heuristic`;
         this.sys2ValEl.textContent = `${audit.system2Score}% Analytical`;
 
-        const mainPool = ScenarioBank.getAllScenarios().filter(sc => !sc.practiceOnly && !sc.retestOnly);
+        // The office version counts only its own questions
+        const office = this.firstVersion() === 'office';
+        const mainPool = ScenarioBank.getAllScenarios().filter(sc => !sc.practiceOnly && !sc.retestOnly
+            && (office ? sc.office : !sc.officeOnly));
         const total = mainPool.length;
         const seenIds = this.progress.seenIds;
         const seen = mainPool.filter(sc => seenIds.has(sc.id)).length;
@@ -1372,9 +1398,13 @@ class GradeMyBrainApp {
         this.fullVersionCtaTextEl.textContent = `You've finished the short version on security, technology and deceptive design. `
             + `The full version has ${unseenFull} more questions on money, risk, statistics and everyday decisions, `
             + `with rematches for anything that tripped you up. Your progress is saved, so you can stop any time.`;
-        this.playAgainBtn.textContent = unseenFull > 0
-            ? `▶ Continue to the Full Version (${unseenFull} more questions)`
-            : (retestNames.length > 0 ? '▶ Rematch the Sneaky Topics' : '✓ Finish');
+        if (session && session.version === 'office') {
+            this.playAgainBtn.textContent = retestNames.length > 0 ? '▶ Start a makeup round on the tricky topics' : '✓ Finish';
+        } else {
+            this.playAgainBtn.textContent = unseenFull > 0
+                ? `▶ Continue to the Full Version (${unseenFull} more questions)`
+                : (retestNames.length > 0 ? '▶ Rematch the Sneaky Topics' : '✓ Finish');
+        }
         setTimeout(() => {
             // Only plot the biases this session has actually reviewed
             BrainChart.renderRadarChart('bias-radar-chart', audit.summary.filter(s => s.count > 0));

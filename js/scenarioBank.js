@@ -1344,6 +1344,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "sec-phishing-deadline",
+        office: true,
         short: true,
         biasType: "FAKE_URGENCY",
         title: "Password Expiry Email",
@@ -1471,6 +1472,7 @@ export const STANDALONE_SCENARIOS = [
     // -------------------------------------------------------------
     {
         id: "se-phishing-inbox",
+        office: true,
         short: true,
         biasType: "PHISHING",
         title: "Sort Your Inbox",
@@ -1498,6 +1500,7 @@ export const STANDALONE_SCENARIOS = [
     {
         // Only used as a retest, so a player who missed the first inbox gets a fresh one
         id: "se-phishing-inbox-home",
+        office: true,
         retestOnly: true,
         // Preferred as the retest when the player missed this question
         retestFor: "se-phishing-inbox",
@@ -1523,6 +1526,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-ceo-wire",
+        office: true,
         short: true,
         biasType: "AUTHORITY_PRESSURE",
         title: "CEO Wire Request",
@@ -1554,6 +1558,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-deepfake-call",
+        office: true,
         biasType: "AUTHORITY_PRESSURE",
         title: "Video Call Transfer",
         scenarioText: "On a video call, your CFO and two colleagues you recognize ask you to make 15 urgent transfers totaling $25 million for a confidential acquisition. Their faces and voices look and sound right. What do you do?",
@@ -1568,6 +1573,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-mfa-fatigue",
+        office: true,
         short: true,
         biasType: "HABITUATION",
         title: "Late-Night Sign-In Prompts",
@@ -1592,6 +1598,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-cert-warning",
+        office: true,
         biasType: "HABITUATION",
         title: "Café Wi-Fi Warning",
         scenarioText: "You're on a café's Wi-Fi and open your bank's website, which you use every week. Instead of the sign-in page, you see this. You've clicked past warnings like it before and nothing bad happened. What do you do?",
@@ -1613,6 +1620,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-lookalike-url",
+        office: true,
         short: true,
         biasType: "LOOKALIKES",
         title: "Which Address Is Real?",
@@ -1645,6 +1653,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-parking-qr",
+        office: true,
         biasType: "LOOKALIKES",
         title: "Parking Meter QR Code",
         scenarioText: "A city parking meter has a card reader and printed instructions for the city's parking app. Someone has stuck a sticker over part of the instructions with a QR code: \"Pay faster by phone: scan here.\" What do you do?",
@@ -1726,6 +1735,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-scareware",
+        office: true,
         short: true,
         biasType: "BAIT",
         title: "Virus Warning Pop-Up",
@@ -1751,6 +1761,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-sextortion",
+        office: true,
         biasType: "BAIT",
         title: "Threatening Email",
         scenarioText: "An email says: \"I hacked your computer and recorded you through your webcam. Your password is Summer2019, proof I'm serious. Pay $1,200 in Bitcoin within 48 hours or I send the video to your contacts.\" Summer2019 is an old password you used years ago. What's most likely going on?",
@@ -1765,6 +1776,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "se-found-usb",
+        office: true,
         biasType: "BAIT",
         title: "Parking Lot USB Drive",
         scenarioText: "In your office parking lot, you find a USB drive labeled \"Salaries 2026: CONFIDENTIAL.\" What do you do?",
@@ -2006,6 +2018,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "practice-urgency-timer",
+        office: true,
         practiceOnly: true,
         biasType: "FAKE_URGENCY",
         title: "Resetting Countdown",
@@ -2238,6 +2251,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "practice-phishing-shared-file",
+        office: true,
         practiceOnly: true,
         biasType: "PHISHING",
         title: "Expected Shared File",
@@ -2253,6 +2267,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "practice-authority-bank-change",
+        office: true,
         practiceOnly: true,
         biasType: "AUTHORITY_PRESSURE",
         title: "Supplier Bank Change",
@@ -2268,6 +2283,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "practice-lookalike-sender",
+        office: true,
         practiceOnly: true,
         biasType: "LOOKALIKES",
         title: "Payment Service Sender",
@@ -2297,6 +2313,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "practice-habituation-admin-prompt",
+        office: true,
         practiceOnly: true,
         biasType: "HABITUATION",
         title: "Unexpected Permission Prompt",
@@ -2312,6 +2329,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "practice-bait-prize-text",
+        office: true,
         practiceOnly: true,
         biasType: "BAIT",
         title: "Gift Card Text",
@@ -2335,6 +2353,7 @@ export const STANDALONE_SCENARIOS = [
     // =============================================================
     {
         id: "straight-cab-even",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Even-Split Taxi Witness",
@@ -2352,6 +2371,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-clinic-test",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Specialist Clinic Screening",
@@ -2369,6 +2389,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-listing-price",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Used Car Listing",
@@ -2384,6 +2405,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-finish-course",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Paid Training Course",
@@ -2399,6 +2421,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-cars-sharks",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Road Versus Ocean Risk",
@@ -2415,6 +2438,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-big-sample-reviews",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Blender Review Comparison",
@@ -2449,6 +2473,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-coffee-size",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Morning Coffee Order",
@@ -2464,6 +2489,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-big-risk-cut",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Treatment Risk Reduction",
@@ -2479,6 +2505,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-real-scarcity",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Last-Minute Flight",
@@ -2494,6 +2521,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-family-size",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Pasta Sauce Sizes",
@@ -2510,6 +2538,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-ruinous-bet",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Rent-Money Coin Flip",
@@ -2525,6 +2554,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-surgeon-record",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Choosing a Surgeon",
@@ -2540,6 +2570,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-reckless-driving",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "School Zone Crash",
@@ -2555,6 +2586,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-honest-chart",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Battery Bar Chart",
@@ -2570,6 +2602,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-clear-urns",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Red Marble Draw",
@@ -2585,6 +2618,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-home-insurance",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Home Fire Insurance",
@@ -2615,6 +2649,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-good-default",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Automatic Savings Enrollment",
@@ -2630,6 +2665,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-chess-skill",
+        office: true,
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Chess Champion Forecast",
@@ -2679,6 +2715,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "straight-requested-reset",
+        office: true,
         filler: true,
         short: true,
         biasType: "STRAIGHTFORWARD",
@@ -2700,6 +2737,7 @@ export const STANDALONE_SCENARIOS = [
     // -------------------------------------------------------------
     {
         id: "retest-phishing-1",
+        office: true,
         retestOnly: true,
         biasType: "PHISHING",
         title: "Manager's Org Chart Email",
@@ -2746,6 +2784,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "retest-authority-pressure-2",
+        office: true,
         retestOnly: true,
         biasType: "AUTHORITY_PRESSURE",
         title: "General Counsel Data Request",
@@ -2762,6 +2801,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "retest-lookalikes-1",
+        office: true,
         retestOnly: true,
         biasType: "LOOKALIKES",
         title: "VPN Guide Link in Chat",
@@ -2793,6 +2833,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "retest-habituation-1",
+        office: true,
         retestOnly: true,
         biasType: "HABITUATION",
         title: "Password Manager Won't Fill",
@@ -2824,6 +2865,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "retest-bait-1",
+        office: true,
         retestOnly: true,
         biasType: "BAIT",
         title: "Copyright Complaint Attachment",
@@ -2950,6 +2992,7 @@ export const STANDALONE_SCENARIOS = [
     },
     {
         id: "retest-fake-urgency-1",
+        office: true,
         retestOnly: true,
         biasType: "FAKE_URGENCY",
         title: "Password Manager Checkout",
@@ -3962,6 +4005,428 @@ export const STANDALONE_SCENARIOS = [
             { text: "Stayed about the same", biasValue: 0.5, isBest: false },
             { text: "Gone up", biasValue: 0, isBest: true }
         ]
+    },
+
+    // -------------------------------------------------------------
+    // OFFICE-ONLY QUESTIONS: plain-language phishing and social
+    // engineering for non-technical staff (office version only)
+    // -------------------------------------------------------------
+    {
+        id: "office-phishing-1",
+        office: true,
+        officeOnly: true,
+        biasType: "PHISHING",
+        title: "Shared Invoice From a Stranger",
+        scenarioText: "You handle supplier payments at Larkwood, where work email addresses end in @larkwood.com. Larkwood has never bought anything from a company called Brightline Supplies. This email arrives. What do you do?",
+        mockScreen: {
+            kind: "email",
+            from: "Brightline Supplies Accounts",
+            address: "accounts@brightline-supplies.com",
+            to: "you@larkwood.com",
+            subject: "Invoice INV-20817 has been shared with you",
+            body: [
+                "Hello,",
+                "A secure document has been shared with you. To protect its contents, please sign in with your work email and password to view the invoice.",
+                "Payment is due within 7 days.\nBrightline Supplies"
+            ],
+            button: "View invoice",
+            linkPreview: "https://secure-docview.co/larkwood/inv-20817"
+        },
+        bestAnswer: "Report it with the Report Phishing button",
+        reasoning: "The email fails the basic checks: it's from a company Larkwood doesn't deal with, you weren't expecting it, and it asks for your Larkwood password on a site that isn't Larkwood's. A real invoice doesn't need your work password to open. Signing in just to see what it is hands your password to the sender. Forwarding it to the payments team spreads the same trap to more people. Reporting it lets security warn everyone else who got it.",
+        biasName: "Spotting Phishing",
+        bookRef: "Security awareness research (sender, expectation, and request checks)",
+        options: [
+            { text: "Click \"View invoice\" and sign in to see what it's for", biasValue: 1, isBest: false },
+            { text: "Forward it to the payments team to check against open orders", biasValue: 0.5, isBest: false },
+            { text: "Report it with the Report Phishing button", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "office-phishing-2",
+        office: true,
+        officeOnly: true,
+        biasType: "PHISHING",
+        title: "New Voicemail Email",
+        scenarioText: "You have a desk phone at Larkwood but rarely get voicemail on it. You're between meetings and this email arrives. What do you do?",
+        mockScreen: {
+            kind: "email",
+            from: "Voicemail Service",
+            address: "no-reply@vm-notify.net",
+            to: "you@larkwood.com",
+            subject: "New voicemail (0:42) from +1 (555) 013-8870",
+            body: [
+                "You have received a new voicemail message.",
+                "Length: 0:42\nCaller: +1 (555) 013-8870\nReceived: Today, 10:14 AM",
+                "Sign in with your Larkwood account to listen."
+            ],
+            button: "Listen to message",
+            linkPreview: "https://vm-notify.net/play?user=you@larkwood.com"
+        },
+        bestAnswer: "Check your voicemail on your desk phone or your usual phone app",
+        reasoning: "Fake voicemail alerts are popular because everyone gets voicemail and a short message feels harmless to check. This one comes from an outside address, not larkwood.com, and wants your work sign-in on a site that isn't Larkwood's. If someone really left a message, it's waiting on your phone, so checking there is safe whether the email is real or not. Replying only reaches the sender, who will happily say it's real.",
+        biasName: "Spotting Phishing",
+        bookRef: "Security awareness research (sender, expectation, and request checks)",
+        options: [
+            { text: "Click \"Listen to message\" and sign in", biasValue: 1, isBest: false },
+            { text: "Check your voicemail on your desk phone or your usual phone app", biasValue: 0, isBest: true },
+            { text: "Reply to the email to ask who called", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "office-authority-pressure-1",
+        office: true,
+        officeOnly: true,
+        biasType: "AUTHORITY_PRESSURE",
+        title: "Director's Gift Card Text",
+        scenarioText: "You're an office manager at Larkwood. A text from a number you don't recognize says: \"Hi, it's Dana Whitfield. New phone. I'm in client meetings all afternoon and can't talk. I need eight $100 gift cards for client thank-yous before 3pm. Buy them, scratch off the backs and text me photos of the codes. Keep it quiet, it's a surprise.\" Dana is your director. What do you do?",
+        bestAnswer: "Contact Dana on her usual number or in team chat before buying anything",
+        reasoning: "A boss who suddenly has a new number, can't talk, needs gift cards fast, and wants it kept quiet is one of the most common scams there is. Gift card codes work like cash: once you send a photo, the money is gone and can't be traced or refunded. Replying to the new number just asks the scammer to vouch for themselves. Checking with Dana through a number or chat you already had settles it in a minute, and a real director won't mind.",
+        biasName: "Authority & Impersonation",
+        bookRef: "Influence research (Cialdini 1984)",
+        options: [
+            { text: "Contact Dana on her usual number or in team chat before buying anything", biasValue: 0, isBest: true },
+            { text: "Reply to the text and ask her to confirm it's really her", biasValue: 0.5, isBest: false },
+            { text: "Buy the cards and send photos of the codes", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "office-fake-urgency-1",
+        office: true,
+        officeOnly: true,
+        biasType: "FAKE_URGENCY",
+        title: "Account Lock Text",
+        scenarioText: "At 3:40 p.m., a text from an unknown number says: \"Larkwood IT: your email account failed a security check and will be LOCKED at 5:00 PM today. Confirm your login now to keep access: larkwood-account-check.com\". You have a report due tomorrow and need your email. What do you do?",
+        bestAnswer: "Contact the IT help desk using the number or page you already know",
+        reasoning: "A deadline a couple of hours away is there to make you act before you think. The link doesn't go to larkwood.com; it goes to a separate web address anyone could set up, and \"confirm your login\" means typing your password into it. Texting back reaches the sender, not IT. If something really is wrong with your account, the help desk can tell you, and you lose nothing by asking them first.",
+        biasName: "Manufactured Urgency",
+        bookRef: "Dark patterns research (Mathur et al. 2019)",
+        options: [
+            { text: "Tap the link and confirm your login before 5pm", biasValue: 1, isBest: false },
+            { text: "Text back to ask whether the message is real", biasValue: 0.5, isBest: false },
+            { text: "Contact the IT help desk using the number or page you already know", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "office-lookalikes-1",
+        office: true,
+        officeOnly: true,
+        biasType: "LOOKALIKES",
+        title: "Payroll Details Email",
+        scenarioText: "Rosa Delgado really does run payroll at Larkwood, and you've emailed with her before. Larkwood's email addresses end in @larkwood.com. This email arrives on Monday. What do you do?",
+        mockScreen: {
+            kind: "email",
+            from: "Rosa Delgado",
+            address: "rosa.delgado@larkwod.com",
+            to: "you@larkwood.com",
+            subject: "Action needed: confirm your bank details before Thursday",
+            body: [
+                "Hi,",
+                "We're moving to a new payroll system and need everyone to confirm their bank details before Thursday's pay run, or your pay may be delayed. It only takes two minutes.",
+                "Thanks,\nRosa"
+            ],
+            button: "Confirm my details",
+            linkPreview: "https://larkwod.com/payroll/confirm"
+        },
+        bestAnswer: "Report it as phishing, then check with payroll through the HR portal",
+        reasoning: "The name is right, but the address is larkwod.com, with one letter missing. That's a different web address anyone could register. Your eyes see a familiar name and fill in the rest, which is exactly what lookalike addresses count on. Replying would go to larkwod.com, so the impostor would answer. Reporting it protects your coworkers, and the HR portal or a call to payroll tells you whether any change is really happening.",
+        biasName: "Lookalikes & Hidden Links",
+        bookRef: "Thinking, Fast and Slow - Chapter 5 (cognitive ease)",
+        options: [
+            { text: "Click \"Confirm my details\" so your pay isn't delayed", biasValue: 1, isBest: false },
+            { text: "Report it as phishing, then check with payroll through the HR portal", biasValue: 0, isBest: true },
+            { text: "Reply to Rosa to ask whether the new system is real", biasValue: 0.5, isBest: false }
+        ]
+    },
+
+    // Office retest-only questions: one focused habit per topic
+    {
+        id: "retest-office-authority-pressure-1",
+        office: true,
+        officeOnly: true,
+        retestOnly: true,
+        biasType: "AUTHORITY_PRESSURE",
+        title: "IT Caller Wants Your Code",
+        scenarioText: "Your desk phone rings. The caller says he's Sam from Larkwood IT and your account was flagged in a security sweep. \"I'm sending a verification code to your mobile now. Just read it back to me so I can confirm it's you.\" A moment later a text arrives: \"Your Larkwood sign-in code is 482913.\" What do you do?",
+        bestAnswer: "Hang up and call the IT help desk on the number you already have",
+        reasoning: "That code is the second lock on your account. The caller most likely already has your password and is signing in as you right now; the code is the last thing he needs. Real IT staff never need you to read them a sign-in code. Asking for his name or employee ID doesn't help, since anyone can make one up. Hanging up and calling the help desk yourself reaches the real IT team, who can lock out whoever has your password.",
+        biasName: "Authority & Impersonation",
+        bookRef: "Influence research (Cialdini 1984)",
+        options: [
+            { text: "Hang up and call the IT help desk on the number you already have", biasValue: 0, isBest: true },
+            { text: "Ask for his employee ID first, then read him the code", biasValue: 0.5, isBest: false },
+            { text: "Read him the code so he can finish the check", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-office-authority-pressure-2",
+        office: true,
+        officeOnly: true,
+        retestOnly: true,
+        biasType: "AUTHORITY_PRESSURE",
+        title: "Supplier's New Bank Letter",
+        scenarioText: "Halvorsen Packaging has supplied Larkwood for years, and you pay their invoices. This email comes from their usual address, the same one you've always dealt with. What do you do?",
+        mockScreen: {
+            kind: "email",
+            from: "Halvorsen Packaging Accounts",
+            address: "accounts@halvorsenpack.com",
+            to: "you@larkwood.com",
+            subject: "Updated bank details for all future payments",
+            body: [
+                "Hello,",
+                "Following a recent audit, our bank details have changed. Please use the account in the attached letter for all future payments, including invoice HP-5531 ($28,400) due Friday.",
+                "If you have any questions, call our accounts team on +1 (555) 017-4420.\nKind regards,\nHalvorsen Packaging"
+            ],
+            button: "Download bank letter (PDF)",
+            linkPreview: "https://halvorsenpack.com/files/bank-letter.pdf"
+        },
+        bestAnswer: "Call Halvorsen on the phone number in your own records",
+        reasoning: "The right address doesn't prove the email is from the right person: if a supplier's mailbox is broken into, the criminal sends from the real address. A change of bank details is the moment to check. The phone number in the email could ring the criminal, who will happily confirm. Calling the number you already had for Halvorsen, from past invoices or your supplier records, reaches the real company.",
+        biasName: "Authority & Impersonation",
+        bookRef: "Influence research (Cialdini 1984)",
+        options: [
+            { text: "Update the account details and pay on Friday", biasValue: 1, isBest: false },
+            { text: "Call the phone number in the email to confirm", biasValue: 0.5, isBest: false },
+            { text: "Call Halvorsen on the phone number in your own records", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-office-habituation-1",
+        office: true,
+        officeOnly: true,
+        retestOnly: true,
+        biasType: "HABITUATION",
+        title: "CEO Email Marked External",
+        scenarioText: "Larkwood adds an External warning to the top of every email from outside the company. Most of your email comes from customers, so you see it dozens of times a day and have stopped reading it. This email is from Larkwood's CEO, Jordan Lee. What do you do?",
+        mockScreen: {
+            kind: "email",
+            from: "Jordan Lee",
+            address: "jordan.lee.ceo@inboxmail.com",
+            to: "you@larkwood.com",
+            subject: "Confidential: please review before our 2pm",
+            body: [
+                "EXTERNAL: This email came from outside Larkwood. Be careful with links and attachments.",
+                "Hi,",
+                "Please look over the attached acquisition summary before our call at 2pm. Don't share it with anyone yet.",
+                "Jordan"
+            ],
+            button: "Open Acquisition_Summary",
+            linkPreview: "https://filedrop-share.com/d/acq-summary"
+        },
+        bestAnswer: "Report it as phishing",
+        reasoning: "An email from your own CEO should never carry the External warning, because Larkwood's leaders write from larkwood.com. Here the warning is the most useful thing on the screen, but seeing it all day has trained you to look past it. The address confirms it: a personal inbox, not Larkwood's. Opening the file just to look can install harmful software or lead to a fake sign-in page. Reporting it lets security warn others.",
+        biasName: "Warning & Prompt Fatigue",
+        bookRef: "Usable security research (Akhawe & Felt 2013)",
+        options: [
+            { text: "Open the summary, since it's from the CEO", biasValue: 1, isBest: false },
+            { text: "Report it as phishing", biasValue: 0, isBest: true },
+            { text: "Open it, but close it if it asks for a password", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-office-habituation-2",
+        office: true,
+        officeOnly: true,
+        retestOnly: true,
+        biasType: "HABITUATION",
+        title: "Prompt During a Meeting",
+        scenarioText: "You approve sign-in prompts like this a few times a week when you open email on your laptop, usually without reading them. Right now it's mid-afternoon, you're in a meeting taking notes on paper, and you haven't tried to sign in to anything. This appears on your phone. What do you tap?",
+        mockScreen: {
+            kind: "phone",
+            time: "2:47 PM",
+            heading: "Approve sign-in to Larkwood?",
+            body: "Location: Ohio, US · Device: Mac · Just now"
+        },
+        bestAnswer: "Report suspicious sign-in",
+        reasoning: "A sign-in prompt only appears when someone has typed your password. If it isn't you, someone else has it. Because you tap Approve so often, it's easy to do it on reflex, which is what attackers count on. Approving lets them straight in. Denying stops this attempt but leaves them holding your password; reporting it gets your password changed and the attempt looked into.",
+        biasName: "Warning & Prompt Fatigue",
+        bookRef: "Usable security research (MFA fatigue)",
+        options: [
+            { text: "Approve", ui: "primary", label: "Approve", biasValue: 1, isBest: false },
+            { text: "Report suspicious sign-in", ui: "link", label: "Report suspicious sign-in", biasValue: 0, isBest: true },
+            { text: "Deny", ui: "secondary", label: "Deny", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-office-lookalikes-1",
+        office: true,
+        officeOnly: true,
+        retestOnly: true,
+        biasType: "LOOKALIKES",
+        title: "Benefits Link Hover",
+        scenarioText: "It's benefits enrollment season at Larkwood. This email reminds you to pick your health plan. The button shows Larkwood's benefits site, but when you rest your mouse on it, the bar at the bottom of the email shows where it really goes. What do you do?",
+        mockScreen: {
+            kind: "email",
+            from: "Larkwood HR",
+            address: "hr@larkwood.com",
+            to: "you@larkwood.com",
+            subject: "Reminder: benefits enrollment closes Friday",
+            body: [
+                "Hi,",
+                "Open enrollment closes this Friday. If you don't choose a plan, you'll be moved to the basic plan for next year.",
+                "Larkwood HR"
+            ],
+            button: "benefits.larkwood.com/enroll",
+            linkPreview: "https://larkwood-benefits.enroll-portal.co/login"
+        },
+        bestAnswer: "Go to the benefits site yourself from the intranet",
+        reasoning: "The words on a button and where it goes are two separate things, and only the destination counts. This one goes to enroll-portal.co, not larkwood.com, even though the button says Larkwood's site. The sender's name and address can be faked, so they don't settle it, and a fake page can copy Larkwood's look exactly. Reaching the benefits site through the intranet or a bookmark works whether the email is real or not.",
+        biasName: "Lookalikes & Hidden Links",
+        bookRef: "Thinking, Fast and Slow - Chapter 5 (cognitive ease)",
+        options: [
+            { text: "Go to the benefits site yourself from the intranet", biasValue: 0, isBest: true },
+            { text: "Click it, since it's from HR's usual address", biasValue: 1, isBest: false },
+            { text: "Click it and check that the page looks like Larkwood's", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-office-lookalikes-2",
+        office: true,
+        officeOnly: true,
+        retestOnly: true,
+        biasType: "LOOKALIKES",
+        title: "Parking Permit QR Code",
+        scenarioText: "An email from \"Larkwood Facilities\" says the office is switching to new parking permits. It shows a large QR code and says: \"Scan with your phone and sign in with your Larkwood account to keep your parking space. Unregistered cars will be towed from Monday.\" You drive to work every day. What do you do?",
+        bestAnswer: "Find parking registration on the intranet, or ask facilities directly",
+        reasoning: "A QR code is a link you can't read until you've already opened it, and a phone screen shows only a sliver of the web address, so a fake sign-in page is hard to spot. Scammers like QR codes in emails because they slip past the checks your work computer does on links. A fake page can look exactly like Larkwood's. If the permit change is real, it will be on the intranet, and facilities can confirm it.",
+        biasName: "Lookalikes & Hidden Links",
+        bookRef: "Thinking, Fast and Slow - Chapter 5 (cognitive ease)",
+        options: [
+            { text: "Scan it and sign in so your car isn't towed", biasValue: 1, isBest: false },
+            { text: "Scan it, and sign in only if the page looks like Larkwood's", biasValue: 1, isBest: false },
+            { text: "Find parking registration on the intranet, or ask facilities directly", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-office-bait-1",
+        office: true,
+        officeOnly: true,
+        retestOnly: true,
+        biasType: "BAIT",
+        title: "Salary and Layoffs File",
+        scenarioText: "Rumors about layoffs have been going around Larkwood for weeks. This email arrives late on a Friday afternoon. What do you do?",
+        mockScreen: {
+            kind: "email",
+            from: "People Team",
+            address: "people-team@larkwood-hr.net",
+            to: "you@larkwood.com",
+            subject: "Confidential: 2027 salary changes and role reductions",
+            body: [
+                "Hello,",
+                "Attached is the approved list of salary changes and planned role reductions for 2027. Please review your entry before it is announced on Monday.",
+                "Do not forward.\nPeople Team"
+            ],
+            button: "Open Salary_Changes_2027.xlsx"
+        },
+        bestAnswer: "Report it as phishing without opening the file",
+        reasoning: "Pay and job security are about the strongest bait there is: worry and curiosity make people open the file before thinking. The sender is larkwood-hr.net, not larkwood.com, and real HR news about your job wouldn't arrive as a spreadsheet of everyone's fate. Opening it can install harmful software. Forwarding it to a coworker spreads the same risk. Reporting it lets security check the file safely, and HR can answer any real questions.",
+        biasName: "Fear & Curiosity Bait",
+        bookRef: "Social engineering research (fear appeals; Tischer et al. 2016)",
+        options: [
+            { text: "Open the file to check your entry", biasValue: 1, isBest: false },
+            { text: "Report it as phishing without opening the file", biasValue: 0, isBest: true },
+            { text: "Forward it to a coworker to ask if they got it too", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-office-bait-2",
+        office: true,
+        officeOnly: true,
+        retestOnly: true,
+        biasType: "BAIT",
+        title: "Missed Delivery Text",
+        scenarioText: "You're expecting two online orders this week. A text from an unknown number says: \"ParcelDash: we couldn't deliver your package because the address is incomplete. Update your details within 12 hours or it will be returned to sender: parceldash-redelivery.com/x7k2\". What do you do?",
+        bestAnswer: "Check your orders on the store's website or app yourself",
+        reasoning: "Fake delivery texts work because so many of us are waiting on a package at any moment. The short deadline pushes you to tap before you check, and the page usually asks for a small redelivery fee to collect your card details. Replying tells the sender your number is real and starts a conversation on their terms. The store's own site or app shows where your orders really are.",
+        biasName: "Fear & Curiosity Bait",
+        bookRef: "Social engineering research (fear appeals; Tischer et al. 2016)",
+        options: [
+            { text: "Check your orders on the store's website or app yourself", biasValue: 0, isBest: true },
+            { text: "Tap the link and update your address", biasValue: 1, isBest: false },
+            { text: "Reply and ask which package it is", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "retest-office-fake-urgency-1",
+        office: true,
+        officeOnly: true,
+        retestOnly: true,
+        biasType: "FAKE_URGENCY",
+        title: "Mailbox Deletion Notice",
+        scenarioText: "You get a lot of email with attachments, and last month your email program warned you that your mailbox was nearly full. At 3:00 p.m. this email arrives. What do you do?",
+        mockScreen: {
+            kind: "email",
+            from: "Mail Administrator",
+            address: "admin@mailbox-quota-center.com",
+            to: "you@larkwood.com",
+            subject: "FINAL NOTICE: your mailbox will be deleted in 1 hour",
+            body: [
+                "Your mailbox has gone over its storage limit and has been flagged for deletion.",
+                "All emails and contacts will be permanently erased at 4:00 PM today unless you validate your account.",
+                "Mail Administrator"
+            ],
+            button: "Validate mailbox now",
+            linkPreview: "https://mailbox-quota-center.com/larkwood/validate"
+        },
+        bestAnswer: "Report it, then ask IT about your mailbox if you're worried",
+        reasoning: "The earlier real warning makes this feel believable, but the one-hour countdown is the giveaway: it's built to make you click before you look. It comes from an outside address, not larkwood.com, and \"validate your account\" means typing your password into a stranger's page. No company deletes a full mailbox in an hour. Clearing out old email is harmless, but leaves the trap waiting for your coworkers; reporting it lets security warn them.",
+        biasName: "Manufactured Urgency",
+        bookRef: "Dark patterns research (Mathur et al. 2019)",
+        options: [
+            { text: "Click \"Validate mailbox now\" before 4pm", biasValue: 1, isBest: false },
+            { text: "Delete old emails to get under the limit, and ignore the link", biasValue: 0.5, isBest: false },
+            { text: "Report it, then ask IT about your mailbox if you're worried", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-office-fake-urgency-2",
+        office: true,
+        officeOnly: true,
+        retestOnly: true,
+        biasType: "FAKE_URGENCY",
+        title: "Bank Fraud Phone Call",
+        scenarioText: "Your mobile rings, and the screen says Fernvale Bank, your bank. A calm caller says your card is being used for purchases overseas right now. To stop it, she needs you to confirm your PIN, then move your savings into a safe account she'll set up. \"Every minute we wait, more money goes.\" What do you do?",
+        bestAnswer: "Hang up and call the number on the back of your card",
+        reasoning: "The name on your screen can be faked, so it doesn't prove the bank is calling. Real banks never ask for your PIN and never ask you to move money to a safe account; both are the scam itself. The ticking-clock pressure is there to stop you from thinking. Giving only the PIN still hands over the key to your card. Calling the number on your card reaches the real bank, which can freeze the card in minutes if there really is fraud.",
+        biasName: "Manufactured Urgency",
+        bookRef: "Dark patterns research (Mathur et al. 2019)",
+        options: [
+            { text: "Confirm your PIN, but refuse to move any money", biasValue: 1, isBest: false },
+            { text: "Hang up and call the number on the back of your card", biasValue: 0, isBest: true },
+            { text: "Do what she says to stop the fraud quickly", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-office-phishing-1",
+        office: true,
+        officeOnly: true,
+        retestOnly: true,
+        biasType: "PHISHING",
+        title: "Reset You Didn't Ask For",
+        scenarioText: "You haven't forgotten your Larkwood password or asked to change it. This email arrives in the middle of the morning. What do you do?",
+        mockScreen: {
+            kind: "email",
+            from: "Larkwood IT",
+            address: "it-support@larkwood.com",
+            to: "you@larkwood.com",
+            subject: "Password reset requested",
+            body: [
+                "Hello,",
+                "We received a request to reset your Larkwood password.",
+                "If this wasn't you, use the button below to cancel the request and secure your account."
+            ],
+            button: "Cancel this request",
+            linkPreview: "https://larkwood-sso.account-help.net/cancel"
+        },
+        bestAnswer: "Report it with the Report Phishing button and tell IT you didn't ask for it",
+        reasoning: "A reset you didn't ask for is unexpected, and that alone is reason to stop. The cancel button is the trap: it plays on the worry that someone is after your account, and it leads to account-help.net, not larkwood.com, where you'd be asked for your password. The sender's address can be faked. Ignoring it is better than clicking, but if someone really is trying to get in, IT needs to know. Reporting covers both cases.",
+        biasName: "Spotting Phishing",
+        bookRef: "Security awareness research (sender, expectation, and request checks)",
+        options: [
+            { text: "Report it with the Report Phishing button and tell IT you didn't ask for it", biasValue: 0, isBest: true },
+            { text: "Click \"Cancel this request\" to secure your account", biasValue: 1, isBest: false },
+            { text: "Ignore it, since you didn't ask for a reset", biasValue: 0.5, isBest: false }
+        ]
     }
 ];
 
@@ -4512,6 +4977,15 @@ const PAIRS_PER_BLOCK = 2;
 export const MIN_PAIR_GAP = REVIEW_BLOCK - PAIRS_PER_BLOCK;
 // The short version (planned questions plus retests) never runs longer than this
 export const SHORT_SESSION_MAX = 40;
+// The office version is shorter still, including its makeup questions
+export const OFFICE_SESSION_MAX = 30;
+
+// Which questions a version may use. The office version, for people who
+// don't work in tech or security, uses only questions marked office; the
+// other versions skip questions written only for it (officeOnly).
+function fitsVersion(s, version) {
+    return version === 'office' ? Boolean(s.office) : !s.officeOnly;
+}
 // About one straightforward question (where the obvious answer is right) is
 // scattered into every this-many regular questions
 const QUESTIONS_PER_SCATTERED_FILLER = 9;
@@ -4585,33 +5059,35 @@ export class ScenarioBank {
      * is a multiple of REVIEW_BLOCK. The game adds retests to the tail as the
      * player misses questions and re-pads it (see padTail).
      * `version` 'short' limits the planned part to the short version's
-     * questions (tech, security, and dark patterns); 'full' uses them all.
+     * questions (tech, security, and dark patterns); 'office' uses only the
+     * office questions (phishing resistance for non-technical staff); 'full'
+     * uses every question except office-only ones.
      * Returns { queue: [{ id, retest, pad }], plannedLength }.
      */
     static buildSession({ seenIds = new Set(), retestTypes = [], missedIds = new Set(), version = 'full' } = {}) {
-        const short = version === 'short';
         const regular = ScenarioBank.mainQuestions(version).filter(s => !seenIds.has(s.id));
         const scatterCount = Math.ceil(regular.length / QUESTIONS_PER_SCATTERED_FILLER);
-        const scattered = ScenarioBank.pickFillers(scatterCount, { seenIds, preferShort: short });
+        const scattered = ScenarioBank.pickFillers(scatterCount, { seenIds, version });
         const planned = layoutWithPairs([...regular, ...scattered]);
 
         const used = new Set(planned.map(s => s.id));
         const tail = [];
         for (const type of retestTypes) {
-            const sc = ScenarioBank.pickRetestScenario(type, { excludeIds: used, missedIds, askedIds: seenIds });
+            const sc = ScenarioBank.pickRetestScenario(type, { excludeIds: used, missedIds, askedIds: seenIds, version });
             if (!sc) continue;
             used.add(sc.id);
             tail.push({ id: sc.id, retest: true, pad: false });
         }
 
         const queue = [...planned.map(s => ({ id: s.id, retest: false, pad: false })), ...tail];
-        ScenarioBank.padTail(queue, { tailStart: planned.length, seenIds, preferShort: short });
+        ScenarioBank.padTail(queue, { tailStart: planned.length, seenIds, version });
         return { queue, plannedLength: planned.length };
     }
 
     // The regular (scored, non-filler) questions in a version
     static mainQuestions(version = 'full') {
-        return MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.retestOnly && !s.filler && !s.retired && (version !== 'short' || s.short));
+        return MASTER_SCENARIOS.filter(s => !s.practiceOnly && !s.retestOnly && !s.filler && !s.retired
+            && fitsVersion(s, version) && (version !== 'short' || s.short));
     }
 
     // About how many questions a fresh session of this version has
@@ -4626,10 +5102,10 @@ export class ScenarioBank {
      * ones the player hasn't seen. If that's not enough, falls back to ones in
      * `reusableIds` (already answered earlier in this session).
      */
-    static pickFillers(count, { excludeIds = new Set(), seenIds = new Set(), reusableIds = new Set(), preferShort = false } = {}) {
+    static pickFillers(count, { excludeIds = new Set(), seenIds = new Set(), reusableIds = new Set(), version = 'full' } = {}) {
         // In the short version, the tech and security contrast questions come first
-        let fillers = shuffle(STANDALONE_SCENARIOS.filter(s => s.filler));
-        if (preferShort) fillers = [...fillers.filter(s => s.short), ...fillers.filter(s => !s.short)];
+        let fillers = shuffle(STANDALONE_SCENARIOS.filter(s => s.filler && fitsVersion(s, version)));
+        if (version === 'short') fillers = [...fillers.filter(s => s.short), ...fillers.filter(s => !s.short)];
         const available = fillers.filter(s => !excludeIds.has(s.id));
         const unseen = available.filter(s => !seenIds.has(s.id));
         const seen = available.filter(s => seenIds.has(s.id));
@@ -4644,7 +5120,7 @@ export class ScenarioBank {
      * retests mix. `removable` padding entries are dropped first when the
      * tail has grown. Changes `queue` in place.
      */
-    static padTail(queue, { tailStart, seenIds = new Set(), preferShort = false }) {
+    static padTail(queue, { tailStart, seenIds = new Set(), version = 'full' }) {
         const surplus = queue.length % REVIEW_BLOCK;
         if (surplus !== 0) {
             // Drop unplayed padding if that reaches a block boundary, else add more
@@ -4656,7 +5132,7 @@ export class ScenarioBank {
                 const upcoming = new Set(queue.slice(tailStart).map(e => e.id));
                 const played = new Set(queue.slice(0, tailStart).map(e => e.id).filter(id => !upcoming.has(id)));
                 const needed = REVIEW_BLOCK - surplus;
-                ScenarioBank.pickFillers(needed, { excludeIds: inQueue, seenIds, reusableIds: played, preferShort })
+                ScenarioBank.pickFillers(needed, { excludeIds: inQueue, seenIds, reusableIds: played, version })
                     .forEach(s => queue.push({ id: s.id, retest: false, pad: true }));
             }
         }
@@ -4673,9 +5149,9 @@ export class ScenarioBank {
      * they missed, which by then they have seen explained. Null if the bias
      * type has nothing left to retest with.
      */
-    static pickRetestScenario(biasType, { excludeIds = new Set(), missedIds = new Set(), askedIds = new Set() } = {}) {
+    static pickRetestScenario(biasType, { excludeIds = new Set(), missedIds = new Set(), askedIds = new Set(), version = 'full' } = {}) {
         const candidates = shuffle(STANDALONE_SCENARIOS.filter(s =>
-            s.biasType === biasType && !s.retired && !excludeIds.has(s.id)
+            s.biasType === biasType && !s.retired && !excludeIds.has(s.id) && fitsVersion(s, version)
         ));
         // A retest-only question is used first while it's unseen, preferring
         // one written as the follow-up to a question the player missed
@@ -4696,9 +5172,9 @@ export class ScenarioBank {
      * `excludeIds` (e.g. questions still coming up this session). Null if
      * the bias type has no standalone scenarios left to use.
      */
-    static pickPracticeScenario(biasType, { seenIds = new Set(), excludeIds = new Set() } = {}) {
+    static pickPracticeScenario(biasType, { seenIds = new Set(), excludeIds = new Set(), version = 'full' } = {}) {
         const candidates = shuffle(STANDALONE_SCENARIOS.filter(s =>
-            s.biasType === biasType && !s.retired && !excludeIds.has(s.id)
+            s.biasType === biasType && !s.retired && !excludeIds.has(s.id) && fitsVersion(s, version)
             // An unseen retest-only backup is kept for the retest
             && !(s.retestOnly && !seenIds.has(s.id))
         ));
