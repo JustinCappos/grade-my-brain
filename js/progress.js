@@ -107,7 +107,8 @@ export class Progress {
             completedAt: Date.now(),
             questionCount: session.queue.length,
             shownScore: session.shownScore,
-            reviewed: session.reviewed
+            reviewed: session.reviewed,
+            answerTimes: session.answerTimes || []
         });
     }
 

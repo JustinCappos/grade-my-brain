@@ -42,6 +42,10 @@ const POINTS_WRONG = 0;
 // The fake bonus pop-up appears once per player, at this question (0-based)
 const BONUS_POPUP_AT = 6;
 const BONUS_POPUP_SECONDS = 59;
+// Averaging under this many seconds a question suggests clicking through
+const FAST_ANSWER_SECONDS = 5;
+// A question left open longer than this (the player stepped away) counts as this long
+const MAX_COUNTED_SECONDS = 180;
 // Hidden test: a pre-ticked "share to the leaderboard" box beside Continue on
 // the first review at or after this question that isn't the last one
 const LEADERBOARD_BOX_FROM = 20;
@@ -84,6 +88,27 @@ function isExternalSender(sc, mail) {
 
 function externalTag(sc, mail) {
     return isExternalSender(sc, mail) ? '<span class="inbox-external">External</span>' : '';
+}
+
+// Seconds as m:ss
+function formatTime(seconds) {
+    const s = Math.round(seconds);
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+// The average time per question and, when it's very fast, a playful nudge
+function paceHtml(times, scope) {
+    if (!times || times.length === 0) return '';
+    const average = times.reduce((sum, t) => sum + t, 0) / times.length;
+    const shown = average < 1 ? 'under a second' : `${Math.round(average)} ${Math.round(average) === 1 ? 'second' : 'seconds'}`;
+    const note = `<p class="pace-note">⏱ You averaged ${shown} per question ${scope}.</p>`;
+    if (average >= FAST_ANSWER_SECONDS) return note;
+    return note + `
+        <div class="pace-warning">
+            <strong>⚡ Speed run detected!</strong> Under ${FAST_ANSWER_SECONDS} seconds a question usually means
+            System 1 is doing the clicking. These questions hide their tricks in the details, so give System 2
+            a few more seconds to read each one.
+        </div>`;
 }
 
 function playSafely(fn) {
@@ -135,6 +160,8 @@ class GradeMyBrainApp {
         this.finalGradeTitle = document.getElementById('final-grade-title');
         this.finalScoreEl = document.getElementById('final-score');
         this.finalGradeCheerEl = document.getElementById('final-grade-cheer');
+        this.finalPaceEl = document.getElementById('final-pace');
+        this.sessionTimeEl = document.getElementById('session-time');
         this.statAccuracyEl = document.getElementById('stat-accuracy');
         this.progressSummaryEl = document.getElementById('progress-summary');
         this.auditPickerEl = document.getElementById('audit-session-picker');
@@ -233,6 +260,12 @@ class GradeMyBrainApp {
     // --- Views ---
 
     showView(view, { scroll = true } = {}) {
+        // The timer only runs while a question is on screen
+        if (view !== 'question' && this.questionStartedAt) {
+            clearInterval(this.timerTicker);
+            this.questionStartedAt = null;
+        }
+        if (this.sessionTimeEl) this.renderSessionTime();
         this.introViewEl.hidden = view !== 'intro';
         document.body.classList.toggle('intro-mode', view === 'intro');
         this.scenarioStageEl.hidden = view !== 'question';
@@ -452,6 +485,7 @@ class GradeMyBrainApp {
 
         this.scenarioTitleEl.textContent = sc.title;
         this.scenarioTextEl.textContent = sc.scenarioText;
+        this.startQuestionTimer();
         this.maybeShowBonusPopup();
         this.scenarioMediaEl.innerHTML = this.imageHtml(sc) +
             (sc.mockScreen && !this.isInteractiveMock(sc) ? this.mockScreenHtml(sc, { interactive: false }) : '');
@@ -552,6 +586,7 @@ class GradeMyBrainApp {
         this.isProcessing = true;
 
         const session = this.session;
+        (session.answerTimes ||= []).push(this.stopQuestionTimer());
         const entry = session.queue[session.position];
         const sc = ScenarioBank.getScenario(entry.id);
         this.progress.markSeen(sc.id);
@@ -581,6 +616,30 @@ class GradeMyBrainApp {
             this.progress.save();
             this.renderQuestion();
         }
+    }
+
+    // --- Question timer: only time spent on questions counts ---
+
+    startQuestionTimer() {
+        this.questionStartedAt = Date.now();
+        clearInterval(this.timerTicker);
+        this.timerTicker = setInterval(() => this.renderSessionTime(), 1000);
+        this.renderSessionTime();
+    }
+
+    // Seconds spent on the current question, capped for a player who stepped away
+    stopQuestionTimer() {
+        clearInterval(this.timerTicker);
+        const seconds = this.questionStartedAt ? (Date.now() - this.questionStartedAt) / 1000 : 0;
+        this.questionStartedAt = null;
+        return Math.min(MAX_COUNTED_SECONDS, seconds);
+    }
+
+    renderSessionTime() {
+        const session = this.session;
+        const answered = session && session.answerTimes ? session.answerTimes.reduce((sum, t) => sum + t, 0) : 0;
+        const current = this.questionStartedAt ? Math.min(MAX_COUNTED_SECONDS, (Date.now() - this.questionStartedAt) / 1000) : 0;
+        this.sessionTimeEl.textContent = formatTime(answered + current);
     }
 
     // The first version of a pair is held until its partner is answered
@@ -816,6 +875,7 @@ class GradeMyBrainApp {
                 <span class="breakdown-delta-badge ${cp.delta >= 0 ? 'delta-up' : 'delta-down'}">${deltaText}</span>
             </div>
             <p class="checkpoint-summary">${esc(scoredText + pendingText + retestText)}</p>
+            ${paceHtml((session.answerTimes || []).slice(cp.from - 1, cp.to), 'this round')}
             ${this.tokenResultsHtml(cp.tokens || [])}
 
             ${missed.length > 0 ? `
@@ -1314,6 +1374,10 @@ class GradeMyBrainApp {
         this.finalGradeTitle.style.color = gradeInfo.color;
         this.finalScoreEl.textContent = data.shownScore;
         this.finalGradeCheerEl.textContent = gradeCheer(accuracy);
+        const times = data.answerTimes || [];
+        this.finalPaceEl.innerHTML = times.length
+            ? `<p class="pace-note">⏱ Time on questions: ${formatTime(times.reduce((sum, t) => sum + t, 0))}</p>` + paceHtml(times, 'in this session')
+            : '';
         this.statAccuracyEl.textContent = accuracy === null ? '–' : `${accuracy}%`;
 
         this.sys1BarEl.style.width = `${audit.system1Score}%`;
