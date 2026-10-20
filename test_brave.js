@@ -398,7 +398,7 @@ async function playSession(page, label) {
         await page.waitForFunction(() => !document.getElementById('checkpoint-view').hidden);
         // The test answers instantly, so every review shows the pace and the speed-run nudge
         assert.match(await text(page, '#checkpoint-view .pace-note'), /You averaged .* per question this round/, `${label}: review should show the pace`);
-        assert.ok(await page.$('#checkpoint-view .pace-warning'), `${label}: very fast answers should get the speed-run nudge`);
+        assert.ok(await page.$('#checkpoint-view .speed-run'), `${label}: very fast answers should get the speed-run nudge`);
         const eyebrow = await text(page, '.checkpoint-eyebrow');
         assert.ok(eyebrow.includes(`Round ${Math.ceil(round / CHECKPOINT_EVERY)} review`), `${label}: review title should name the round`);
         assert.equal(round - lastReviewed, Math.min(CHECKPOINT_EVERY, round - lastReviewed), `${label}: a review should cover at most one round`);
@@ -437,7 +437,7 @@ async function playSession(page, label) {
     await settle(); // the radar chart draws just after the audit opens
     assert.equal(Number(await text(page, '#final-score')), expectedScore, `${label}: final score`);
     assert.match(await text(page, '#final-pace'), /Time on questions: \d+:\d\d/, `${label}: the report should show the time on questions`);
-    assert.ok(await page.$('#final-pace .pace-warning'), `${label}: the report should flag a speed run`);
+    assert.ok(await page.$('#final-pace .speed-run'), `${label}: the report should flag a speed run`);
     const nextVisible = !(await isHidden(page, '#play-again-btn')) || !(await isHidden(page, '#full-version-cta'));
     assert.ok(nextVisible, `${label}: next-session button should show`);
 

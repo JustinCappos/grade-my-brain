@@ -107,10 +107,14 @@ function paceHtml(times, scope) {
     const note = `<p class="pace-note">⏱ You averaged ${shown} per question ${scope}.</p>`;
     if (average >= FAST_ANSWER_SECONDS) return note;
     return note + `
-        <div class="pace-warning">
-            <strong>⚡ Speed run detected!</strong> Under ${FAST_ANSWER_SECONDS} seconds a question usually means
-            System 1 is doing the clicking. These questions hide their tricks in the details, so give System 2
-            a few more seconds to read each one.
+        <div class="speed-run" role="note">
+            <img src="images/speed-sloth.svg" alt="A sleepy sloth zooming along in a race car" width="150" height="98">
+            <div>
+                <p class="speed-run-title">⚡ Speed run detected!</p>
+                <p>Under ${FAST_ANSWER_SECONDS} seconds a question usually means System 1 is doing the clicking.
+                    These questions hide their tricks in the details, so give System 2 a few more seconds to read
+                    each one.</p>
+            </div>
         </div>`;
 }
 

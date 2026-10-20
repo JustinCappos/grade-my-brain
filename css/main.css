@@ -328,6 +328,39 @@ body {
     color: #cbd5e1;
 }
 
+.speed-run {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 10px;
+    padding: 16px 20px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(250, 204, 21, 0.16), rgba(239, 68, 68, 0.12));
+    border: 2px solid rgba(250, 204, 21, 0.7);
+    box-shadow: 0 0 22px rgba(250, 204, 21, 0.18);
+    color: #fef3c7;
+    line-height: 1.5;
+}
+
+.speed-run img {
+    flex: none;
+    width: 150px;
+    height: auto;
+}
+
+.speed-run-title {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #fde047;
+    margin-bottom: 4px;
+}
+
+@media (max-width: 520px) {
+    .speed-run { flex-direction: column; text-align: center; }
+    .speed-run img { width: 130px; }
+}
+
 .pace-warning {
     margin-top: 8px;
     padding: 12px 14px;
