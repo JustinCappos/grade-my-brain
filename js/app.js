@@ -46,6 +46,9 @@ const BONUS_POPUP_SECONDS = 59;
 const FAST_ANSWER_SECONDS = 5;
 // A question left open longer than this (the player stepped away) counts as this long
 const MAX_COUNTED_SECONDS = 180;
+// Switching away from the window more often than this while answering
+// suggests looking things up
+const LEAVE_WARNING_AFTER = 8;
 // Hidden test: a pre-ticked "share to the leaderboard" box beside Continue on
 // the first review at or after this question that isn't the last one
 const LEADERBOARD_BOX_FROM = 20;
@@ -111,6 +114,17 @@ function paceHtml(times, scope) {
         </div>`;
 }
 
+// A friendly note when the player keeps switching away while answering
+function leavesHtml(count) {
+    if (!count || count <= LEAVE_WARNING_AFTER) return '';
+    return `
+        <div class="pace-warning leave-warning">
+            <strong>👀 Quick check:</strong> you switched away from this window ${count} times while answering.
+            Looking things up or reaching for a calculator is a very System 2 move, but this game is about how you
+            decide on your own, in the moment. Next time, try to stay on the page.
+        </div>`;
+}
+
 function playSafely(fn) {
     try { fn(); } catch (err) { /* audio unavailable */ }
 }
@@ -162,6 +176,7 @@ class GradeMyBrainApp {
         this.finalGradeCheerEl = document.getElementById('final-grade-cheer');
         this.finalPaceEl = document.getElementById('final-pace');
         this.sessionTimeEl = document.getElementById('session-time');
+        this.answerOnYourOwnEl = document.getElementById('answer-on-your-own');
         this.statAccuracyEl = document.getElementById('stat-accuracy');
         this.progressSummaryEl = document.getElementById('progress-summary');
         this.auditPickerEl = document.getElementById('audit-session-picker');
@@ -199,6 +214,10 @@ class GradeMyBrainApp {
     }
 
     setupEventListeners() {
+        window.addEventListener('blur', () => this.noteLeftWindow());
+        window.addEventListener('focus', () => this.noteReturned());
+        document.addEventListener('visibilitychange', () => (document.hidden ? this.noteLeftWindow() : this.noteReturned()));
+
         this.soundToggleBtn.onclick = () => {
             const isEnabled = sound.toggleSound();
             this.soundToggleBtn.classList.toggle('muted', !isEnabled);
@@ -486,6 +505,7 @@ class GradeMyBrainApp {
         this.scenarioTitleEl.textContent = sc.title;
         this.scenarioTextEl.textContent = sc.scenarioText;
         this.startQuestionTimer();
+        this.renderOnYourOwnReminder();
         this.maybeShowBonusPopup();
         this.scenarioMediaEl.innerHTML = this.imageHtml(sc) +
             (sc.mockScreen && !this.isInteractiveMock(sc) ? this.mockScreenHtml(sc, { interactive: false }) : '');
@@ -616,6 +636,33 @@ class GradeMyBrainApp {
             this.progress.save();
             this.renderQuestion();
         }
+    }
+
+    // --- Switching away: counted only while a question is on screen ---
+
+    // A tab switch fires both blur and visibilitychange, so each trip away counts once
+    noteLeftWindow() {
+        if (this.away) return;
+        this.away = true;
+        const session = this.session;
+        if (!session || session.phase !== 'question' || this.scenarioStageEl.hidden) return;
+        session.leftCount = (session.leftCount || 0) + 1;
+        this.progress.save();
+    }
+
+    noteReturned() {
+        this.away = false;
+        this.renderOnYourOwnReminder();
+    }
+
+    // The line under each question becomes a highlighted reminder after many switches
+    renderOnYourOwnReminder() {
+        const count = this.session ? this.session.leftCount || 0 : 0;
+        const warn = count > LEAVE_WARNING_AFTER;
+        this.answerOnYourOwnEl.classList.toggle('answer-on-your-own-warn', warn);
+        this.answerOnYourOwnEl.textContent = warn
+            ? `👀 You've switched away from this window ${count} times. Please answer on your own: no looking things up.`
+            : "Answer on your own: please don't look anything up.";
     }
 
     // --- Question timer: only time spent on questions counts ---
@@ -876,6 +923,7 @@ class GradeMyBrainApp {
             </div>
             <p class="checkpoint-summary">${esc(scoredText + pendingText + retestText)}</p>
             ${paceHtml((session.answerTimes || []).slice(cp.from - 1, cp.to), 'this round')}
+            ${leavesHtml(session.leftCount)}
             ${this.tokenResultsHtml(cp.tokens || [])}
 
             ${missed.length > 0 ? `
@@ -1378,6 +1426,7 @@ class GradeMyBrainApp {
         this.finalPaceEl.innerHTML = times.length
             ? `<p class="pace-note">⏱ Time on questions: ${formatTime(times.reduce((sum, t) => sum + t, 0))}</p>` + paceHtml(times, 'in this session')
             : '';
+        this.finalPaceEl.innerHTML += leavesHtml(data.leftCount);
         this.statAccuracyEl.textContent = accuracy === null ? '–' : `${accuracy}%`;
 
         this.sys1BarEl.style.width = `${audit.system1Score}%`;

@@ -108,7 +108,8 @@ export class Progress {
             questionCount: session.queue.length,
             shownScore: session.shownScore,
             reviewed: session.reviewed,
-            answerTimes: session.answerTimes || []
+            answerTimes: session.answerTimes || [],
+            leftCount: session.leftCount || 0
         });
     }
 

@@ -599,12 +599,28 @@ async function runBrowserChecks(browser) {
     // makeup rounds drawn only from office questions
     await page.evaluate(() => window.scrollTo(0, 0));
     await startOver(page);
+    // Switching away on the start screen (e.g. to read the policy) never counts
+    const switchAway = (times) => page.evaluate(n => {
+        for (let i = 0; i < n; i++) {
+            window.dispatchEvent(new Event('blur'));
+            window.dispatchEvent(new Event('focus'));
+        }
+    }, times);
+    await switchAway(3);
     await startGame(page, { checkConsent: true, mode: 'office' });
+    assert.equal(await page.evaluate(() => window.brainApp.session.leftCount || 0), 0, 'Switches before the first question should not count');
+    // Switching away a lot while answering turns the reminder under each question into a warning
+    await switchAway(8);
+    assert.equal(await page.$('#answer-on-your-own.answer-on-your-own-warn'), null, 'Eight switches should not warn yet');
+    await switchAway(1);
+    assert.ok(await page.$('#answer-on-your-own.answer-on-your-own-warn'), 'A ninth switch should warn under the question');
+    assert.match(await text(page, '#answer-on-your-own'), /switched away from this window 9 times/);
     const officeStart = await page.evaluate(() => window.brainApp.session);
     assert.equal(officeStart.version, 'office', 'Choosing the office version should start an office session');
     assert.deepEqual(officeStart.queue.filter(e => !isFiller(e.id)).map(e => e.id).sort(), ScenarioBank.mainQuestions('office').map(s => s.id).sort(),
         'The office session should ask every office question');
     const office = await playSession(page, 'office session');
+    assert.ok(await page.$('#final-pace .leave-warning'), 'The report should mention the switching away');
     const officeIds = office.queue.map(e => e.id);
     assert.deepEqual(officeIds.filter(id => !ScenarioBank.getScenario(id).office), [], 'The office session should only use office questions');
     assert.ok(office.queue.length <= OFFICE_SESSION_MAX, `The office session ran to ${office.queue.length} questions`);
