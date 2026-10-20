@@ -1766,12 +1766,12 @@ export const STANDALONE_SCENARIOS = [
         biasType: "BAIT",
         title: "Threatening Email",
         scenarioText: "An email says: \"I hacked your computer and recorded you through your webcam. Your password is Summer2019, proof I'm serious. Pay $1,200 in Bitcoin within 48 hours or I send the video to your contacts.\" Summer2019 is an old password you used years ago. What's most likely going on?",
-        bestAnswer: "The password came from an old data breach, and the threat is a bluff",
-        reasoning: "Waves of emails like this have used passwords leaked in old data breaches to seem convincing. The real password makes the whole story feel true, but it's the only evidence offered, and it doesn't show anyone was ever on your computer. Don't pay; change that password anywhere you still use it, and report the email.",
+        bestAnswer: "It's a bluff",
+        reasoning: "Waves of emails like this have used passwords leaked in old data breaches to seem convincing; an old password is exactly what a breach would expose. The real password makes the whole story feel true, but it's the only evidence offered, and it doesn't show anyone was ever on your computer. Don't pay; change that password anywhere you still use it, and report the email.",
         biasName: "Fear & Curiosity Bait",
         bookRef: "Thinking, Fast and Slow - Chapter 7 (What You See Is All There Is)",
         options: [
-            { text: "The password came from an old data breach, and the threat is a bluff", biasValue: 0, isBest: true },
+            { text: "It's a bluff", biasValue: 0, isBest: true },
             { text: "They hacked your computer and have a video", biasValue: 1, isBest: false }
         ]
     },
