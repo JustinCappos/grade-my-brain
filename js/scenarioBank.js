@@ -1561,14 +1561,15 @@ export const STANDALONE_SCENARIOS = [
         office: true,
         biasType: "AUTHORITY_PRESSURE",
         title: "Video Call Transfer",
-        scenarioText: "On a video call, your CFO and two colleagues you recognize ask you to make 15 urgent transfers totaling $25 million for a confidential acquisition. Their faces and voices look and sound right. What do you do?",
-        bestAnswer: "Verify through a separate channel you already trust before moving any money",
-        reasoning: "In 2024 an employee of the engineering firm Arup transferred about $25 million after a video call in which the CFO and colleagues were deepfakes. Seeing and hearing someone is no longer proof it's them. An unusual, secret, urgent request for money calls for verification through a channel the requester doesn't control.",
+        scenarioText: "You join a video call with your CFO and two colleagues you work with every week. You recognize their faces and voices, so you're sure it's really them. The CFO asks you to make 15 transfers totaling $25 million today for an acquisition that hasn't been announced, and to keep it confidential until it is. What do you do?",
+        bestAnswer: "Call the CFO on their usual number before sending anything",
+        reasoning: "In 2024 an employee of the engineering firm Arup transferred about $25 million after a video call in which the CFO and colleagues were deepfakes. Recognizing someone's face and voice is no longer proof it's them. Written approval by email doesn't help either, since whoever faked the call can fake an email too. An unusual, confidential request to move money calls for a check through a channel the requester doesn't control, like the CFO's usual phone number.",
         biasName: "Authority & Impersonation",
         bookRef: "Influence research (Cialdini 1984)",
         options: [
             { text: "Make the transfers", biasValue: 1, isBest: false },
-            { text: "Verify through a separate channel you already trust before moving any money", biasValue: 0, isBest: true }
+            { text: "Call the CFO on their usual number before sending anything", biasValue: 0, isBest: true },
+            { text: "Ask the CFO to send written approval by email, then make the transfers", biasValue: 0.5, isBest: false }
         ]
     },
     {
