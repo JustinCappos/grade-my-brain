@@ -2,12 +2,12 @@
  * Grade My Brain - App Controller
  * Compatible with Brave, Chrome, Safari, Firefox, and Edge.
  *
- * Flow: the player enters an ID code, then works through every question
+ * Flow: the player picks a version, then works through every question
  * without feedback. Every CHECKPOINT_EVERY questions (and at the end) a
  * review explains what they missed, offers a "how to think differently"
  * tip, gives a practice question on each missed bias, and adds a retest of
  * each missed bias to the end of the session, so the session grows with the
- * number of misses. Progress is kept per ID code (see progress.js); after a
+ * number of misses. Progress is saved in the browser (see progress.js); after a
  * full pass, the next session retests the bias types still answered wrong.
  */
 
@@ -15,7 +15,7 @@ import { sound } from './audio.js';
 import { ScenarioBank, PAIRED_TESTS, BIAS_CATEGORIES, REVIEW_BLOCK, BONUS_TOKEN, SHORT_SESSION_MAX, OFFICE_SESSION_MAX } from './scenarioBank.js';
 import { BiasAnalyzer } from './biasAnalyzer.js';
 import { BrainChart } from './chart.js';
-import { Progress, normalizeId, displayId, newGuestId, isGuestId } from './progress.js';
+import { Progress } from './progress.js';
 
 // Grades come from the share of reviewed answers that were right, so they
 // mean the same thing however long the session runs
@@ -39,7 +39,6 @@ const STARTING_SCORE = 100;
 const POINTS_CORRECT = 20;
 // A miss costs nothing: points only ever go up for learning
 const POINTS_WRONG = 0;
-const ACTIVE_ID_KEY = 'gmb_active_id';
 // The fake bonus pop-up appears once per player, at this question (0-based)
 const BONUS_POPUP_AT = 6;
 const BONUS_POPUP_SECONDS = 59;
@@ -87,17 +86,6 @@ function externalTag(sc, mail) {
     return isExternalSender(sc, mail) ? '<span class="inbox-external">External</span>' : '';
 }
 
-function sessionStorageGet(key) {
-    try { return sessionStorage.getItem(key); } catch (err) { return null; }
-}
-
-function sessionStorageSet(key, value) {
-    try {
-        if (value === null) sessionStorage.removeItem(key);
-        else sessionStorage.setItem(key, value);
-    } catch (err) { /* blocked; the player re-enters their ID after a reload */ }
-}
-
 function playSafely(fn) {
     try { fn(); } catch (err) { /* audio unavailable */ }
 }
@@ -118,13 +106,12 @@ class GradeMyBrainApp {
         this.progressDetailEl = document.getElementById('progress-detail');
         this.progressTrackEl = document.getElementById('progress-track');
         this.soundToggleBtn = document.getElementById('sound-toggle-btn');
-        this.switchIdBtn = document.getElementById('switch-id-btn');
+        this.restartBtn = document.getElementById('restart-btn');
         this.viewAuditBtn = document.getElementById('view-audit-btn');
 
         // Intro Elements
         this.introViewEl = document.getElementById('intro-view');
         this.introFormEl = document.getElementById('intro-form');
-        this.idInputEl = document.getElementById('id-code-input');
         this.consentEl = document.getElementById('privacy-consent');
         this.fullVersionCtaEl = document.getElementById('full-version-cta');
         this.fullVersionCtaTextEl = document.getElementById('full-version-cta-text');
@@ -175,9 +162,9 @@ class GradeMyBrainApp {
         this.chart = new BrainChart('brain-chart');
         this.setupEventListeners();
 
-        const activeId = sessionStorageGet(ACTIVE_ID_KEY);
-        if (activeId) {
-            this.progress = new Progress(activeId);
+        // One saved game per browser: resume it if there is one
+        if (Progress.exists()) {
+            this.progress = new Progress();
             this.enterGame();
         } else {
             this.showIntro();
@@ -191,10 +178,12 @@ class GradeMyBrainApp {
             this.soundToggleBtn.textContent = isEnabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
         };
 
-        this.switchIdBtn.onclick = () => {
+        // Clears this browser's saved game and goes back to the start screen
+        this.restartBtn.onclick = () => {
+            if (!window.confirm('Start over? This clears your progress in this browser.')) return;
             playSafely(() => sound.playClick());
             this.hideSummaryModal();
-            sessionStorageSet(ACTIVE_ID_KEY, null);
+            Progress.clear();
             this.progress = null;
             this.showIntro();
         };
@@ -249,7 +238,7 @@ class GradeMyBrainApp {
         this.scenarioStageEl.hidden = view !== 'question';
         this.checkpointEl.hidden = view !== 'checkpoint';
         this.viewAuditBtn.hidden = view === 'intro';
-        this.switchIdBtn.hidden = view === 'intro';
+        this.restartBtn.hidden = view === 'intro';
         if (scroll) {
             const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
@@ -258,43 +247,31 @@ class GradeMyBrainApp {
 
     showIntro() {
         this.showView('intro');
-        this.idInputEl.value = '';
         this.consentEl.checked = false;
         this.introContinueBtn.classList.add('looks-disabled');
         // A link ending in ?mode=office preselects the office version
         const linkMode = new URLSearchParams(location.search).get('mode') === 'office' ? 'office' : 'short';
         document.querySelector(`input[name="mode"][value="${linkMode}"]`).checked = true;
-        document.getElementById('short-count').textContent = ScenarioBank.sessionLengthEstimate('short');
-        document.getElementById('office-count').textContent = ScenarioBank.sessionLengthEstimate('office');
+        // Rounded, since the start screen says "about"
+        const about = version => Math.round(ScenarioBank.sessionLengthEstimate(version) / 5) * 5;
+        document.getElementById('short-count').textContent = about('short');
+        document.getElementById('office-count').textContent = about('office');
         this.updateHeaderUI();
         this.chart.updateHistory([{ round: 0, score: STARTING_SCORE }]);
     }
 
-    // A blank ID starts a fresh guest (see newGuestId)
+    // Starts this browser's saved game
     handleIntroContinue() {
         if (!this.consentEl.checked && !this.openedPolicy) return;
-        let id = normalizeId(this.idInputEl.value);
-        if (!id) {
-            Progress.clearGuests();
-            id = newGuestId();
-        }
         playSafely(() => sound.playClick());
-        this.progress = new Progress(id);
-        this.progress.data.consent = {
-            checked: this.consentEl.checked,
-            openedPolicy: this.openedPolicy || this.progress.data.consent.openedPolicy
-        };
-        // The chosen version applies unless a session is still in progress
-        const saved = this.progress.data.session;
-        if (!saved || saved.phase === 'complete') {
-            this.progress.data.mode = document.querySelector('input[name="mode"]:checked').value === 'office' ? 'office' : 'short';
-        }
+        this.progress = new Progress();
+        this.progress.data.consent = { checked: this.consentEl.checked, openedPolicy: this.openedPolicy };
+        this.progress.data.mode = document.querySelector('input[name="mode"]:checked').value === 'office' ? 'office' : 'short';
         this.progress.save();
-        sessionStorageSet(ACTIVE_ID_KEY, id);
         this.enterGame();
     }
 
-    // Resumes the saved session for this ID, or starts a new one
+    // Resumes the saved session, or starts a new one
     enterGame() {
         const session = this.session;
         const queueValid = session && session.queue.every(e => ScenarioBank.getScenario(e.id));
@@ -766,7 +743,7 @@ class GradeMyBrainApp {
     }
 
     // Hidden test: there is no leaderboard; the box only records whether the
-    // player left it ticked. It appears once per ID (again after a reload).
+    // player left it ticked. It appears once per saved game (again after a reload).
     showLeaderboardBox(cp, isLast) {
         const tests = (this.progress.data.hiddenTests ||= {});
         if (tests.leaderboard) return tests.leaderboard.kept === null && tests.leaderboard.at === cp.to;
@@ -1232,7 +1209,6 @@ class GradeMyBrainApp {
     renderGoodbye() {
         this.showView('checkpoint');
         const unseenFull = ScenarioBank.mainQuestions('full').filter(sc => !this.progress.seenIds.has(sc.id)).length;
-        const guest = isGuestId(this.progress.id);
         this.checkpointEl.innerHTML = `
             <div class="checkpoint-head">
                 <div>
@@ -1240,9 +1216,7 @@ class GradeMyBrainApp {
                     <h2 class="checkpoint-title">Thanks for playing! 🧠</h2>
                 </div>
             </div>
-            <p class="checkpoint-summary">${guest
-                ? 'You played as a guest, so you can pick up where you left off as long as this tab stays open.'
-                : `Your progress is saved under ${esc(displayId(this.progress.id))}, so you can come back any time.`}
+            <p class="checkpoint-summary">Your progress is saved in this browser, so you can come back any time.
                 The full version's ${unseenFull} questions are here whenever you want them.</p>
             <div class="full-version-cta-actions">
                 <button id="goodbye-full-btn" class="glow-btn full-version-cta-btn" type="button">▶ Start the full version</button>
@@ -1270,9 +1244,9 @@ class GradeMyBrainApp {
             </div>
             <p class="checkpoint-summary">
                 You have answered all ${total} questions, and your most recent answer on every topic was right.
-                You can start over with this ID code to go through them again.
+                You can start over to go through them again.
             </p>
-            <button id="start-over-btn" class="glow-btn checkpoint-continue" type="button">Start over with this ID</button>
+            <button id="start-over-btn" class="glow-btn checkpoint-continue" type="button">Start over</button>
         `;
         this.checkpointEl.querySelector('#start-over-btn').onclick = () => {
             playSafely(() => sound.playClick());
@@ -1356,7 +1330,7 @@ class GradeMyBrainApp {
         const seen = mainPool.filter(sc => seenIds.has(sc.id)).length;
         const retestNames = this.progress.retestTypes().map(t => BIAS_CATEGORIES[t].name);
         this.progressSummaryEl.innerHTML = `
-            <p><strong>${esc(displayId(this.progress.id))}</strong> · ${seen} of ${total} questions seen · ${this.progress.data.sessionsCompleted} ${this.progress.data.sessionsCompleted === 1 ? 'session' : 'sessions'} completed</p>
+            <p>${seen} of ${total} questions seen · ${this.progress.data.sessionsCompleted} ${this.progress.data.sessionsCompleted === 1 ? 'session' : 'sessions'} completed</p>
             <p>${retestNames.length > 0
                 ? `Up for a rematch: ${esc(retestNames.join(', '))}`
                 : 'No rematches needed right now. Nice work!'}</p>

@@ -37,20 +37,20 @@
         <div class="header-controls">
             <button id="view-audit-btn" class="control-btn" style="background: rgba(6, 182, 212, 0.2); border-color: rgba(6, 182, 212, 0.4);">📊 View Audit</button>
             <button id="sound-toggle-btn" class="control-btn">🔊 Sound: ON</button>
-            <button id="switch-id-btn" class="control-btn">👤 Switch ID</button>
+            <button id="restart-btn" class="control-btn">↺ Start over</button>
         </div>
     </header>
 
     <!-- Main Game Layout -->
     <main class="main-container">
-        <!-- ID Code & Consent -->
+        <!-- Version choice & consent -->
         <section id="intro-view" class="intro-panel glass-panel" aria-labelledby="intro-heading" hidden>
             <div class="intro-head">
                 <p class="intro-eyebrow">Decision-making diagnostic</p>
                 <h2 id="intro-heading" class="intro-title">Before you begin</h2>
                 <p class="intro-text">
-                    If you were given an ID code, enter it below. Your progress is saved in this browser,
-                    so you can stop any time and pick up where you left off.
+                    Your progress is saved in this browser, so you can stop any time and pick up where you
+                    left off.
                 </p>
             </div>
 
@@ -69,13 +69,6 @@
             </div>
 
             <form id="intro-form" class="intro-form" novalidate>
-                <div class="intro-field">
-                    <label for="id-code-input" class="intro-label">ID code <span class="intro-optional">(optional)</span></label>
-                    <input id="id-code-input" class="intro-input" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. NYU-4821" aria-describedby="id-code-hint">
-                    <p id="id-code-hint" class="intro-hint">Leave blank to play as a guest. Enter an ID code if you want to come back to your progress later.</p>
-                </div>
-
-
                 <fieldset class="mode-choice">
                     <legend class="intro-label">Which describes you best?</legend>
                     <label class="mode-option">
@@ -232,7 +225,7 @@
                 </div>
             </div>
 
-            <!-- Progress across sessions for this ID code -->
+            <!-- Progress across sessions in this browser -->
             <div id="progress-summary" class="progress-summary"></div>
 
             <!-- Which session's results the audit shows -->

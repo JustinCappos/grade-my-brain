@@ -22,7 +22,7 @@ import {
     MIN_PAIR_GAP, REVIEW_BLOCK, SHORT_SESSION_MAX, OFFICE_SESSION_MAX, ScenarioBank
 } from './js/scenarioBank.js';
 import { BiasAnalyzer } from './js/biasAnalyzer.js';
-import { Progress, normalizeId, displayId, newGuestId, isGuestId } from './js/progress.js';
+import { Progress } from './js/progress.js';
 
 const PORT = 8088;
 const BRAVE_PATH = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser';
@@ -200,14 +200,8 @@ function checkSessionBuilder() {
 // Retest topics follow each topic's most recent scored answer; practice doesn't count
 function checkProgress() {
     const storage = memoryStorage();
-    assert.equal(normalizeId('   '), '', 'A blank ID should stay blank');
-    assert.equal(normalizeId('~guest-abc'), 'guest-abc', 'Typed IDs can never look like guest IDs');
-    const guestA = newGuestId();
-    assert.ok(isGuestId(guestA) && guestA !== newGuestId(), 'Each guest gets its own ID');
-    assert.equal(displayId(guestA), 'Guest');
-    assert.equal(displayId('nyu-4821'), 'NYU-4821');
-    const p = new Progress('  Tester-1 ', storage);
-    assert.equal(p.id, 'tester-1');
+    assert.ok(!Progress.exists(storage), 'A new browser has no saved game');
+    const p = new Progress(storage);
     p.recordResult({ scenarioId: 'a', biasType: 'ANCHORING', correct: false, kind: 'main' });
     p.recordResult({ scenarioId: 'b', biasType: 'BASE_RATE', correct: false, kind: 'main' });
     p.recordResult({ scenarioId: 'c', biasType: 'ANCHORING', correct: true, kind: 'retest' });
@@ -216,19 +210,22 @@ function checkProgress() {
     p.markSeen('a');
     p.save();
 
-    const reloaded = new Progress('TESTER-1', storage);
+    const reloaded = new Progress(storage);
     assert.deepEqual(reloaded.retestTypes(), ['FRAMING', 'BASE_RATE']);
     assert.deepEqual([...reloaded.missedIds()].sort(), ['a', 'b', 'e']);
     assert.ok(reloaded.seenIds.has('a'));
-    assert.ok(Progress.exists('tester-1', storage));
+    assert.ok(Progress.exists(storage), 'Saving should create the saved game');
     const finished = { queue: [{ id: 'a' }], shownScore: 120, reviewed: [{ scenarioId: 'a', correct: true }] };
     reloaded.archiveSession(finished);
     reloaded.archiveSession(finished);
     assert.equal(reloaded.pastSessions.length, 1, 'A session should only be archived once');
     reloaded.reset();
-    const afterReset = new Progress('tester-1', storage);
+    const afterReset = new Progress(storage);
     assert.equal(afterReset.data.results.length, 0);
-    assert.equal(afterReset.pastSessions.length, 1, 'Starting over should keep past session results');
+    assert.equal(afterReset.pastSessions.length, 1, 'Resetting the question pool should keep past session results');
+    Progress.clear(storage);
+    assert.ok(!Progress.exists(storage), 'Starting over should clear the saved game');
+    assert.equal(new Progress(storage).pastSessions.length, 0);
 }
 
 // The audit only lists real vulnerabilities and strengths
@@ -256,9 +253,9 @@ const settle = () => new Promise(r => setTimeout(r, 400));
 const text = (page, selector) => page.$eval(selector, el => el.textContent.trim());
 const isHidden = (page, selector) => page.$eval(selector, el => el.hidden);
 
-async function enterId(page, id, { checkConsent, mode }) {
-    assert.equal(await isHidden(page, '#intro-view'), false, 'ID screen should show first');
-    await page.type('#id-code-input', id);
+async function startGame(page, { checkConsent, mode }) {
+    assert.equal(await isHidden(page, '#intro-view'), false, 'The start screen should show first');
+    assert.equal(await page.$('#id-code-input'), null, 'The start screen should not ask for an ID code');
     if (mode) await page.click(`input[name="mode"][value="${mode}"]`);
     const looksDisabled = () => page.$eval('#intro-continue-btn', el => el.classList.contains('looks-disabled'));
     assert.equal(await page.$eval('#privacy-consent', el => el.checked), false, 'The consent box should start unchecked');
@@ -278,6 +275,13 @@ async function enterId(page, id, { checkConsent, mode }) {
     }
     await page.click('#intro-continue-btn');
     await page.waitForFunction(() => !document.getElementById('scenario-stage').hidden);
+}
+
+// Clicks Start over and confirms it
+async function startOver(page) {
+    page.once('dialog', d => d.accept());
+    await page.click('#restart-btn');
+    await page.waitForFunction(() => !document.getElementById('intro-view').hidden);
 }
 
 // Answers the current question: the first option, or "Keep" for every email in an inbox
@@ -487,8 +491,8 @@ async function runBrowserChecks(browser) {
     await page.evaluate(() => document.fonts.ready);
     assert.deepEqual(await outsideHosts(), [], 'The game should not contact other servers');
 
-    await enterId(page, 'E2E-Player', { checkConsent: false });
-    const consent = await page.evaluate(() => JSON.parse(localStorage.getItem('gmb_progress_e2e-player')).consent);
+    await startGame(page, { checkConsent: false });
+    const consent = await page.evaluate(() => JSON.parse(localStorage.getItem('gmb_progress')).consent);
     assert.equal(consent.checked, false, 'Leaving consent unchecked should be recorded');
 
     // Session 1 is the short version by default
@@ -498,7 +502,7 @@ async function runBrowserChecks(browser) {
     assert.ok(await page.$('#hidden-tests img[src="images/gerald-sad.svg"]'), 'Passing the policy test should show sad Gerald');
     assert.ok(first.bonusClaimed, 'The bonus pop-up should appear in the first session');
     assert.ok(/Gotcha! 2 of 3 sneaky tests caught you/.test(debrief), 'Debrief should count the bonus pop-up and leaderboard box as failed tests');
-    const leaderboard = await page.evaluate(() => JSON.parse(localStorage.getItem('gmb_progress_e2e-player')).hiddenTests.leaderboard);
+    const leaderboard = await page.evaluate(() => JSON.parse(localStorage.getItem('gmb_progress')).hiddenTests.leaderboard);
     assert.deepEqual(leaderboard, { at: 20, kept: true }, 'The pre-ticked leaderboard box should appear at the round 2 review and be recorded');
     assert.ok(debrief.includes('The leaderboard box'), 'Debrief should reveal the leaderboard box');
     assert.ok(await page.$('#hidden-tests .hidden-test-fail'), 'The bonus pop-up result should be marked as failed');
@@ -559,42 +563,38 @@ async function runBrowserChecks(browser) {
     assert.equal(thirdStart.filter(e => e.pad).length, Math.ceil(thirdStart.filter(e => e.retest).length / 4),
         'A retest-only session should mix in one straightforward question per four retests');
 
-    // Switch ID returns to the ID screen; a new ID starts fresh
+    // Start over clears the saved game and returns to the start screen; the new game starts fresh
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.click('#switch-id-btn');
-    assert.equal(await isHidden(page, '#intro-view'), false, 'Switch ID should show the ID screen');
-    // A blank ID plays as a guest with its own fresh progress, starting with the short version
+    await startOver(page);
+    assert.equal(await isHidden(page, '#intro-view'), false, 'Start over should show the start screen');
+    assert.equal(await page.evaluate(() => localStorage.getItem('gmb_progress')), null, 'Start over should clear the saved game');
     assert.equal(await page.$('#full-version-toggle'), null, 'The start screen should not offer the full version');
-    await enterId(page, '', { checkConsent: true });
-    const guestKeys = () => page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('gmb_progress_~guest-')));
-    const firstGuest = await guestKeys();
-    assert.equal(firstGuest.length, 1, 'A blank ID should play as a new guest');
+    await startGame(page, { checkConsent: true });
     assert.equal(await text(page, '#current-round'), '1', 'A new player starts at round 1');
-    const guestStart = await page.evaluate(() => window.brainApp.session);
-    assert.equal(guestStart.version, 'short', 'A new player should start with the short version');
-    assert.deepEqual(guestStart.queue.filter(e => !isFiller(e.id)).map(e => e.id).sort(), ScenarioBank.mainQuestions('short').map(s => s.id).sort(),
+    const freshStart = await page.evaluate(() => window.brainApp.session);
+    assert.equal(freshStart.version, 'short', 'A new player should start with the short version');
+    assert.deepEqual(freshStart.queue.filter(e => !isFiller(e.id)).map(e => e.id).sort(), ScenarioBank.mainQuestions('short').map(s => s.id).sort(),
         'The short version should cover every short question');
-    assert.equal(guestStart.queue.length, ScenarioBank.sessionLengthEstimate('short'), 'The short version should be its estimated length');
+    assert.equal(freshStart.queue.length, ScenarioBank.sessionLengthEstimate('short'), 'The short version should be its estimated length');
 
-    // Switching to another blank ID starts over instead of resuming the last guest
+    // Coming back later (a fresh tab) resumes the same game at the same question
     await answerCurrent(page);
     await page.waitForFunction(() => window.brainApp.session.position === 1);
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await page.click('#switch-id-btn');
-    await enterId(page, '', { checkConsent: true });
-    assert.equal(await page.evaluate(() => window.brainApp.session.position), 0, 'A new guest should start at the first question');
-    const secondGuest = await guestKeys();
-    assert.equal(secondGuest.length, 1, 'The earlier guest progress should be cleared');
-    assert.notEqual(secondGuest[0], firstGuest[0], 'Each blank ID should be a different guest');
-    // Reloading the tab resumes the current guest
-    await page.reload({ waitUntil: 'networkidle0' });
-    assert.equal(await isHidden(page, '#scenario-stage'), false, 'Reloading should resume the current guest');
+    const laterTab = await browser.newPage();
+    await laterTab.goto(`http://localhost:${PORT}`, { waitUntil: 'networkidle0' });
+    assert.equal(await isHidden(laterTab, '#scenario-stage'), false, 'A returning player should resume without the start screen');
+    assert.equal(await laterTab.evaluate(() => window.brainApp.session.position), 1, 'A returning player should resume at the same question');
+    await laterTab.close();
+    // Cancelling Start over keeps the game
+    page.once('dialog', d => d.dismiss());
+    await page.click('#restart-btn');
+    assert.equal(await isHidden(page, '#scenario-stage'), false, 'Cancelling Start over should keep the game');
 
     // The office version: a shorter session of plain-language office questions, with
     // makeup rounds drawn only from office questions
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.click('#switch-id-btn');
-    await enterId(page, 'Office-Player', { checkConsent: true, mode: 'office' });
+    await startOver(page);
+    await startGame(page, { checkConsent: true, mode: 'office' });
     const officeStart = await page.evaluate(() => window.brainApp.session);
     assert.equal(officeStart.version, 'office', 'Choosing the office version should start an office session');
     assert.deepEqual(officeStart.queue.filter(e => !isFiller(e.id)).map(e => e.id).sort(), ScenarioBank.mainQuestions('office').map(s => s.id).sort(),

@@ -1,36 +1,13 @@
 /**
  * Grade My Brain - Player Progress
- * Keeps each ID code's progress across sessions: which scenarios they have
+ * Keeps the player's progress across sessions: which scenarios they have
  * seen, every scored result, consent choices, and the session in progress.
- * Stored in localStorage, so it never leaves the player's browser.
+ * There is one saved game per browser, stored in localStorage, so it never
+ * leaves the player's browser.
  */
 
-const KEY_PREFIX = 'gmb_progress_';
+const STORAGE_KEY = 'gmb_progress';
 const DATA_VERSION = 1;
-
-// A blank ID starts a fresh guest each time, so switching to a guest never
-// resumes someone else's game. Reloading the same tab still resumes, because
-// the active ID is remembered for the tab. Typed IDs can't start with "~".
-const GUEST_PREFIX = '~guest-';
-const LEGACY_GUEST_ID = 'guest';
-
-// The typed ID, cleaned up; '' when the field was left blank
-export function normalizeId(raw) {
-    return String(raw || '').trim().toLowerCase().replace(/^~+/, '');
-}
-
-export function newGuestId() {
-    return GUEST_PREFIX + Math.random().toString(36).slice(2, 10);
-}
-
-export function isGuestId(id) {
-    return id.startsWith(GUEST_PREFIX) || id === LEGACY_GUEST_ID;
-}
-
-// How an ID is shown to the player
-export function displayId(id) {
-    return isGuestId(id) ? 'Guest' : id.toUpperCase();
-}
 
 // Falls back to an in-memory store when localStorage is blocked or absent
 function defaultStorage() {
@@ -62,38 +39,30 @@ function freshData() {
 }
 
 export class Progress {
-    constructor(id, storage = defaultStorage()) {
-        // Guest IDs are generated, so only typed IDs get cleaned up
-        this.id = isGuestId(String(id)) ? String(id) : normalizeId(id);
+    constructor(storage = defaultStorage()) {
         this.storage = storage;
         this.data = this.load() || freshData();
     }
 
-    get key() {
-        return KEY_PREFIX + this.id;
-    }
-
-    // Deletes saved guest progress; guests have no ID to come back to it with
-    static clearGuests(storage = defaultStorage()) {
+    // Whether this browser has a saved game to resume
+    static exists(storage = defaultStorage()) {
         try {
-            const keys = [];
-            for (let i = 0; i < (storage.length || 0); i++) keys.push(storage.key(i));
-            keys.filter(k => k && k.startsWith(KEY_PREFIX) && isGuestId(k.slice(KEY_PREFIX.length)))
-                .forEach(k => storage.removeItem(k));
-        } catch (err) { /* storage blocked */ }
-    }
-
-    static exists(id, storage = defaultStorage()) {
-        try {
-            return storage.getItem(KEY_PREFIX + normalizeId(id)) !== null;
+            return storage.getItem(STORAGE_KEY) !== null;
         } catch (err) {
             return false;
         }
     }
 
+    // Deletes the saved game, for starting over
+    static clear(storage = defaultStorage()) {
+        try {
+            storage.removeItem(STORAGE_KEY);
+        } catch (err) { /* storage blocked */ }
+    }
+
     load() {
         try {
-            const data = JSON.parse(this.storage.getItem(this.key));
+            const data = JSON.parse(this.storage.getItem(STORAGE_KEY));
             if (!data || data.version !== DATA_VERSION) return null;
             data.pastSessions ||= [];
             return data;
@@ -104,7 +73,7 @@ export class Progress {
 
     save() {
         try {
-            this.storage.setItem(this.key, JSON.stringify(this.data));
+            this.storage.setItem(STORAGE_KEY, JSON.stringify(this.data));
         } catch (err) { /* storage full or blocked; progress lasts for this page only */ }
     }
 
