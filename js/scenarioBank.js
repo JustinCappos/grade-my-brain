@@ -58,6 +58,13 @@ export const BIAS_CATEGORIES = {
         bookReference: "Thinking, Fast and Slow - Chapters 15 & 33",
         tip: "Compare totals, not averages or impressions. Ask what each option contains in full, and whether one includes everything the other has."
     },
+    DILUTION: {
+        name: "Dilution Effect (Irrelevant Details)",
+        shortName: "Dilution",
+        description: "Letting details that have nothing to do with the question water down the evidence that does matter.",
+        bookReference: "Behavioral research (Nisbett, Zukier & Lemley 1981); Thinking, Fast and Slow - Chapter 14",
+        tip: "Sort the facts into ones that would change your answer and ones that wouldn't. Set the second group aside and decide again using only the first."
+    },
     BASE_RATE: {
         name: "Base Rate Neglect",
         shortName: "Base rate",
@@ -2426,7 +2433,7 @@ export const STANDALONE_SCENARIOS = [
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Road Versus Ocean Risk",
-        scenarioText: "Which kills more people in the United States in a typical year: car crashes or shark attacks?",
+        scenarioText: "Your cousin, a lifeguard in Florida, says she spotted three sharks near the beach this summer, and a shark documentary is topping the streaming charts this week. You drove two hours to visit her. Which kills more people in the United States in a typical year: car crashes or shark attacks?",
         bestAnswer: "Car crashes",
         reasoning: "Car crashes kill around 40,000 Americans a year; shark attacks kill about one. Vivid news can make rare risks feel common, but that doesn't mean the common-sense answer is always wrong. Here it's right.",
         biasName: "Second-Guessing the Obvious",
@@ -2543,7 +2550,7 @@ export const STANDALONE_SCENARIOS = [
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "Rent-Money Coin Flip",
-        scenarioText: "A friend offers you one coin flip. Heads, you win $500. Tails, you lose $5,000, which would mean missing your rent. Do you take the bet?",
+        scenarioText: "At a party, a friend who just won a poker tournament offers you one coin flip, and a small crowd gathers to watch. The coin has been passed around all night and is perfectly fair. Heads, you win $500. Tails, you lose $5,000, which would mean missing your rent. Do you take the bet?",
         bestAnswer: "Decline the bet",
         reasoning: "This bet loses money on average ($2,250 per flip) and could ruin you. Loss aversion is a problem when it makes you refuse small, favorable bets you can afford; refusing an unfavorable, ruinous one is just sense.",
         biasName: "Second-Guessing the Obvious",
@@ -2575,7 +2582,7 @@ export const STANDALONE_SCENARIOS = [
         filler: true,
         biasType: "STRAIGHTFORWARD",
         title: "School Zone Crash",
-        scenarioText: "A driver was texting while speeding through a school zone and crashed into a parked car. Was driving that way a bad decision?",
+        scenarioText: "A delivery driver with a spotless 12-year record was running late with medical supplies for a hospital. He was texting while speeding through a school zone at 3 p.m. and crashed into a parked car. No one was hurt, and the supplies arrived an hour later. Was driving that way a bad decision?",
         bestAnswer: "Yes, a bad decision",
         reasoning: "It was a bad decision because of what the driver knew at the time: texting while speeding past a school is dangerous whatever happens. Outcome bias is judging a decision by its result; here the decision was bad before the crash.",
         biasName: "Second-Guessing the Obvious",
@@ -4427,6 +4434,105 @@ export const STANDALONE_SCENARIOS = [
             { text: "Report it with the Report Phishing button and tell IT you didn't ask for it", biasValue: 0, isBest: true },
             { text: "Click \"Cancel this request\" to secure your account", biasValue: 1, isBest: false },
             { text: "Ignore it, since you didn't ask for a reset", biasValue: 0.5, isBest: false }
+        ]
+    },
+
+    // -------------------------------------------------------------
+    // DILUTION EFFECT: irrelevant details that weaken the evidence
+    // that matters (Nisbett, Zukier & Lemley 1981)
+    // -------------------------------------------------------------
+    {
+        id: "dilution-takeover-alert",
+        short: true,
+        biasType: "DILUTION",
+        title: "Account Takeover Alert",
+        scenarioText: "An alert says that at 3 a.m. someone signed in to Ana's work email with her correct password from a country she has never visited, then created a rule forwarding all her invoices to an outside address. The alert also notes that Ana works in marketing, uses a Mac, joined two years ago, and sits near the kitchen. How likely is it that her account has been taken over?",
+        bestAnswer: "Very likely",
+        reasoning: "A sign-in from an unfamiliar country followed right away by a rule that quietly forwards invoices outside is a strong, specific sign of a takeover. Her department, laptop, start date and desk say nothing either way. Extra details like these make a situation feel more ordinary, which waters down the alarming evidence; that's the dilution effect. Judge on the facts that would change your answer.",
+        biasName: "Dilution Effect (Irrelevant Details)",
+        bookRef: "Behavioral research (Nisbett, Zukier & Lemley 1981)",
+        options: [
+            { text: "Hard to say without more information", biasValue: 1, isBest: false },
+            { text: "Very likely", biasValue: 0, isBest: true },
+            { text: "Somewhat likely", biasValue: 0.5, isBest: false }
+        ]
+    },
+    {
+        id: "dilution-analyst-candidates",
+        biasType: "DILUTION",
+        title: "Two Analyst Candidates",
+        scenarioText: "Two candidates for a data analyst job took the same skills test, which has predicted job performance well at your company for years. Both scored 92%. Candidate A's file has nothing else in it. Candidate B's file adds that she grew up in Ohio, has a cat named Pixel, enjoys hiking, and once worked at a bakery. Which candidate is more likely to do well in the job?",
+        bestAnswer: "About equally likely",
+        reasoning: "The two have identical scores on a test that predicts performance, and nothing in Candidate B's extra details bears on analysis work. In experiments, people predict less from strong evidence once it's surrounded by harmless, irrelevant details, so the bare file can feel like the stronger candidate. Neither file gives you a reason to prefer one.",
+        biasName: "Dilution Effect (Irrelevant Details)",
+        bookRef: "Behavioral research (Nisbett, Zukier & Lemley 1981)",
+        options: [
+            { text: "Candidate A", biasValue: 1, isBest: false },
+            { text: "Candidate B", biasValue: 1, isBest: false },
+            { text: "About equally likely", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "dilution-studious-student",
+        biasType: "DILUTION",
+        title: "Hours of Study",
+        scenarioText: "Tim spends about 31 hours a week studying outside class, far more than most students at his university. He also has a younger sister, plays pickup basketball on Sundays, and drives a ten-year-old car. Compared with a typical student at his university, how likely is Tim to have above-average grades?",
+        bestAnswer: "Much more likely",
+        reasoning: "Study time is strong evidence about grades, and Tim studies far more than most. His sister, basketball and car tell you nothing about his grades. This is close to the original 1981 experiment: people who learned only the study hours predicted high grades, but adding details like these made them predict lower grades for the very same student.",
+        biasName: "Dilution Effect (Irrelevant Details)",
+        bookRef: "Behavioral research (Nisbett, Zukier & Lemley 1981)",
+        options: [
+            { text: "Much more likely", biasValue: 0, isBest: true },
+            { text: "A little more likely", biasValue: 0.5, isBest: false },
+            { text: "About as likely as anyone", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "practice-dilution-cafes",
+        practiceOnly: true,
+        biasType: "DILUTION",
+        title: "Two Cafés",
+        scenarioText: "Two cafés near your office both have 4.6 stars from about 2,000 reviews. Café B's page also says it opened in 2015, plays jazz in the afternoons, and has a dog named Biscuit who greets customers. Which café is more likely to serve you a good coffee?",
+        bestAnswer: "About the same",
+        reasoning: "The ratings, from the same large number of reviews, are the evidence about coffee, and they're identical. The opening year, music and dog are pleasant but say nothing about the coffee. Irrelevant details can still pull a judgment one way or the other; set them aside and the two are equal.",
+        biasName: "Dilution Effect (Irrelevant Details)",
+        bookRef: "Behavioral research (Nisbett, Zukier & Lemley 1981)",
+        options: [
+            { text: "Café A", biasValue: 1, isBest: false },
+            { text: "About the same", biasValue: 0, isBest: true },
+            { text: "Café B", biasValue: 1, isBest: false }
+        ]
+    },
+    {
+        id: "retest-dilution-1",
+        retestOnly: true,
+        biasType: "DILUTION",
+        title: "Crash Report From a New Hire",
+        scenarioText: "A bug report says the app crashes every time a customer applies a discount code at checkout: 20 crashes in 20 tries on the latest version, with the error log attached. The reporter also mentions they joined the team last week, wrote the report from a café, and use the app in dark mode. How seriously should the team take it?",
+        bestAnswer: "Very seriously",
+        reasoning: "Twenty crashes in twenty tries, at checkout, with a log attached, is strong evidence of a serious bug. Who wrote it, where they were, and their display settings have no bearing on whether the crash is real. Letting those details soften your reaction is the dilution effect.",
+        biasName: "Dilution Effect (Irrelevant Details)",
+        bookRef: "Behavioral research (Nisbett, Zukier & Lemley 1981)",
+        options: [
+            { text: "Somewhat seriously", biasValue: 0.5, isBest: false },
+            { text: "Wait until someone more experienced confirms it", biasValue: 1, isBest: false },
+            { text: "Very seriously", biasValue: 0, isBest: true }
+        ]
+    },
+    {
+        id: "retest-dilution-2",
+        retestOnly: true,
+        biasType: "DILUTION",
+        title: "Two Drive Models",
+        scenarioText: "Your data center has run 5,000 drives of each of two models for three years, and both have failed at 1% a year. Model B's datasheet also says it ships in recyclable packaging, has a blue label, and is named after a mountain. Which model is likely to fail less next year?",
+        bestAnswer: "About the same",
+        reasoning: "Three years of identical failure rates across thousands of drives is the evidence, and it says the two are equal. Packaging, label color and the product name don't affect how drives fail. Drive wear doesn't adapt the way attackers do, so past failure rates are a fair guide here.",
+        biasName: "Dilution Effect (Irrelevant Details)",
+        bookRef: "Behavioral research (Nisbett, Zukier & Lemley 1981)",
+        options: [
+            { text: "About the same", biasValue: 0, isBest: true },
+            { text: "Model A", biasValue: 1, isBest: false },
+            { text: "Model B", biasValue: 1, isBest: false }
         ]
     }
 ];
