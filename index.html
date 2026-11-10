@@ -59,33 +59,35 @@
             </div>
 
             <ul class="intro-points">
-                <li><span class="intro-point-icon" aria-hidden="true">🧩</span>Short scenarios about security, technology, money and risk</li>
+                <li><span class="intro-point-icon intro-point-icon-purple" aria-hidden="true">🧩</span>Short scenarios about security, technology, money and risk</li>
                 <li><span class="intro-point-icon" aria-hidden="true">🔍</span>A review every 10 questions explains each answer</li>
-                <li><span class="intro-point-icon" aria-hidden="true">🔁</span>Topics you find hard come back later for a rematch</li>
+                <li><span class="intro-point-icon intro-point-icon-symbol" aria-hidden="true">↻</span>Topics you get wrong are asked again later as a rematch</li>
             </ul>
 
             <div class="intro-rules" role="note">
                 <p class="intro-rules-title">Please answer on your own</p>
-                <p>
-                    Don't look anything up, search online, or ask anyone else (including an AI) for help. The
-                    point is to see how you decide on your own, so go with your best judgment. A best guess is fine.
-                </p>
+                <ul>
+                    <li>Do not look anything up or search online.</li>
+                    <li>Do not ask anyone else for help, including an AI.</li>
+                    <li>The point is to see how you decide on your own, so go with your best judgment.</li>
+                    <li>A best guess is fine.</li>
+                </ul>
             </div>
 
             <form id="intro-form" class="intro-form" novalidate>
                 <fieldset class="mode-choice">
-                    <legend class="intro-label">Which describes you best?</legend>
+                    <legend class="intro-label">Which best describes your role at your organization?</legend>
                     <label class="mode-option">
                         <input type="radio" name="mode" value="short" checked>
                         <span>
-                            <span class="mode-title">I'm on my organization's security or IT team</span>
+                            <span class="mode-title">I am on a security or IT team</span>
                             <span class="mode-detail">About <span id="short-count">30</span> questions on security, technology and online deals</span>
                         </span>
                     </label>
                     <label class="mode-option">
                         <input type="radio" name="mode" value="office">
                         <span>
-                            <span class="mode-title">I'm not on a security or IT team</span>
+                            <span class="mode-title">I am not on a security or IT team</span>
                             <span class="mode-detail">About <span id="office-count">20</span> questions on email, messages and staying safe online at work</span>
                         </span>
                     </label>
@@ -121,7 +123,7 @@
             <!-- Choice Options Grid -->
             <div id="choice-phase">
                 <h3 class="section-title" style="margin-top: 20px;">
-                    ⚡ Select Decision Option
+                    ⚡ Select Your Preferred Course of Action
                 </h3>
                 <p id="answer-on-your-own" class="answer-on-your-own">Answer on your own: please don't look anything up.</p>
                 <div id="options-container" class="wagers-grid">
@@ -151,10 +153,10 @@
                     <div class="grade-row">
                         <span class="grade-tag" style="background:#06b6d4;">S+</span>
                         <span>95–100%</span>
-                        <span>Transcendent Genius</span>
+                        <span>Transcendent Genius <span aria-hidden="true">👑</span></span>
                     </div>
                     <div class="grade-row">
-                        <span class="grade-tag" style="background:#ec4899;">S</span>
+                        <span class="grade-tag" style="background:#808000;">S</span>
                         <span>90–94%</span>
                         <span>Elite Mastermind</span>
                     </div>
@@ -174,12 +176,12 @@
                         <span>Curious Analyst</span>
                     </div>
                     <div class="grade-row">
-                        <span class="grade-tag" style="background:#f97316;">D</span>
+                        <span class="grade-tag" style="background:#d9701f;">D</span>
                         <span>50–59%</span>
                         <span>Brain in Training</span>
                     </div>
                     <div class="grade-row">
-                        <span class="grade-tag" style="background:#fb7185;">F</span>
+                        <span class="grade-tag" style="background:#8b5a2b;">F</span>
                         <span>Below 50%</span>
                         <span>Fast Thinker</span>
                     </div>
@@ -199,7 +201,7 @@
                 <p class="bonus-text">Players who claim in the next minute get <strong>+50 Brain Points</strong> added to their score.</p>
                 <p class="bonus-timer">Offer ends in <span id="bonus-timer">0:59</span></p>
                 <button type="button" id="bonus-claim-btn" class="bonus-claim">Claim my 50 points</button>
-                <button type="button" id="bonus-decline-btn" class="bonus-decline">No thanks</button>
+                <button type="button" id="bonus-decline-btn" class="bonus-decline">No, thank you</button>
                 <p id="bonus-thanks" class="bonus-text" hidden>Thanks! Your bonus will be added shortly.</p>
             </div>
         </div>

@@ -61,11 +61,24 @@ function esc(text) {
     }[c]));
 }
 
+// Shows an explanation as one bullet per sentence so it is easier to scan. The wording is unchanged.
+// A new sentence starts after . ! or ? plus a space, when the next character is a capital, a quote, $ or a digit.
+// A full stop after an abbreviation (U.K., a.m., e.g., Dr., vs.) never starts a new sentence.
+const AFTER_ABBREVIATION = /(?:\b(?:[A-Za-z]\.){2,}|\b(?:vs|Mr|Mrs|Ms|Dr|St|Inc|Ltd|Jr|Sr)\.)$/;
+
+function reasoningHtml(text) {
+    const whole = String(text ?? '');
+    const sentences = whole.replace(/([.!?])\s+(?=[A-Z"'$0-9])/g, (match, mark, offset) =>
+        (mark === '.' && AFTER_ABBREVIATION.test(whole.slice(0, offset + 1))) ? match : mark + '\u0001').split('\u0001');
+    if (sentences.length < 2) return `<p class="review-reasoning">${esc(text)}</p>`;
+    return `<ul class="review-reasoning review-reasoning-list">${sentences.map(s => `<li>${esc(s)}</li>`).join('')}</ul>`;
+}
+
 // A friendly line after a review's tally, so a rough round never reads as a verdict
 function missedCheer(missed, total) {
     if (missed === 0) return ' Flawless round!';
     if (missed * 2 >= total) return ' These are built to fool fast thinking, so that\'s normal. Each one below makes the next trick easier to spot.';
-    return ' Nice going. The ones below show how each trick works.';
+    return ' Well done. The ones below show how each trick works.';
 }
 
 // Shown under the final grade: every grade gets encouragement, never a verdict
@@ -124,8 +137,8 @@ function leavesHtml(count) {
     return `
         <div class="pace-warning leave-warning">
             <strong>👀 Quick check:</strong> you switched away from this window ${count} times while answering.
-            Looking things up or reaching for a calculator is a very System 2 move, but this game is about how you
-            decide on your own, in the moment. Next time, try to stay on the page.
+            Remember, this game is about how you decide on your own, in the moment, without looking things up.
+            Next time, try to stay on the page.
         </div>`;
 }
 
@@ -1249,7 +1262,7 @@ class GradeMyBrainApp {
                 <h4 class="review-title">${esc(title)}</h4>
                 ${body}
                 <p class="answer-row"><span class="answer-label">${item.correct ? 'Best answer' : 'Better answer'}</span><span class="answer-best">${esc(bestAnswer)}</span></p>
-                <p class="review-reasoning">${esc(reasoning)}</p>
+                ${reasoningHtml(reasoning)}
                 <span class="book-ref">📖 ${esc(bookRef)}</span>
                 ${item.correct || !showExamples ? '' : this.examplesHtml(category)}
             </article>`;
@@ -1276,7 +1289,7 @@ class GradeMyBrainApp {
         const category = BIAS_CATEGORIES[practice.biasType];
         const tipHtml = `
             <p class="practice-eyebrow">${practice.scenarioId ? 'Practice' : 'Tip'} · ${esc(category.name)}</p>
-            <p class="practice-tip"><span class="answer-label">How to think differently</span>${esc(category.tip)}</p>`;
+            <p class="practice-tip"><span class="answer-label"><span class="tip-bulb" aria-hidden="true">💡</span> How to think differently</span>${esc(category.tip)}</p>`;
 
         if (!practice.scenarioId) {
             return `
@@ -1290,7 +1303,7 @@ class GradeMyBrainApp {
             <div class="practice-feedback ${practice.answer.correct ? 'practice-right' : 'practice-wrong'}">
                 <p class="practice-verdict">${practice.answer.correct ? '🎯 Nailed it' : '🤔 Sneaky one'}: you chose "${esc(practice.answer.text)}"</p>
                 <p class="answer-row"><span class="answer-label">Best answer</span><span class="answer-best">${esc(sc.bestAnswer)}</span></p>
-                <p class="review-reasoning">${esc(sc.reasoning)}</p>
+                ${reasoningHtml(sc.reasoning)}
             </div>` : `<div id="practice-options-${idx}" class="wagers-grid practice-options"></div>`;
 
         return `
@@ -1644,7 +1657,7 @@ class GradeMyBrainApp {
                             </summary>
                             <div class="missed-topic-body">
                                 <p class="review-scenario">${esc(category.description)}</p>
-                                <p class="practice-tip"><span class="answer-label">How to think differently</span>${esc(category.tip)}</p>
+                                <p class="practice-tip"><span class="answer-label"><span class="tip-bulb" aria-hidden="true">💡</span> How to think differently</span>${esc(category.tip)}</p>
                                 ${this.examplesHtml(category)}
                                 <div class="review-list">${items.map(i => this.reviewCardHtml(i, { showExamples: false })).join('')}</div>
                             </div>
