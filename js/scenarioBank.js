@@ -4121,7 +4121,7 @@ export const STANDALONE_SCENARIOS = [
         officeOnly: true,
         biasType: "LOOKALIKES",
         title: "Payroll Details Email",
-        scenarioText: "Rosa Delgado really does run payroll at Larkwood, and you've emailed with her before. Larkwood's email addresses end in @larkwood.com. This email arrives on Monday. What do you do?",
+        scenarioText: "This email arrives on Monday. What do you do? Rosa Delgado really does run payroll at Larkwood, and you have emailed with her before. Larkwood's email addresses end in @larkwood.com.",
         mockScreen: {
             kind: "email",
             from: "Rosa Delgado",

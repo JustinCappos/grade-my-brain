@@ -390,8 +390,9 @@ body {
 }
 
 .grade-row {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 24px 6.5em 1fr;
+    column-gap: 12px;
     align-items: center;
     font-size: 0.8rem;
 }
@@ -828,6 +829,18 @@ body.intro-mode .main-container {
     text-align: center;
 }
 
+/* A plain symbol (not an emoji), so it can be coloured to stand out on the dark panel */
+.intro-point-icon-symbol {
+    color: var(--primary-cyan);
+    font-weight: 700;
+}
+
+/* Emoji colours cannot be set directly, so the emoji is hidden and its shadow is drawn in purple instead */
+.intro-point-icon-purple {
+    color: transparent;
+    text-shadow: 0 0 0 #8b5cf6;
+}
+
 .intro-form {
     display: flex;
     flex-direction: column;
@@ -962,6 +975,15 @@ body.intro-mode .main-container {
 .intro-rules-title {
     font-weight: 700;
     color: #7dd3fc;
+}
+
+.intro-rules ul {
+    list-style: disc;
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .answer-on-your-own {
@@ -1281,6 +1303,20 @@ body.intro-mode .main-container {
     font-size: 0.95rem;
     color: #e2e8f0;
     line-height: 1.55;
+}
+
+/* One bullet per sentence, with cyan markers and a little space between them */
+.review-reasoning-list {
+    list-style: disc;
+    margin: 0;
+    padding-left: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.review-reasoning-list li::marker {
+    color: var(--primary-cyan);
 }
 
 .pair-version {
@@ -1986,8 +2022,11 @@ body.intro-mode .main-container {
     color: #166534;
 }
 
+/* While emails are still unmarked, the button is a bright amber reminder at full strength */
 .inbox-submit:disabled {
-    opacity: 0.55;
+    background: linear-gradient(135deg, #fde047 0%, #f59e0b 100%);
+    color: #1c1100;
+    box-shadow: 0 4px 18px rgba(251, 191, 36, 0.55);
     cursor: default !important;
 }
 
@@ -2061,6 +2100,33 @@ body.intro-mode .main-container {
 
 .practice-tip .answer-label {
     margin-bottom: 4px;
+    color: #34d399;
+}
+
+/* The light bulb keeps its normal size, with a ring of short yellow rays shining around it */
+.tip-bulb {
+    position: relative;
+    display: inline-block;
+    isolation: isolate;
+    margin: 0 10px 0 7px;
+}
+
+/* A square, centred on the bulb, so every ray is the same length. Rays are drawn every 30 degrees, and only the
+   top part of the square is kept, so five rays fan out above the bulb and none point downwards. */
+.tip-bulb::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    transform: translate(-50%, -50%);
+    clip-path: inset(0 0 56% 0);
+    z-index: -1;
+    pointer-events: none;
+    background: repeating-conic-gradient(from -4deg, #fde047 0deg 8deg, transparent 8deg 30deg);
+    -webkit-mask-image: radial-gradient(circle closest-side, transparent 60%, #000 64%, #000 100%);
+    mask-image: radial-gradient(circle closest-side, transparent 60%, #000 64%, #000 100%);
 }
 
 .practice-options {
