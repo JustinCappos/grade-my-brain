@@ -803,15 +803,45 @@ body.intro-mode .main-container {
     margin-top: 4px;
 }
 
-.intro-points {
-    list-style: none;
+/* A small box for the "Please note" line, in the same style as the boxes below it */
+.intro-note {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 6px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.intro-note .intro-text {
+    margin-top: 0;
+}
+
+/* One box holding the "What to expect" line and the list under it */
+.intro-expect {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
     padding: 22px 24px;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.intro-expect-title,
+.intro-note-title {
+    font-weight: 700;
+    color: #7dd3fc;
+}
+
+.intro-points {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .intro-points li {
@@ -849,9 +879,9 @@ body.intro-mode .main-container {
 
 
 .intro-label {
-    font-size: 0.85rem;
+    font-size: 1rem;
     font-weight: 600;
-    color: #e2e8f0;
+    color: #7dd3fc;
 }
 
 
@@ -965,14 +995,15 @@ body.intro-mode .main-container {
     gap: 6px;
     padding: 16px 20px;
     border-radius: 12px;
-    background: rgba(56, 189, 248, 0.08);
-    border: 1px solid rgba(56, 189, 248, 0.3);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     color: #cbd5e1;
     font-size: 0.93rem;
     line-height: 1.55;
 }
 
 .intro-rules-title {
+    font-size: 1rem;
     font-weight: 700;
     color: #7dd3fc;
 }
@@ -2582,7 +2613,7 @@ body.intro-mode .main-container {
     .intro-title {
         font-size: 1.85rem;
     }
-    .intro-points {
+    .intro-expect {
         padding: 18px 18px;
     }
     .checkpoint-head {
